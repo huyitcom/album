@@ -1,0 +1,168 @@
+import { TextStyle } from '../types';
+
+export const textTemplates: { name: string; name_vn: string; style: TextStyle; defaultContent?: string; }[] = [
+  {
+    name: 'Classic Title',
+    name_vn: 'Tiêu đề cổ điển',
+    style: {
+      fontFamily: "'Playfair Display', serif",
+      fontSize: 42,
+      color: '#333333',
+      bold: true,
+      italic: false,
+      align: 'center',
+    },
+  },
+  {
+    name: 'Elegant Script',
+    name_vn: 'Chữ viết thanh lịch',
+    style: {
+      fontFamily: "'Sacramento', cursive",
+      fontSize: 52,
+      color: '#4a4a4a',
+      bold: false,
+      italic: false,
+      align: 'left',
+    },
+  },
+  {
+    name: 'Modern Uppercase',
+    name_vn: 'Chữ hoa hiện đại',
+    style: {
+      fontFamily: "'Roboto', sans-serif",
+      fontSize: 28,
+      color: '#000000',
+      bold: false,
+      italic: false,
+      align: 'center',
+      letterSpacing: '0.2em',
+      textTransform: 'uppercase',
+    },
+  },
+  {
+    name: 'Drop Shadow',
+    name_vn: 'Đổ bóng',
+    style: {
+      fontFamily: "'Playfair Display', serif",
+      fontSize: 40,
+      color: '#ffffff',
+      bold: true,
+      italic: false,
+      align: 'left',
+      textShadow: '2px 2px 4px rgba(0,0,0,0.7)',
+    },
+  },
+  {
+    name: 'White Glow',
+    name_vn: 'Tỏa sáng trắng',
+    style: {
+      fontFamily: "'Roboto', sans-serif",
+      fontSize: 34,
+      color: '#ffffff',
+      bold: true,
+      italic: false,
+      align: 'center',
+      textShadow: '0 0 5px rgba(0,0,0,0.8), 0 0 10px rgba(0,0,0,0.8)',
+    },
+  },
+  {
+    name: 'Rainbow Fun',
+    name_vn: 'Cầu vồng vui nhộn',
+    style: {
+      fontFamily: "'Roboto', sans-serif",
+      fontSize: 56,
+      color: '#000000', // Fallback for browsers that don't support background-clip
+      bold: true,
+      italic: false,
+      align: 'center',
+      background: 'linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet)',
+    },
+    defaultContent: 'Rainbow Text',
+  },
+  {
+    name: 'Happy Birthday',
+    name_vn: 'Chúc mừng sinh nhật',
+    style: {
+      fontFamily: "'Lobster', cursive",
+      fontSize: 48,
+      color: '#ff4b8d',
+      bold: false,
+      italic: false,
+      align: 'center',
+      textShadow: '2px 2px 3px rgba(0,0,0,0.2)',
+    },
+    defaultContent: 'Happy Birthday!',
+  },
+  {
+    name: 'Ocean Breeze',
+    name_vn: 'Gió biển',
+    style: {
+      fontFamily: "'Pacifico', cursive",
+      fontSize: 48,
+      color: '#000000', // Fallback
+      bold: false,
+      italic: false,
+      align: 'center',
+      background: 'linear-gradient(to right, #2193b0, #6dd5ed)',
+    },
+    defaultContent: 'Ocean Breeze',
+  },
+  {
+    name: 'Retro Arcade',
+    name_vn: 'Game cổ điển',
+    style: {
+      fontFamily: "'Press Start 2P', cursive",
+      fontSize: 28,
+      color: '#39ff14', // Neon green
+      bold: false,
+      italic: false,
+      align: 'center',
+      textShadow: '0 0 5px #39ff14, 0 0 10px #39ff14, 0 0 15px #ffffff',
+    },
+    defaultContent: 'GAME OVER',
+  },
+  {
+    name: 'Spicy Texture',
+    name_vn: 'Kết cấu cay nồng',
+    style: {
+      fontFamily: "'Bungee Spice', cursive",
+      fontSize: 54,
+      color: '#ff4500', // OrangeRed
+      bold: false,
+      italic: false,
+      align: 'center',
+      textShadow: '2px 2px 4px rgba(0,0,0,0.5)',
+    },
+    defaultContent: 'SPICY!',
+  },
+  {
+    name: 'Bold Outline',
+    name_vn: 'Viền đậm',
+    style: {
+      fontFamily: "'Anton', sans-serif",
+      fontSize: 64,
+      color: '#ffffff',
+      bold: false,
+      italic: false,
+      align: 'center',
+      textTransform: 'uppercase',
+      textShadow: '2px 0 #000, -2px 0 #000, 0 2px #000, 0 -2px #000, 1px 1px #000, -1px -1px #000, 1px -1px #000, -1px 1px #000',
+    },
+    defaultContent: 'HEADLINE',
+  },
+  {
+    name: 'Cartoon Pop',
+    name_vn: 'Hoạt hình Pop',
+    style: {
+      fontFamily: "'Anton', sans-serif",
+      fontSize: 60,
+      color: '#ffdd00',
+      bold: false,
+      italic: false,
+      align: 'center',
+      textTransform: 'uppercase',
+      textShadow: '3px 0 #00008b, -3px 0 #00008b, 0 3px #00008b, 0 -3px #00008b, 2px 2px #00008b, -2px -2px #00008b, 2px -2px #00008b, -2px 2px #00008b',
+    },
+    defaultContent: 'WOW!',
+  },
+];

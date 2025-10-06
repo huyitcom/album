@@ -1,0 +1,86 @@
+import { SpreadData, AlbumImage } from './types';
+
+export const spreadsData: SpreadData[] = [
+  {
+    id: 'spread1',
+    pages: [1, 2],
+    layoutId: 'two-equal-vertical-split',
+    images: {},
+    texts: [],
+    stickers: [],
+  },
+  {
+    id: 'spread2',
+    pages: [3, 4],
+    layoutId: 'two-equal-vertical-split',
+    images: {},
+    texts: [],
+    stickers: [],
+  },
+  {
+    id: 'spread3',
+    pages: [5, 6],
+    layoutId: 'two-equal-vertical-split',
+    images: {},
+    texts: [],
+    stickers: [],
+  },
+  {
+    id: 'spread4',
+    pages: [7, 8],
+    layoutId: 'two-equal-vertical-split',
+    images: {},
+    texts: [],
+    stickers: [],
+  },
+  {
+    id: 'spread5',
+    pages: [9, 10],
+    layoutId: 'two-equal-vertical-split',
+    images: {},
+    texts: [],
+    stickers: [],
+  },
+   {
+    id: 'spread6',
+    pages: [11, 12],
+    layoutId: 'two-equal-vertical-split',
+    images: {},
+    texts: [],
+    stickers: [],
+  },
+  {
+    id: 'spread7',
+    pages: [13, 14],
+    layoutId: 'two-equal-vertical-split',
+    images: {},
+    texts: [],
+    stickers: [],
+  },
+  {
+    id: 'spread8',
+    pages: [15, 16],
+    layoutId: 'two-equal-vertical-split',
+    images: {},
+    texts: [],
+    stickers: [],
+  },
+  {
+    id: 'spread9',
+    pages: [17, 18],
+    layoutId: 'two-equal-vertical-split',
+    images: {},
+    texts: [],
+    stickers: [],
+  },
+  {
+    id: 'spread10',
+    pages: [19, 20],
+    layoutId: 'two-equal-vertical-split',
+    images: {},
+    texts: [],
+    stickers: [],
+  },
+];
+
+export const libraryImages: AlbumImage[] = [];
