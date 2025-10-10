@@ -61,5 +61,30 @@ export interface SpreadData {
   stickers: StickerElement[];
 }
 
-export type AlbumSize = '30x30' | '25x35';
+export type AlbumSize = '15x15' | '20x20' | '21x15' | '30x20' | '25x35' | '30x30';
 export type Language = 'en' | 'vn';
+
+// --- Types for Saved Project Data (in localStorage) ---
+
+// Data structure for an image as saved (without blob URL)
+export type SavedAlbumImage = Omit<AlbumImage, 'url'>;
+
+// Data structure for a placed image as saved
+export interface SavedPlacedImageData {
+  image: SavedAlbumImage;
+  transform: ImageTransform;
+}
+
+// Data structure for a spread as saved
+// FIX: Changed from `interface extends Omit<...>` to a `type` alias with an intersection.
+// An interface cannot extend a mapped type like Omit. This was the root cause of the type errors.
+export type SavedSpreadData = Omit<SpreadData, 'images'> & {
+  images: { [slotId: string]: SavedPlacedImageData };
+};
+
+// The full project data structure as saved
+export interface SavedProjectData {
+  spreads: SavedSpreadData[];
+  libraryImages: SavedAlbumImage[];
+  albumSize: AlbumSize;
+}

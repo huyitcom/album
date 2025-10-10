@@ -1,9 +1,22 @@
 
+
 import React from 'react';
 
 interface IconProps {
   className?: string;
 }
+
+export const FolderIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z" />
+    </svg>
+);
+
+export const PaperAirplaneIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+    </svg>
+);
 
 export const BookOpenIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) => (
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
@@ -13,7 +26,7 @@ export const BookOpenIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) => 
 
 export const TypeIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) => (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 3h9.75m-9.75 3h9.75M9 3.75H5.25c-.621 0-1.125.504-1.125 1.125v14.25c0 .621.504 1.125 1.125 1.125h13.5c.621 0 1.125-.504 1.125-1.125V5.25c0-.621-.504-1.125-1.125-1.125H15M9 3.75a3 3 0 013-3h.008a3 3 0 013 3v.375M9 3.75v.375m3-.375v.375m0-3v.375" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 4.5h13.5M12 4.5v15m-3.75 0h7.5" />
     </svg>
 );
 
@@ -142,5 +155,11 @@ export const SparklesIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) => 
 export const ArrowPathIcon: React.FC<IconProps> = ({ className = 'w-4 h-4' }) => (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0011.667 0l3.181-3.183m-11.667 0a8.25 8.25 0 0111.667 0l3.181 3.183m0 0V19.645m0-4.992a8.25 8.25 0 01-11.667 0M2.985 19.644l3.181-3.182m0 0l-3.181 3.182m0 0l3.181-3.182" />
+    </svg>
+);
+
+export const Bars3Icon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
     </svg>
 );

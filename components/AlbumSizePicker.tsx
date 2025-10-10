@@ -12,8 +12,12 @@ interface AlbumSizePickerProps {
 const AlbumSizePicker: React.FC<AlbumSizePickerProps> = ({ currentSize, onSelectSize, onClose }) => {
   const { t } = useI18n();
   const sizes: { size: AlbumSize, label: string, aspectRatio: string }[] = [
-    { size: '30x30', label: '30x30', aspectRatio: '2 / 1' },
+    { size: '15x15', label: '15x15', aspectRatio: '2 / 1' },
+    { size: '20x20', label: '20x20', aspectRatio: '2 / 1' },
+    { size: '21x15', label: '21x15', aspectRatio: '42 / 15' },
+    { size: '30x20', label: '30x20', aspectRatio: '60 / 20' },
     { size: '25x35', label: '25x35', aspectRatio: '50 / 35' },
+    { size: '30x30', label: '30x30', aspectRatio: '2 / 1' },
   ];
 
   return (
@@ -22,7 +26,7 @@ const AlbumSizePicker: React.FC<AlbumSizePickerProps> = ({ currentSize, onSelect
       onClick={onClose}
     >
       <div 
-        className="bg-white rounded-lg shadow-2xl w-full max-w-md flex flex-col"
+        className="bg-white rounded-lg shadow-2xl w-full max-w-2xl flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         <header className="flex items-center justify-between p-4 border-b">
@@ -31,16 +35,16 @@ const AlbumSizePicker: React.FC<AlbumSizePickerProps> = ({ currentSize, onSelect
             <XMarkIcon className="w-6 h-6" />
           </button>
         </header>
-        <div className="p-6">
-          <div className="flex justify-center space-x-8">
+        <div className="p-8">
+          <div className="grid grid-cols-3 gap-8">
             {sizes.map(({ size, label, aspectRatio }) => (
               <div 
                 key={size} 
-                className="cursor-pointer group"
+                className="cursor-pointer group flex flex-col items-center"
                 onClick={() => onSelectSize(size)}
               >
                 <div 
-                  className={`bg-gray-100 border-2 rounded-md p-1 w-40 h-auto transition-all duration-200 ${currentSize === size ? 'border-blue-500 scale-105' : 'border-gray-300 group-hover:border-blue-400'}`}
+                  className={`w-full bg-gray-100 border-2 rounded-md p-1 h-auto transition-all duration-200 ${currentSize === size ? 'border-blue-500 scale-105' : 'border-gray-300 group-hover:border-blue-400'}`}
                   style={{ aspectRatio }}
                 >
                   <div className="w-full h-full flex">

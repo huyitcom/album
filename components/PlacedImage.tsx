@@ -8,11 +8,13 @@ interface PlacedImageProps {
   data: PlacedImageData;
   spreadId: string;
   slotId: string;
+  isMobile: boolean;
+  isOverviewMode: boolean;
   onTransformChange: (newTransform: ImageTransform) => void;
   onRemove: () => void;
 }
 
-const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, onTransformChange, onRemove }) => {
+const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMobile, onTransformChange, onRemove, isOverviewMode }) => {
   const { image, transform } = data;
   const { x, y, scale, rotation, flipHorizontal, flipVertical } = transform;
 
@@ -24,6 +26,7 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, onTra
   const imageRef = useRef<HTMLImageElement>(null);
   const dragStartRef = useRef({ x: 0, y: 0, imageX: 0, imageY: 0 });
   const [coverStyle, setCoverStyle] = useState<{ width?: string; height?: string }>({});
+  const lastTap = useRef(0);
   const { t } = useI18n();
 
   useEffect(() => {
@@ -180,17 +183,50 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, onTra
   const handleFlipVertical = () => {
     onTransformChange({ ...transform, flipVertical: !transform.flipVertical });
   };
+  
+  const handleEnterEditMode = () => {
+    if (!isOverviewMode) {
+      setIsEditing(true);
+    }
+  };
+  
+  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    const now = new Date().getTime();
+    if ((now - lastTap.current) < 300) { // 300ms threshold for double tap
+        e.preventDefault(); // Prevent zoom on double tap
+        handleEnterEditMode();
+    }
+    lastTap.current = now;
+  };
+
+  useEffect(() => {
+    if (!isEditing) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsEditing(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isEditing]);
 
 
   return (
     <div 
         ref={containerRef}
-        className={`relative w-full h-full overflow-hidden select-none ${!isEditing ? 'cursor-move' : ''}`}
+        className={`relative w-full h-full overflow-hidden select-none ${!isEditing && !isOverviewMode ? 'cursor-move' : ''}`}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        draggable={!isEditing} // Draggable when NOT editing
-        onDragStart={!isEditing ? handleDragStart : undefined}
-        onDragEnd={!isEditing ? handleDragEnd : undefined}
+        draggable={!isEditing && !isOverviewMode} // Draggable when NOT editing AND NOT in overview
+        onDragStart={!isEditing && !isOverviewMode ? handleDragStart : undefined}
+        onDragEnd={!isEditing && !isOverviewMode ? handleDragEnd : undefined}
+        onDoubleClick={handleEnterEditMode}
+        onTouchStart={handleTouchStart}
+        title={!isEditing && !isOverviewMode ? t(isMobile ? 'doubleTapToEdit' : 'doubleClickToEdit') : undefined}
     >
         <div 
             className={`w-full h-full ${isEditing ? (isDragging ? 'cursor-grabbing' : 'cursor-grab') : ''}`}
@@ -213,7 +249,7 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, onTra
         </div>
 
       {/* Hover Controls (Edit/Remove) */}
-      {isHovered && !isEditing && (
+      {isHovered && !isEditing && !isOverviewMode && (
         <div 
             data-hide-on-capture="true"
             className="absolute top-1 right-1 flex items-center space-x-1 bg-black/50 p-0.5 rounded-md z-10"

@@ -1,27 +1,34 @@
 
+
 import React, { useState, useEffect, useRef } from 'react';
 import Header from './components/Header';
 import AlbumView from './components/AlbumView';
 import ImageLibrary from './components/ImageLibrary';
 import AutoDesignLayoutPicker from './components/AutoDesignLayoutPicker';
-import AlbumSizePicker from './components/AlbumSizePicker';
+import WelcomeScreen from './components/WelcomeScreen';
 import TextTemplatePicker from './components/TextTemplatePicker';
 import StickerPicker from './components/StickerPicker';
+import RandomDesignLayoutPicker from './components/RandomDesignLayoutPicker';
+import ProjectManager from './components/ProjectManager';
+import SubmissionModal from './components/SubmissionModal';
 import { spreadsData as initialSpreadsData, libraryImages as initialLibraryImages } from './constants';
 import { layouts } from './layouts';
-import { AlbumImage, SpreadData, ImageTransform, PlacedImageData, AlbumSize, TextElement, TextStyle, StickerElement } from './types';
-
-// Add type declaration for html2canvas
-declare const html2canvas: any;
+import { AlbumImage, SpreadData, ImageTransform, PlacedImageData, AlbumSize, TextElement, TextStyle, StickerElement, SavedProjectData, SavedAlbumImage, SavedPlacedImageData, SavedSpreadData } from './types';
+import { initDB, saveImageToDB, getImageFromDB, deleteImageFromDB } from './db';
+import { useI18n } from './components/i18n';
 
 const App: React.FC = () => {
   const [libraryImages, setLibraryImages] = useState<AlbumImage[]>(initialLibraryImages);
   const [spreads, setSpreads] = useState<SpreadData[]>(initialSpreadsData);
   const [isAutoDesignPickerOpen, setIsAutoDesignPickerOpen] = useState(false);
-  const [albumSize, setAlbumSize] = useState<AlbumSize>('30x30');
-  const [isAlbumSizePickerOpen, setIsAlbumSizePickerOpen] = useState(false);
+  const [isRandomDesignPickerOpen, setIsRandomDesignPickerOpen] = useState(false);
+  const [albumSize, setAlbumSize] = useState<AlbumSize | null>(null);
+  const [isAlbumSizeChosen, setIsAlbumSizeChosen] = useState(false);
   const [isOverviewMode, setIsOverviewMode] = useState(false);
   const [libraryWidth, setLibraryWidth] = useState(288); // 18rem
+  const [libraryHeight, setLibraryHeight] = useState(150); // For mobile
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const { t } = useI18n();
   
   // Element Selection State
   const [selectedTextId, setSelectedTextId] = useState<string | null>(null);
@@ -32,6 +39,13 @@ const App: React.FC = () => {
   const [textPickerTargetSpreadId, setTextPickerTargetSpreadId] = useState<string | null>(null);
   const [isStickerPickerOpen, setIsStickerPickerOpen] = useState(false);
   const [stickerPickerTargetSpreadId, setStickerPickerTargetSpreadId] = useState<string | null>(null);
+
+  // Project Management State
+  const [isProjectManagerOpen, setIsProjectManagerOpen] = useState(false);
+  const [currentProjectName, setCurrentProjectName] = useState<string | null>(null);
+  
+  // Submission State
+  const [isSubmissionModalOpen, setIsSubmissionModalOpen] = useState(false);
 
 
   const handleAppClick = (e: MouseEvent) => {
@@ -44,35 +58,68 @@ const App: React.FC = () => {
   };
 
   useEffect(() => {
+    initDB().catch(err => console.error("Failed to initialize database:", err));
     document.addEventListener('click', handleAppClick);
+    
+    const handleWindowResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    window.addEventListener('resize', handleWindowResize);
+    
     return () => {
       document.removeEventListener('click', handleAppClick);
+      window.removeEventListener('resize', handleWindowResize);
     };
   }, []);
 
   const handleResizeMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
-    document.body.style.cursor = 'col-resize';
-    document.body.style.userSelect = 'none';
+    
+    if (isMobile) {
+      document.body.style.cursor = 'row-resize';
+      document.body.style.userSelect = 'none';
 
-    const handleMouseMove = (moveEvent: MouseEvent) => {
-        const newWidth = moveEvent.clientX;
-        const minWidth = 200;
-        const maxWidth = 600;
-        if (newWidth >= minWidth && newWidth <= maxWidth) {
-            setLibraryWidth(newWidth);
-        }
-    };
+      const handleMouseMove = (moveEvent: MouseEvent) => {
+          const newHeight = window.innerHeight - moveEvent.clientY;
+          const minHeight = 150;
+          const maxHeight = Math.min(500, window.innerHeight - 200);
+          if (newHeight >= minHeight && newHeight <= maxHeight) {
+              setLibraryHeight(newHeight);
+          }
+      };
 
-    const handleMouseUp = () => {
-        document.body.style.cursor = '';
-        document.body.style.userSelect = '';
-        window.removeEventListener('mousemove', handleMouseMove);
-        window.removeEventListener('mouseup', handleMouseUp);
-    };
+      const handleMouseUp = () => {
+          document.body.style.cursor = '';
+          document.body.style.userSelect = '';
+          window.removeEventListener('mousemove', handleMouseMove);
+          window.removeEventListener('mouseup', handleMouseUp);
+      };
 
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+    } else {
+      document.body.style.cursor = 'col-resize';
+      document.body.style.userSelect = 'none';
+
+      const handleMouseMove = (moveEvent: MouseEvent) => {
+          const newWidth = moveEvent.clientX;
+          const minWidth = 200;
+          const maxWidth = 600;
+          if (newWidth >= minWidth && newWidth <= maxWidth) {
+              setLibraryWidth(newWidth);
+          }
+      };
+
+      const handleMouseUp = () => {
+          document.body.style.cursor = '';
+          document.body.style.userSelect = '';
+          window.removeEventListener('mousemove', handleMouseMove);
+          window.removeEventListener('mouseup', handleMouseUp);
+      };
+
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+    }
   };
 
   const handleSelectText = (textId: string | null) => {
@@ -116,7 +163,6 @@ const App: React.FC = () => {
         if (spreadIndex === -1) return currentSpreads;
 
         const oldSpread = newSpreads[spreadIndex];
-        // FIX: Explicitly type 'placed' as PlacedImageData to resolve TypeScript inference issue.
         const imagesToReturn = Object.values(oldSpread.images).map((placed: PlacedImageData) => placed.image);
 
         // Decrement usage count for cleared images
@@ -295,7 +341,7 @@ const App: React.FC = () => {
       const lastSpread = currentSpreads[currentSpreads.length - 1];
       const newPageStart = lastSpread ? lastSpread.pages[1] + 1 : 1;
       const newSpread: SpreadData = {
-        id: `spread${currentSpreads.length + 1}`,
+        id: `spread${Date.now()}`,
         pages: [newPageStart, newPageStart + 1],
         layoutId: 'two-equal-vertical-split', // Default layout for new spreads
         images: {},
@@ -303,6 +349,20 @@ const App: React.FC = () => {
         stickers: [],
       };
       return [...currentSpreads, newSpread];
+    });
+  };
+
+  const handleReorderSpreads = (dragIndex: number, hoverIndex: number) => {
+    setSpreads(currentSpreads => {
+        const reorderedSpreads = [...currentSpreads];
+        const [movedSpread] = reorderedSpreads.splice(dragIndex, 1);
+        reorderedSpreads.splice(hoverIndex, 0, movedSpread);
+
+        // After reordering, we need to update the page numbers to be sequential
+        return reorderedSpreads.map((spread, index) => ({
+            ...spread,
+            pages: [index * 2 + 1, index * 2 + 2] as [number, number],
+        }));
     });
   };
 
@@ -345,7 +405,6 @@ const App: React.FC = () => {
     
     const usageCounts = new Map<string, number>();
     newSpreads.forEach(spread => {
-        // FIX: Explicitly type 'placedImage' as PlacedImageData to resolve type inference issue and remove redundant check.
         Object.values(spread.images).forEach((placedImage: PlacedImageData) => {
             usageCounts.set(placedImage.image.id, (usageCounts.get(placedImage.image.id) || 0) + 1);
         });
@@ -363,13 +422,20 @@ const App: React.FC = () => {
 
   const handleDesignRandom = () => {
     if (libraryImages.length === 0) return;
+    setIsRandomDesignPickerOpen(true);
+  };
 
-    const layoutIds = Object.keys(layouts);
+  const handleConfirmRandomDesign = (selectedLayoutIds: string[]) => {
+    if (libraryImages.length === 0 || selectedLayoutIds.length === 0) {
+        setIsRandomDesignPickerOpen(false);
+        return;
+    }
+
     const imagesToPlace = [...libraryImages];
     let imageIndex = 0;
 
     const tempSpreads = spreads.map(spread => {
-      const randomLayoutId = layoutIds[Math.floor(Math.random() * layoutIds.length)];
+      const randomLayoutId = selectedLayoutIds[Math.floor(Math.random() * selectedLayoutIds.length)];
       return {
         ...spread,
         layoutId: randomLayoutId,
@@ -397,7 +463,6 @@ const App: React.FC = () => {
 
     const usageCounts = new Map<string, number>();
     finalSpreads.forEach(spread => {
-      // FIX: Explicitly type 'placedImage' as PlacedImageData to resolve type inference issue and remove redundant check.
       Object.values(spread.images).forEach((placedImage: PlacedImageData) => {
         usageCounts.set(placedImage.image.id, (usageCounts.get(placedImage.image.id) || 0) + 1);
       });
@@ -410,6 +475,7 @@ const App: React.FC = () => {
 
     setSpreads(finalSpreads);
     setLibraryImages(newLibraryImages);
+    setIsRandomDesignPickerOpen(false);
   };
 
   const handleRemoveImageFromLibrary = (imageIdToRemove: string) => {
@@ -420,7 +486,6 @@ const App: React.FC = () => {
     const newSpreads = spreads.map(spread => {
         const newImages = { ...spread.images };
         let imageWasRemoved = false;
-        // FIX: Explicitly type 'placedImage' as PlacedImageData to resolve type inference issue and remove redundant check.
         Object.entries(newImages).forEach(([slotId, placedImage]: [string, PlacedImageData]) => {
             if (placedImage.image.id === imageIdToRemove) {
                 delete newImages[slotId];
@@ -445,63 +510,15 @@ const App: React.FC = () => {
     setSpreads(clearedSpreads);
   };
 
-  const handleChangeAlbumSize = (newSize: AlbumSize) => {
-    setAlbumSize(newSize);
-    setIsAlbumSizePickerOpen(false);
+  const handleSelectInitialAlbumSize = (size: AlbumSize) => {
+    setAlbumSize(size);
+    setIsAlbumSizeChosen(true);
   };
 
-  const handleDownloadAlbum = async () => {
-    setSelectedTextId(null); // Deselect any text box
-    setSelectedStickerId(null); // Deselect any sticker
-    await new Promise(resolve => setTimeout(resolve, 100)); // allow UI to update
-
-    // --- Prepare elements for capture ---
-
-    // 1. Hide UI elements meant only for editing
-    const elementsToHide = document.querySelectorAll('[data-hide-on-capture="true"]');
-    const originalDisplays = new Map<HTMLElement, string>();
-    elementsToHide.forEach(el => {
-        const htmlEl = el as HTMLElement;
-        originalDisplays.set(htmlEl, htmlEl.style.display);
-        htmlEl.style.display = 'none';
-    });
-    
-    // 2. Make element layers (text, stickers) visible to html2canvas
-    const elementLayers = document.querySelectorAll('[data-elements-layer="true"]');
-    elementLayers.forEach(el => (el as HTMLElement).classList.remove('pointer-events-none'));
-
-
-    // --- Perform Capture ---
-    const spreadElements = document.querySelectorAll('[data-spread-id]');
-    for (const spreadEl of Array.from(spreadElements)) {
-      const spreadId = spreadEl.getAttribute('data-spread-id');
-      const spreadData = spreads.find(s => s.id === spreadId);
-      const captureTarget = spreadEl.querySelector('[data-spread-capture-target="true"]') as HTMLElement;
-
-      if (captureTarget && spreadData && (Object.keys(spreadData.images).length > 0 || spreadData.texts.length > 0 || spreadData.stickers.length > 0)) {
-        
-        const canvas = await html2canvas(captureTarget, {
-          useCORS: true,
-          scale: 2 // Higher scale for better quality
-        });
-
-        const link = document.createElement('a');
-        link.download = `Album-Pages_${spreadData.pages.join('-')}.png`;
-        link.href = canvas.toDataURL('image/png');
-        link.click();
-      }
-    }
-
-    // --- Restore elements after capture ---
-
-    // 1. Restore hidden elements
-    elementsToHide.forEach(el => {
-        const htmlEl = el as HTMLElement;
-        htmlEl.style.display = originalDisplays.get(htmlEl) || '';
-    });
-    
-    // 2. Restore pointer-events on element layers
-    elementLayers.forEach(el => (el as HTMLElement).classList.add('pointer-events-none'));
+  const handleOpenSubmissionModal = () => {
+    setSelectedTextId(null);
+    setSelectedStickerId(null);
+    setIsSubmissionModalOpen(true);
   };
 
   const handleToggleOverviewMode = () => {
@@ -618,6 +635,193 @@ const App: React.FC = () => {
     );
   };
 
+  // Project Management Handlers
+  const handleSaveProject = async (projectName: string) => {
+    if (!albumSize) {
+      alert("Cannot save project without an album size.");
+      return false;
+    }
+    try {
+      // 1. Save each image's blob data to IndexedDB
+      for (const image of libraryImages) {
+        if (image.url.startsWith('blob:')) {
+          const response = await fetch(image.url);
+          const blob = await response.blob();
+          await saveImageToDB(image.id, blob);
+        }
+      }
+      
+      // 2. Create "clean" data for the main project file (without blob URLs)
+      const cleanedLibraryImages: SavedAlbumImage[] = libraryImages.map(({ url, ...rest }) => rest);
+      
+      const cleanedSpreads: SavedSpreadData[] = spreads.map(spread => ({
+        ...spread,
+        images: Object.fromEntries(
+          Object.entries(spread.images).map(([slotId, placedImage]) => {
+            const { url, ...restOfImage } = placedImage.image;
+            const savedPlacedImage: SavedPlacedImageData = {
+                ...placedImage,
+                image: restOfImage
+            };
+            return [slotId, savedPlacedImage];
+          })
+        )
+      }));
+
+      const projectData: SavedProjectData = {
+        spreads: cleanedSpreads,
+        libraryImages: cleanedLibraryImages,
+        albumSize,
+      };
+
+      // 3. Save the main project manifest to localStorage
+      localStorage.setItem(`photobook_project_${projectName}`, JSON.stringify(projectData));
+      setCurrentProjectName(projectName); // Set the current project name on successful save
+      return true;
+
+    } catch (error) {
+      console.error("Failed to save project:", error);
+      alert("An unexpected error occurred while saving the project. Your browser's storage might be full or IndexedDB is not supported.");
+      
+      // Clean up any partially saved image data on failure
+      for (const img of libraryImages) {
+        await deleteImageFromDB(img.id).catch(e => console.error(`Cleanup failed for image ${img.id}`, e));
+      }
+      return false;
+    }
+  };
+
+  const handleLoadProject = async (projectName: string) => {
+    const savedData = localStorage.getItem(`photobook_project_${projectName}`);
+    if (savedData) {
+      try {
+        const projectData = JSON.parse(savedData) as SavedProjectData;
+        
+        // Revoke old object URLs to prevent memory leaks
+        libraryImages.forEach(img => {
+            if(img.url.startsWith('blob:')) {
+                URL.revokeObjectURL(img.url);
+            }
+        });
+
+        // 1. Reconstruct library images with new blob URLs from IndexedDB
+        const newLibraryImagesPromises = projectData.libraryImages.map(async (img: SavedAlbumImage) => {
+          const blob = await getImageFromDB(img.id);
+          if (blob) {
+            return { ...img, url: URL.createObjectURL(blob) };
+          }
+          console.warn(`Missing image data for ID: ${img.id}`);
+          return null; // Handle missing image data gracefully
+        });
+
+        const newLibraryImages = (await Promise.all(newLibraryImagesPromises))
+            .filter((img): img is AlbumImage => img !== null); // Filter out any nulls
+        
+        const imageMap = new Map(newLibraryImages.map(img => [img.id, img]));
+
+        // 2. Reconstruct spreads with updated image objects from the map.
+        const newSpreads: SpreadData[] = projectData.spreads.map(spread => {
+// FIX: Switched to Object.entries for correct type inference when reconstructing images from saved data.
+          const reconstructedImages = Object.fromEntries(
+            Object.entries(spread.images)
+              .map(([slotId, savedPlacedImage]) => {
+                const fullImageObject = imageMap.get(savedPlacedImage.image.id);
+                if (fullImageObject) {
+                  const placedImage: PlacedImageData = {
+                    ...savedPlacedImage,
+                    image: fullImageObject,
+                  };
+                  return [slotId, placedImage];
+                }
+                return null;
+              })
+              .filter((entry): entry is [string, PlacedImageData] => entry !== null)
+          );
+
+          return {
+            ...spread,
+            images: reconstructedImages,
+          };
+        });
+
+        setLibraryImages(newLibraryImages);
+        setSpreads(newSpreads);
+        setAlbumSize(projectData.albumSize);
+        setCurrentProjectName(projectName); // Set the current project name on successful load
+        setIsProjectManagerOpen(false);
+        setIsAlbumSizeChosen(true); // Show the main app
+
+      } catch (error) {
+          console.error("Failed to load project:", error);
+          alert("Failed to load project. The project file might be corrupted or image data is missing.");
+      }
+    }
+  };
+
+  const handleDeleteProject = async (projectName: string) => {
+    const savedData = localStorage.getItem(`photobook_project_${projectName}`);
+    if (savedData) {
+      try {
+        const projectData = JSON.parse(savedData) as SavedProjectData;
+        // Delete associated images from IndexedDB
+        if (projectData.libraryImages && Array.isArray(projectData.libraryImages)) {
+          for (const img of projectData.libraryImages) {
+            await deleteImageFromDB(img.id).catch(e => console.error(`Failed to delete image ${img.id} from DB`, e));
+          }
+        }
+      } catch (e) {
+        console.error(`Could not parse project ${projectName} for deletion, image files may be orphaned.`);
+      }
+    }
+    // Delete the main project file from localStorage
+    localStorage.removeItem(`photobook_project_${projectName}`);
+
+    // If deleting the current project, clear the current project name
+    if (currentProjectName === projectName) {
+      setCurrentProjectName(null);
+    }
+  };
+
+  const handleNewProject = () => {
+    // Revoke any existing blob URLs to prevent memory leaks
+    libraryImages.forEach(img => {
+      if(img.url.startsWith('blob:')) {
+          URL.revokeObjectURL(img.url);
+      }
+    });
+    setLibraryImages(initialLibraryImages);
+    setSpreads(initialSpreadsData);
+    setCurrentProjectName(null); // Clear current project name
+    setIsProjectManagerOpen(false);
+    // Also reset other states
+    setIsOverviewMode(false);
+    setSelectedTextId(null);
+    setSelectedStickerId(null);
+    // Go back to welcome screen
+    setAlbumSize(null);
+    setIsAlbumSizeChosen(false);
+  };
+
+  if (!isAlbumSizeChosen || !albumSize) {
+    return (
+      <div className="bg-gray-200 h-screen">
+          <WelcomeScreen 
+            onSelectSize={handleSelectInitialAlbumSize} 
+            onOpenProjectManager={() => setIsProjectManagerOpen(true)}
+          />
+          {isProjectManagerOpen && (
+            <ProjectManager
+              currentProjectName={currentProjectName}
+              onSave={handleSaveProject}
+              onLoad={handleLoadProject}
+              onDelete={handleDeleteProject}
+              onNewProject={handleNewProject}
+              onClose={() => setIsProjectManagerOpen(false)}
+            />
+          )}
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-screen font-sans bg-gray-200 text-gray-800">
@@ -627,11 +831,10 @@ const App: React.FC = () => {
           onClose={() => setIsAutoDesignPickerOpen(false)}
         />
       )}
-      {isAlbumSizePickerOpen && (
-        <AlbumSizePicker
-          currentSize={albumSize}
-          onSelectSize={handleChangeAlbumSize}
-          onClose={() => setIsAlbumSizePickerOpen(false)}
+      {isRandomDesignPickerOpen && (
+        <RandomDesignLayoutPicker
+          onConfirm={handleConfirmRandomDesign}
+          onClose={() => setIsRandomDesignPickerOpen(false)}
         />
       )}
       {isTextPickerOpen && (
@@ -652,21 +855,40 @@ const App: React.FC = () => {
           }}
         />
       )}
+      {isProjectManagerOpen && (
+        <ProjectManager
+          currentProjectName={currentProjectName}
+          onSave={handleSaveProject}
+          onLoad={handleLoadProject}
+          onDelete={handleDeleteProject}
+          onNewProject={handleNewProject}
+          onClose={() => setIsProjectManagerOpen(false)}
+        />
+      )}
+       {isSubmissionModalOpen && (
+        <SubmissionModal
+          projectName={currentProjectName}
+          albumSize={albumSize}
+          spreads={spreads}
+          libraryImages={libraryImages}
+          onClose={() => setIsSubmissionModalOpen(false)}
+          onSaveProject={handleSaveProject}
+        />
+      )}
       <Header 
         totalPages={spreads.length * 2} 
-        albumSize={albumSize}
-        onSizeChangeClick={() => setIsAlbumSizePickerOpen(true)}
-        onDownload={handleDownloadAlbum}
+        onSubmitProject={handleOpenSubmissionModal}
         isOverviewMode={isOverviewMode}
         onToggleOverview={handleToggleOverviewMode}
         onDesignForMe={handleDesignForMe}
         onDesignRandom={handleDesignRandom}
         isDesignDisabled={libraryImages.length === 0}
+        onOpenProjectManager={() => setIsProjectManagerOpen(true)}
       />
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-col md:flex-row flex-1 overflow-hidden">
         <div 
-          style={{ width: `${libraryWidth}px` }} 
-          className="flex-shrink-0 h-full flex flex-col bg-gray-100/80 backdrop-blur-sm border-r border-gray-300"
+          style={isMobile ? { height: `${libraryHeight}px` } : { width: `${libraryWidth}px` }} 
+          className="order-3 md:order-1 flex-shrink-0 md:h-full flex flex-col bg-gray-100/80 backdrop-blur-sm border-t md:border-t-0 md:border-r border-gray-300"
         >
           <ImageLibrary 
             images={libraryImages}
@@ -675,16 +897,18 @@ const App: React.FC = () => {
             onReorder={handleReorderLibrary}
             onRemoveImage={handleRemoveImageFromLibrary}
             onClearLibrary={handleClearLibrary}
+            isMobile={isMobile}
           />
         </div>
         <div 
           onMouseDown={handleResizeMouseDown}
-          className="w-1.5 flex-shrink-0 cursor-col-resize bg-gray-300 hover:bg-blue-400 transition-colors"
+          className="order-2 md:order-2 w-full h-1.5 md:w-1.5 md:h-full flex-shrink-0 cursor-row-resize md:cursor-col-resize bg-gray-300 hover:bg-blue-400 transition-colors"
         />
-        <main className="flex-1 overflow-y-auto">
+        <main className="order-1 md:order-3 flex-1 overflow-y-auto">
           <AlbumView 
               spreads={spreads} 
               albumSize={albumSize}
+              isMobile={isMobile}
               isOverviewMode={isOverviewMode}
               selectedTextId={selectedTextId}
               selectedStickerId={selectedStickerId}
@@ -694,6 +918,7 @@ const App: React.FC = () => {
               onUpdateImageTransform={handleUpdateImageTransform}
               onRemoveImageFromSlot={handleRemoveImageFromSlot}
               onAddSpread={handleAddSpread}
+              onReorderSpreads={handleReorderSpreads}
               onOpenTextPicker={handleOpenTextPicker}
               onUpdateText={handleUpdateText}
               onRemoveText={handleRemoveText}

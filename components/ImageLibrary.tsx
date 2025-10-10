@@ -12,9 +12,10 @@ interface ImageLibraryProps {
   onReorder: (dragIndex: number, hoverIndex: number) => void;
   onRemoveImage: (imageId: string) => void;
   onClearLibrary: () => void;
+  isMobile: boolean;
 }
 
-const ImageLibrary: React.FC<ImageLibraryProps> = ({ images, totalImages, onAddImages, onReorder, onRemoveImage, onClearLibrary }) => {
+const ImageLibrary: React.FC<ImageLibraryProps> = ({ images, totalImages, onAddImages, onReorder, onRemoveImage, onClearLibrary, isMobile }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDraggingOver, setIsDraggingOver] = useState(false);
   const { t } = useI18n();
@@ -88,6 +89,15 @@ const ImageLibrary: React.FC<ImageLibraryProps> = ({ images, totalImages, onAddI
     dragOverItemIndex.current = null;
   };
   
+  const gridContainerClass = isMobile 
+    ? "flex items-center gap-2 h-full" 
+    : "grid gap-2";
+
+  const gridContainerStyle = isMobile 
+    ? {} 
+    : { gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))' };
+    
+  const gridItemClass = isMobile ? "w-[70px] flex-shrink-0" : "w-full";
 
   return (
     <div 
@@ -111,13 +121,13 @@ const ImageLibrary: React.FC<ImageLibraryProps> = ({ images, totalImages, onAddI
       />
       
       {/* Image Grid */}
-      <div className="flex-grow overflow-y-auto p-2">
-        <div className="grid gap-2" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))' }}>
+      <div className={`flex-grow ${isMobile ? 'overflow-x-auto overflow-y-hidden' : 'overflow-y-auto'} p-2`}>
+        <div className={gridContainerClass} style={gridContainerStyle}>
           {images.map((image, index) => (
             <div 
               key={image.id}
               id={`lib-img-thumb-${index}`}
-              className="relative w-full aspect-square bg-gray-300 rounded-sm overflow-hidden shadow-md group cursor-grab transition-all duration-200"
+              className={`relative ${gridItemClass} aspect-square bg-gray-300 rounded-sm overflow-hidden shadow-md group cursor-grab transition-all duration-200`}
               draggable
               onDragStart={(e) => handleDragStart(e, image.id, index)}
               onDragEnter={() => handleDragEnter(index)}
@@ -148,10 +158,10 @@ const ImageLibrary: React.FC<ImageLibraryProps> = ({ images, totalImages, onAddI
           {/* Add Photos Button */}
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="relative w-full aspect-square bg-gray-200 border-2 border-dashed border-gray-400 rounded-sm flex flex-col items-center justify-center text-center text-gray-500 hover:bg-gray-300 hover:border-gray-500 transition-colors cursor-pointer p-2"
+            className={`relative ${gridItemClass} aspect-square bg-gray-200 border-2 border-dashed border-gray-400 rounded-sm flex flex-col items-center justify-center text-center text-gray-500 hover:bg-gray-300 hover:border-gray-500 transition-colors cursor-pointer p-2`}
             title={t('addPhotos')}
           >
-            <span className="font-semibold">{t('addPhotos')}</span>
+            <span className="font-semibold text-xs md:text-base">{t('addPhotos')}</span>
           </button>
         </div>
       </div>

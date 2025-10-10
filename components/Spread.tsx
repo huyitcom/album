@@ -1,5 +1,6 @@
 
-import React, { useState } from 'react';
+
+import React, { useState, useRef } from 'react';
 import { SpreadData, ImageTransform, AlbumSize, TextElement as TextElementType, StickerElement as StickerElementType } from '../types';
 import { LayoutIcon, TypeIcon, SparklesIcon } from './icons';
 import { layouts } from '../layouts';
@@ -58,12 +59,15 @@ const Slot: React.FC<SlotProps> = ({ gridArea, onDrop, children }) => {
 
 interface SpreadProps {
   data: SpreadData;
+  index: number;
   albumSize: AlbumSize;
+  isMobile: boolean;
   isOverviewMode: boolean;
   selectedTextId: string | null;
   selectedStickerId: string | null;
   onDropImageInSlot: (imageId: string, spreadId:string, slotId: string) => void;
   onSwapImagesInSlots: (source: { spreadId: string; slotId: string }, target: { spreadId: string; slotId: string }) => void;
+  onReorderSpreads: (dragIndex: number, hoverIndex: number) => void;
   onChangeLayout: (spreadId: string, layoutId: string) => void;
   onUpdateImageTransform: (spreadId: string, slotId: string, transform: ImageTransform) => void;
   onRemoveImageFromSlot: (spreadId: string, slotId: string) => void;
@@ -77,21 +81,101 @@ interface SpreadProps {
   onSelectSticker: (stickerId: string | null) => void;
 }
 
+const getAspectRatioForSize = (size: AlbumSize): string => {
+  switch (size) {
+    case '15x15':
+    case '20x20':
+    case '30x30':
+      return '2 / 1';
+    case '21x15':
+      return '42 / 15';
+    case '30x20':
+      return '60 / 20';
+    case '25x35':
+      return '50 / 35';
+    default:
+      return '2 / 1'; // Fallback for any unknown sizes
+  }
+};
+
 const Spread: React.FC<SpreadProps> = (props) => {
-  const { data, albumSize, isOverviewMode, onDropImageInSlot, onSwapImagesInSlots, onChangeLayout, onUpdateImageTransform, onRemoveImageFromSlot, onOpenTextPicker, onUpdateText, onRemoveText, onSelectText, selectedTextId, onOpenStickerPicker, onUpdateSticker, onRemoveSticker, onSelectSticker, selectedStickerId } = props;
+  const { data, index, albumSize, isMobile, isOverviewMode, onDropImageInSlot, onSwapImagesInSlots, onReorderSpreads, onChangeLayout, onUpdateImageTransform, onRemoveImageFromSlot, onOpenTextPicker, onUpdateText, onRemoveText, onSelectText, selectedTextId, onOpenStickerPicker, onUpdateSticker, onRemoveSticker, onSelectSticker, selectedStickerId } = props;
   const [isLayoutPickerOpen, setIsLayoutPickerOpen] = useState(false);
   const layout = layouts[data.layoutId] || layouts['single-full'];
   const { t } = useI18n();
+
+  const spreadRef = useRef<HTMLDivElement>(null);
+  const [isDragHovering, setIsDragHovering] = useState(false);
 
   const handleSelectLayout = (layoutId: string) => {
     onChangeLayout(data.id, layoutId);
     setIsLayoutPickerOpen(false);
   };
   
-  const aspectRatio = albumSize === '30x30' ? '2 / 1' : '50 / 35';
+  const aspectRatio = getAspectRatioForSize(albumSize);
+
+  // --- Drag and Drop for Reordering Spreads ---
+  const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
+    e.dataTransfer.setData('album/spread-index', String(index));
+    e.dataTransfer.effectAllowed = 'move';
+    setTimeout(() => {
+        if (spreadRef.current) {
+            spreadRef.current.style.visibility = 'hidden';
+        }
+    }, 0);
+  };
+
+  const handleDragEnd = () => {
+      if (spreadRef.current) {
+          spreadRef.current.style.visibility = 'visible';
+      }
+      setIsDragHovering(false);
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+      e.preventDefault();
+      setIsDragHovering(false);
+      const dragIndexStr = e.dataTransfer.getData('album/spread-index');
+      if (dragIndexStr) {
+          const dragIndex = parseInt(dragIndexStr, 10);
+          const hoverIndex = index;
+          if (dragIndex !== hoverIndex) {
+              onReorderSpreads(dragIndex, hoverIndex);
+          }
+      }
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+      e.preventDefault();
+  };
+
+  const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
+      e.preventDefault();
+      const dragIndexStr = e.dataTransfer.getData('album/spread-index');
+      if (dragIndexStr) {
+          setIsDragHovering(true);
+      }
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+      e.preventDefault();
+      setIsDragHovering(false);
+  };
+
 
   return (
-    <div data-spread-id={data.id}>
+    <div 
+        ref={spreadRef}
+        data-spread-id={data.id}
+        draggable={isOverviewMode}
+        onDragStart={isOverviewMode ? handleDragStart : undefined}
+        onDragEnd={isOverviewMode ? handleDragEnd : undefined}
+        onDrop={isOverviewMode ? handleDrop : undefined}
+        onDragOver={isOverviewMode ? handleDragOver : undefined}
+        onDragEnter={isOverviewMode ? handleDragEnter : undefined}
+        onDragLeave={isOverviewMode ? handleDragLeave : undefined}
+        className={isOverviewMode ? 'cursor-move' : ''}
+    >
         {isLayoutPickerOpen && (
             <LayoutPicker 
                 onSelectLayout={handleSelectLayout}
@@ -99,7 +183,7 @@ const Spread: React.FC<SpreadProps> = (props) => {
             />
         )}
       <h3 className="text-sm text-gray-500 mb-2">{t('pagesLabel', { start: data.pages[0], end: data.pages[1] })}</h3>
-      <div className={`relative ${!isOverviewMode ? 'group' : ''}`}>
+      <div className={`relative transition-all ${!isOverviewMode ? 'group' : ''} ${isDragHovering ? 'outline-dashed outline-2 outline-blue-500' : ''}`}>
         <div 
           data-spread-capture-target="true"
           className="bg-white p-1 shadow-lg"
@@ -140,6 +224,8 @@ const Spread: React.FC<SpreadProps> = (props) => {
                               data={data.images[slot.id]}
                               spreadId={data.id}
                               slotId={slot.id}
+                              isMobile={isMobile}
+                              isOverviewMode={isOverviewMode}
                               onTransformChange={(newTransform) => onUpdateImageTransform(data.id, slot.id, newTransform)}
                               onRemove={() => onRemoveImageFromSlot(data.id, slot.id)}
                           />
@@ -185,28 +271,31 @@ const Spread: React.FC<SpreadProps> = (props) => {
          {!isOverviewMode && (
             <div 
               data-hide-on-capture="true"
-              className="absolute top-2 left-2 flex items-center space-x-2 z-40 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+              className="absolute top-2 left-2 flex items-center space-x-1 md:space-x-2 z-40 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
             >
               <button 
                   onClick={() => setIsLayoutPickerOpen(true)}
-                  className="flex items-center space-x-1.5 px-2 py-1 bg-white/80 backdrop-blur-sm rounded-md shadow hover:bg-white text-xs font-semibold"
+                  className="flex items-center md:space-x-1.5 p-2 md:px-2 md:py-1 bg-white/80 backdrop-blur-sm rounded-full md:rounded-md shadow hover:bg-white text-xs font-semibold"
+                  title={t('changeLayout')}
               >
-                  <LayoutIcon className="w-4 h-4" />
-                  <span>{t('changeLayout')}</span>
+                  <LayoutIcon className="w-5 h-5 md:w-4 md:h-4" />
+                  <span className="hidden md:inline">{t('changeLayout')}</span>
               </button>
               <button
                   onClick={() => onOpenTextPicker(data.id)}
-                  className="flex items-center space-x-1.5 px-2 py-1 bg-white/80 backdrop-blur-sm rounded-md shadow hover:bg-white text-xs font-semibold"
+                  className="flex items-center md:space-x-1.5 p-2 md:px-2 md:py-1 bg-white/80 backdrop-blur-sm rounded-full md:rounded-md shadow hover:bg-white text-xs font-semibold"
+                  title={t('addText')}
               >
-                  <TypeIcon className="w-4 h-4" />
-                  <span>{t('addText')}</span>
+                  <TypeIcon className="w-5 h-5 md:w-4 md:h-4" />
+                  <span className="hidden md:inline">{t('addText')}</span>
               </button>
               <button
                   onClick={() => onOpenStickerPicker(data.id)}
-                  className="flex items-center space-x-1.5 px-2 py-1 bg-white/80 backdrop-blur-sm rounded-md shadow hover:bg-white text-xs font-semibold"
+                  className="flex items-center md:space-x-1.5 p-2 md:px-2 md:py-1 bg-white/80 backdrop-blur-sm rounded-full md:rounded-md shadow hover:bg-white text-xs font-semibold"
+                  title={t('addSticker')}
               >
-                  <SparklesIcon className="w-4 h-4" />
-                  <span>{t('addSticker')}</span>
+                  <SparklesIcon className="w-5 h-5 md:w-4 md:h-4" />
+                  <span className="hidden md:inline">{t('addSticker')}</span>
               </button>
             </div>
          )}

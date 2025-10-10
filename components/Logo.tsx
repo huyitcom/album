@@ -2,18 +2,28 @@ import React from 'react';
 
 const Logo: React.FC = () => {
   return (
-    <div className="flex items-center h-8" title="PTBVN Album Builder">
+    <div className="flex items-center h-8" title="PHOTOBOOKVIETNAM Album Builder">
+      {/* Desktop Logo */}
       <span 
-        className="text-3xl font-black text-gray-800" 
-        style={{ fontFamily: "'Fjalla One', sans-serif", letterSpacing: '-0.075em' }}
+        className="hidden md:inline text-3xl" 
+        style={{ 
+          fontFamily: "'Fjalla One', sans-serif", 
+          letterSpacing: '-0.075em',
+          textShadow: '1px 1px 3px rgba(0, 0, 0, 0.5)'
+        }}
       >
-        PHOTOBOOK
+        <span className="text-black">PHOTOBOOK</span><span className="text-cyan-200">VIETNAM</span>
       </span>
-     <span 
-        className="text-3xl font-black text-cyan-800" 
-        style={{ fontFamily: "'Fjalla One', sans-serif", letterSpacing: '-0.075em' }}
+      {/* Mobile Logo */}
+      <span 
+        className="md:hidden text-3xl" 
+        style={{ 
+          fontFamily: "'Fjalla One', sans-serif", 
+          letterSpacing: '-0.075em',
+          textShadow: '1px 1px 3px rgba(0, 0, 0, 0.5)'
+        }}
       >
-        VIETNAM
+        <span className="text-black">PTB</span><span className="text-cyan-200">VN</span>
       </span>
     </div>
   );
