@@ -721,22 +721,18 @@ const App: React.FC = () => {
 
         // 2. Reconstruct spreads with updated image objects from the map.
         const newSpreads: SpreadData[] = projectData.spreads.map(spread => {
-// FIX: Switched to Object.entries for correct type inference when reconstructing images from saved data.
-          const reconstructedImages = Object.fromEntries(
-            Object.entries(spread.images)
-              .map(([slotId, savedPlacedImage]) => {
-                const fullImageObject = imageMap.get(savedPlacedImage.image.id);
-                if (fullImageObject) {
-                  const placedImage: PlacedImageData = {
-                    ...savedPlacedImage,
-                    image: fullImageObject,
-                  };
-                  return [slotId, placedImage];
-                }
-                return null;
-              })
-              .filter((entry): entry is [string, PlacedImageData] => entry !== null)
-          );
+          // FIX: Replaced logic with a more type-safe reduce pattern to fix issues with type inference when reconstructing images.
+          const reconstructedImages = Object.keys(spread.images).reduce<{ [key: string]: PlacedImageData }>((acc, slotId) => {
+            const savedPlacedImage = spread.images[slotId];
+            const fullImageObject = imageMap.get(savedPlacedImage.image.id);
+            if (fullImageObject) {
+              acc[slotId] = {
+                ...savedPlacedImage,
+                image: fullImageObject,
+              };
+            }
+            return acc;
+          }, {});
 
           return {
             ...spread,

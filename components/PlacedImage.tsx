@@ -133,14 +133,35 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMob
     };
   };
 
+  const handleTouchStartPan = (e: React.TouchEvent<HTMLDivElement>) => {
+    // Only allow panning if in edit mode.
+    if (!isEditing) return;
+    e.preventDefault(); // This is key to prevent page scroll
+    e.stopPropagation();
+    if (e.touches.length === 1) { // We only handle single-touch panning
+        setIsDragging(true);
+        dragStartRef.current = {
+            x: e.touches[0].clientX,
+            y: e.touches[0].clientY,
+            imageX: transform.x,
+            imageY: transform.y,
+        };
+    }
+  };
+
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
+    const handleMove = (e: MouseEvent | TouchEvent) => {
       if (!isDragging || !containerRef.current) return;
 
-      const dx = e.clientX - dragStartRef.current.x;
-      const dy = e.clientY - dragStartRef.current.y;
+      const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+      const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+
+      const dx = clientX - dragStartRef.current.x;
+      const dy = clientY - dragStartRef.current.y;
       
       const { width: containerW, height: containerH } = containerRef.current.getBoundingClientRect();
+
+      if (containerW === 0 || containerH === 0) return;
       
       const newX = dragStartRef.current.imageX + (dx / containerW) * 100;
       const newY = dragStartRef.current.imageY + (dy / containerH) * 100;
@@ -150,18 +171,22 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMob
       onTransformChange({ ...transform, x: constrainedX, y: constrainedY });
     };
 
-    const handleMouseUp = () => {
+    const handleDragUp = () => {
       setIsDragging(false);
     };
 
     if (isDragging) {
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseup', handleMouseUp);
+      window.addEventListener('mousemove', handleMove);
+      window.addEventListener('touchmove', handleMove, { passive: false });
+      window.addEventListener('mouseup', handleDragUp);
+      window.addEventListener('touchend', handleDragUp);
     }
 
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('mousemove', handleMove);
+      window.removeEventListener('touchmove', handleMove);
+      window.removeEventListener('mouseup', handleDragUp);
+      window.removeEventListener('touchend', handleDragUp);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isDragging, transform, onTransformChange]);
@@ -190,7 +215,8 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMob
     }
   };
   
-  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+  const handleTouchStartForEdit = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (isEditing) return; // Don't interfere if already in edit mode
     const now = new Date().getTime();
     if ((now - lastTap.current) < 300) { // 300ms threshold for double tap
         e.preventDefault(); // Prevent zoom on double tap
@@ -225,12 +251,13 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMob
         onDragStart={!isEditing && !isOverviewMode ? handleDragStart : undefined}
         onDragEnd={!isEditing && !isOverviewMode ? handleDragEnd : undefined}
         onDoubleClick={handleEnterEditMode}
-        onTouchStart={handleTouchStart}
+        onTouchStart={handleTouchStartForEdit}
         title={!isEditing && !isOverviewMode ? t(isMobile ? 'doubleTapToEdit' : 'doubleClickToEdit') : undefined}
     >
         <div 
             className={`w-full h-full ${isEditing ? (isDragging ? 'cursor-grabbing' : 'cursor-grab') : ''}`}
             onMouseDown={handleMouseDown}
+            onTouchStart={handleTouchStartPan}
         >
             <img
                 ref={imageRef}
