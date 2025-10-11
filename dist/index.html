@@ -33,6 +33,19 @@
       ::-webkit-scrollbar-thumb:hover {
         background: #555;
       }
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .animate-fade-in-up {
+        animation: fadeInUp 0.5s ease-out forwards;
+      }
     </style>
 
 <link rel="stylesheet" href="/index.css">
@@ -45,7 +58,7 @@
   }
 }
 </script>
-  <script type="module" crossorigin src="/assets/index-DZLtsLew.js"></script>
+  <script type="module" crossorigin src="/assets/index-BzImfUSx.js"></script>
 </head>
   <body class="bg-gray-200">
     <div id="root"></div>

@@ -11,6 +11,8 @@ import StickerPicker from './components/StickerPicker';
 import RandomDesignLayoutPicker from './components/RandomDesignLayoutPicker';
 import ProjectManager from './components/ProjectManager';
 import SubmissionModal from './components/SubmissionModal';
+import MobileDragHint from './components/MobileDragHint';
+import MobileEditHint from './components/MobileEditHint';
 import { spreadsData as initialSpreadsData, libraryImages as initialLibraryImages } from './constants';
 import { layouts } from './layouts';
 import { AlbumImage, SpreadData, ImageTransform, PlacedImageData, AlbumSize, TextElement, TextStyle, StickerElement, SavedProjectData, SavedAlbumImage, SavedPlacedImageData, SavedSpreadData } from './types';
@@ -46,6 +48,11 @@ const App: React.FC = () => {
   
   // Submission State
   const [isSubmissionModalOpen, setIsSubmissionModalOpen] = useState(false);
+  
+  // UX Hint State
+  const [showMobileDragHint, setShowMobileDragHint] = useState(false);
+  const [showMobileEditHint, setShowMobileEditHint] = useState(false);
+  const [editHintTarget, setEditHintTarget] = useState<{ spreadId: string; slotId: string; } | null>(null);
 
 
   const handleAppClick = (e: MouseEvent) => {
@@ -144,6 +151,15 @@ const App: React.FC = () => {
       linked: false,
     }));
 
+    // --- HINT FOR MOBILE DRAG ---
+    const wasLibraryEmpty = libraryImages.length === 0;
+    const hintShown = localStorage.getItem('mobileDragHintShown');
+    if (isMobile && wasLibraryEmpty && !hintShown && newImages.length > 0) {
+      setShowMobileDragHint(true);
+      localStorage.setItem('mobileDragHintShown', 'true');
+    }
+    // ----------------------------
+
     setLibraryImages(prev => [...newImages, ...prev]);
   };
   
@@ -227,6 +243,15 @@ const App: React.FC = () => {
               return img;
           });
       });
+
+      // --- HINT FOR MOBILE EDIT ---
+      const editHintShown = localStorage.getItem('mobileEditHintShown');
+      if (isMobile && !editHintShown) {
+        setShowMobileEditHint(true);
+        setEditHintTarget({ spreadId, slotId });
+        localStorage.setItem('mobileEditHintShown', 'true');
+      }
+      // ----------------------------
   };
 
   const handleSwapImagesInSlots = (
@@ -720,15 +745,15 @@ const App: React.FC = () => {
         const imageMap = new Map(newLibraryImages.map(img => [img.id, img]));
 
         // 2. Reconstruct spreads with updated image objects from the map.
-        const newSpreads: SpreadData[] = projectData.spreads.map(spread => {
-          const reconstructedImages = Object.entries(spread.images).reduce<{ [key: string]: PlacedImageData }>((acc, [slotId, savedPlacedImage]) => {
-            // FIX: The type of `savedPlacedImage` is not correctly inferred as `SavedPlacedImageData` from Object.entries on a complex type.
-            // Explicitly casting it to `SavedPlacedImageData` resolves the `unknown` type error on its properties.
-            const savedPlacedImageTyped = savedPlacedImage as SavedPlacedImageData;
-            const fullImageObject = imageMap.get(savedPlacedImageTyped.image.id);
+        const newSpreads: SpreadData[] = projectData.spreads.map((spread: SavedSpreadData) => {
+          // FIX: Explicitly typed the [slotId, savedPlacedImage] tuple in the reduce function.
+          // This resolves a TypeScript inference issue where `savedPlacedImage` was being treated
+          // as `unknown`, causing errors when accessing its properties.
+          const reconstructedImages = Object.entries(spread.images).reduce<{ [key: string]: PlacedImageData }>((acc, [slotId, savedPlacedImage]: [string, SavedPlacedImageData]) => {
+            const fullImageObject = imageMap.get(savedPlacedImage.image.id);
             if (fullImageObject) {
               acc[slotId] = {
-                ...savedPlacedImageTyped,
+                ...savedPlacedImage,
                 image: fullImageObject,
               };
             }
@@ -822,6 +847,19 @@ const App: React.FC = () => {
 
   return (
     <div className="flex flex-col h-full font-sans bg-gray-200 text-gray-800">
+      {showMobileDragHint && (
+        <MobileDragHint libraryHeight={libraryHeight} onClose={() => setShowMobileDragHint(false)} />
+      )}
+      {showMobileEditHint && editHintTarget && (
+        <MobileEditHint 
+            targetSpreadId={editHintTarget.spreadId}
+            targetSlotId={editHintTarget.slotId}
+            onClose={() => {
+                setShowMobileEditHint(false);
+                setEditHintTarget(null);
+            }} 
+        />
+      )}
       {isAutoDesignPickerOpen && (
         <AutoDesignLayoutPicker
           onSelectLayout={handleAutoDesign}

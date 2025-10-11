@@ -1,5 +1,3 @@
-
-
 import React, { useState, useRef } from 'react';
 import { SpreadData, ImageTransform, AlbumSize, TextElement as TextElementType, StickerElement as StickerElementType } from '../types';
 import { LayoutIcon, TypeIcon, SparklesIcon } from './icons';
@@ -12,11 +10,12 @@ import { useI18n } from './i18n';
 
 interface SlotProps {
   gridArea: string;
+  slotId: string;
   onDrop: (e: React.DragEvent<HTMLDivElement>) => void;
   children?: React.ReactNode;
 }
 
-const Slot: React.FC<SlotProps> = ({ gridArea, onDrop, children }) => {
+const Slot: React.FC<SlotProps> = ({ gridArea, slotId, onDrop, children }) => {
     const [isDraggingOver, setIsDraggingOver] = useState(false);
 
     const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
@@ -46,6 +45,7 @@ const Slot: React.FC<SlotProps> = ({ gridArea, onDrop, children }) => {
     return (
         <div 
             style={{ gridArea }}
+            data-slot-id={slotId}
             className={`relative w-full h-full bg-gray-50 rounded-sm transition-all duration-200 overflow-hidden ${isDraggingOver ? 'outline-dashed outline-2 outline-offset-2 outline-blue-500' : ''}`}
             onDragOver={handleDragOver}
             onDrop={handleDrop}
@@ -202,6 +202,7 @@ const Spread: React.FC<SpreadProps> = (props) => {
                   <Slot 
                       key={slot.id} 
                       gridArea={slot.gridArea}
+                      slotId={slot.id}
                       onDrop={(e) => {
                           const imageIdFromLibrary = e.dataTransfer.getData('album/image-id');
                           const placedImageDataSource = e.dataTransfer.getData('album/placed-image');

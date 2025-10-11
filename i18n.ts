@@ -5,8 +5,8 @@ import { Language } from './types';
 export const translations: { [lang in Language]: { [key: string]: string } } = {
   en: {
     // Welcome Screen
-    welcomeTitle: 'Welcome to the Album Builder',
-    welcomeSubtitle: 'To get started, please choose your desired album size.',
+    welcomeTitle: 'Album Builder',
+    welcomeSubtitle: 'please choose album size to start',
     or: 'or',
     loadExistingProject: 'Load an Existing Project',
     
@@ -107,13 +107,20 @@ export const translations: { [lang in Language]: { [key: string]: string } } = {
     removeTextTitle: 'Remove text',
     removeStickerTitle: 'Remove sticker',
     rotateStickerTitle: 'Rotate sticker',
+    mobileDragHint: 'Touch and hold to move the photo.',
+
+    // AI Story Modal
+    aiStoryTitle: 'AI Generated Story',
+    aiStoryGenerating: 'Generating your story...',
+    copied: 'Copied!',
+    copyToClipboard: 'Copy to Clipboard',
   },
   vn: {
     // Welcome Screen
-    welcomeTitle: 'Chào mừng bạn đến với Trình tạo Album',
-    welcomeSubtitle: 'Để bắt đầu, vui lòng chọn kích thước album bạn muốn.',
+    welcomeTitle: 'Tự Thiết Kế Album',
+    welcomeSubtitle: 'Vui lòng chọn kích thước album',
     or: 'hoặc',
-    loadExistingProject: 'Tải một dự án có sẵn',
+    loadExistingProject: 'Mở một dự án có sẵn',
 
     // Header
     albumSize: 'Kích thước album',
@@ -212,5 +219,12 @@ export const translations: { [lang in Language]: { [key: string]: string } } = {
     removeTextTitle: 'Xóa chữ',
     removeStickerTitle: 'Xóa nhãn dán',
     rotateStickerTitle: 'Xoay nhãn dán',
+    mobileDragHint: 'Chạm và giữ để di chuyển ảnh.',
+
+    // AI Story Modal
+    aiStoryTitle: 'Câu chuyện do AI tạo',
+    aiStoryGenerating: 'Đang tạo câu chuyện của bạn...',
+    copied: 'Đã sao chép!',
+    copyToClipboard: 'Sao chép',
   }
 };
