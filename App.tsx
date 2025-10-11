@@ -721,13 +721,14 @@ const App: React.FC = () => {
 
         // 2. Reconstruct spreads with updated image objects from the map.
         const newSpreads: SpreadData[] = projectData.spreads.map(spread => {
-          // FIX: Replaced logic with a more type-safe reduce pattern to fix issues with type inference when reconstructing images.
-          const reconstructedImages = Object.keys(spread.images).reduce<{ [key: string]: PlacedImageData }>((acc, slotId) => {
-            const savedPlacedImage = spread.images[slotId];
-            const fullImageObject = imageMap.get(savedPlacedImage.image.id);
+          const reconstructedImages = Object.entries(spread.images).reduce<{ [key: string]: PlacedImageData }>((acc, [slotId, savedPlacedImage]) => {
+            // FIX: The type of `savedPlacedImage` is not correctly inferred as `SavedPlacedImageData` from Object.entries on a complex type.
+            // Explicitly casting it to `SavedPlacedImageData` resolves the `unknown` type error on its properties.
+            const savedPlacedImageTyped = savedPlacedImage as SavedPlacedImageData;
+            const fullImageObject = imageMap.get(savedPlacedImageTyped.image.id);
             if (fullImageObject) {
               acc[slotId] = {
-                ...savedPlacedImage,
+                ...savedPlacedImageTyped,
                 image: fullImageObject,
               };
             }
@@ -800,7 +801,7 @@ const App: React.FC = () => {
 
   if (!isAlbumSizeChosen || !albumSize) {
     return (
-      <div className="bg-gray-200 h-screen">
+      <div className="bg-gray-200 h-full">
           <WelcomeScreen 
             onSelectSize={handleSelectInitialAlbumSize} 
             onOpenProjectManager={() => setIsProjectManagerOpen(true)}
@@ -820,7 +821,7 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col h-screen font-sans bg-gray-200 text-gray-800">
+    <div className="flex flex-col h-full font-sans bg-gray-200 text-gray-800">
       {isAutoDesignPickerOpen && (
         <AutoDesignLayoutPicker
           onSelectLayout={handleAutoDesign}

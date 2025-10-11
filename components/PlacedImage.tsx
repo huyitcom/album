@@ -1,5 +1,5 @@
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { PlacedImageData, ImageTransform } from '../types';
 import { XMarkIcon, PencilIcon, ArrowUturnLeftIcon, ArrowUturnRightIcon, ArrowsRightLeftIcon, ArrowsUpDownIcon, CheckIcon } from './icons';
 import { useI18n } from './i18n';
@@ -20,7 +20,7 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMob
 
   const [isHovered, setIsHovered] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [isDragging, setIsDragging] = useState(false); // Note: this state is for panning inside the frame
+  const [isMouseDragging, setIsMouseDragging] = useState(false); // For mouse panning only
   
   const containerRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
@@ -44,10 +44,8 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMob
         const containerRatio = offsetWidth / offsetHeight;
 
         if (imgRatio > containerRatio) {
-            // Image is wider than container, make heights match to cover
             setCoverStyle({ height: '100%', width: 'auto' });
         } else {
-            // Image is taller or same ratio, make widths match to cover
             setCoverStyle({ width: '100%', height: 'auto' });
         }
     };
@@ -68,7 +66,7 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMob
   }, [image.url]);
 
   
-  const getConstrainedPosition = (newX: number, newY: number, currentScale: number) => {
+  const getConstrainedPosition = useCallback((newX: number, newY: number, currentScale: number) => {
     if (!containerRef.current || !imageRef.current) {
         return { constrainedX: newX, constrainedY: newY };
     }
@@ -101,15 +99,13 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMob
     const constrainedY = Math.max(50 - yMaxPercentage, Math.min(newY, 50 + yMaxPercentage));
     
     return { constrainedX, constrainedY };
-  };
+  }, []);
 
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
-    // This event only fires when draggable=true, which is when !isEditing
     e.stopPropagation(); 
     e.dataTransfer.setData('album/placed-image', JSON.stringify({ spreadId, slotId }));
     e.dataTransfer.effectAllowed = 'move';
     
-    // Visual feedback
     setTimeout(() => {
         if(containerRef.current) containerRef.current.style.opacity = '0.5';
     }, 0);
@@ -119,12 +115,12 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMob
      if(containerRef.current) containerRef.current.style.opacity = '1';
   };
 
+  // --- Mouse Panning Logic ---
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    // Only allow panning if in edit mode.
     if (!isEditing) return;
     e.preventDefault();
-    e.stopPropagation(); // Prevent text selection etc.
-    setIsDragging(true);
+    e.stopPropagation();
+    setIsMouseDragging(true);
     dragStartRef.current = {
       x: e.clientX,
       y: e.clientY,
@@ -133,63 +129,88 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMob
     };
   };
 
-  const handleTouchStartPan = (e: React.TouchEvent<HTMLDivElement>) => {
-    // Only allow panning if in edit mode.
-    if (!isEditing) return;
-    e.preventDefault(); // This is key to prevent page scroll
-    e.stopPropagation();
-    if (e.touches.length === 1) { // We only handle single-touch panning
-        setIsDragging(true);
-        dragStartRef.current = {
-            x: e.touches[0].clientX,
-            y: e.touches[0].clientY,
-            imageX: transform.x,
-            imageY: transform.y,
-        };
-    }
-  };
-
   useEffect(() => {
-    const handleMove = (e: MouseEvent | TouchEvent) => {
-      if (!isDragging || !containerRef.current) return;
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isMouseDragging || !containerRef.current) return;
 
-      const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-      const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
-
-      const dx = clientX - dragStartRef.current.x;
-      const dy = clientY - dragStartRef.current.y;
+      const dx = e.clientX - dragStartRef.current.x;
+      const dy = e.clientY - dragStartRef.current.y;
       
       const { width: containerW, height: containerH } = containerRef.current.getBoundingClientRect();
-
       if (containerW === 0 || containerH === 0) return;
       
       const newX = dragStartRef.current.imageX + (dx / containerW) * 100;
       const newY = dragStartRef.current.imageY + (dy / containerH) * 100;
 
       const { constrainedX, constrainedY } = getConstrainedPosition(newX, newY, scale);
-      
       onTransformChange({ ...transform, x: constrainedX, y: constrainedY });
     };
 
-    const handleDragUp = () => {
-      setIsDragging(false);
+    const handleMouseUp = () => {
+      setIsMouseDragging(false);
     };
 
-    if (isDragging) {
-      window.addEventListener('mousemove', handleMove);
-      window.addEventListener('touchmove', handleMove, { passive: false });
-      window.addEventListener('mouseup', handleDragUp);
-      window.addEventListener('touchend', handleDragUp);
+    if (isMouseDragging) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
     }
 
     return () => {
-      window.removeEventListener('mousemove', handleMove);
-      window.removeEventListener('touchmove', handleMove);
-      window.removeEventListener('mouseup', handleDragUp);
-      window.removeEventListener('touchend', handleDragUp);
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isDragging, transform, onTransformChange]);
+  }, [isMouseDragging, onTransformChange, scale, transform, getConstrainedPosition]);
+
+
+  // --- Touch Panning Logic ---
+  const handleTouchStartPan = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (!isEditing || e.touches.length !== 1) return;
+    
+    e.preventDefault();
+    e.stopPropagation();
+
+    const touch = e.touches[0];
+    const dragStart = {
+        x: touch.clientX,
+        y: touch.clientY,
+        imageX: transform.x,
+        imageY: transform.y,
+    };
+    
+    const container = containerRef.current;
+    if (!container) return;
+
+    const handleTouchMove = (moveEvent: TouchEvent) => {
+      moveEvent.preventDefault();
+      
+      if (moveEvent.touches.length !== 1) return;
+
+      const moveTouch = moveEvent.touches[0];
+      const dx = moveTouch.clientX - dragStart.x;
+      const dy = moveTouch.clientY - dragStart.y;
+      
+      const { width: containerW, height: containerH } = container.getBoundingClientRect();
+      if (containerW === 0 || containerH === 0) return;
+      
+      const newX = dragStart.imageX + (dx / containerW) * 100;
+      const newY = dragStart.imageY + (dy / containerH) * 100;
+
+      const { constrainedX, constrainedY } = getConstrainedPosition(newX, newY, scale);
+      onTransformChange({ ...transform, x: constrainedX, y: constrainedY });
+    };
+
+    const handleTouchEnd = (endEvent: TouchEvent) => {
+      endEvent.preventDefault();
+      
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('touchend', handleTouchEnd);
+      document.removeEventListener('touchcancel', handleTouchEnd);
+    };
+    
+    document.addEventListener('touchmove', handleTouchMove, { passive: false });
+    document.addEventListener('touchend', handleTouchEnd, { passive: false });
+    document.addEventListener('touchcancel', handleTouchEnd, { passive: false });
+  };
 
 
   const handleZoomChange = (newScale: number) => {
@@ -216,10 +237,10 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMob
   };
   
   const handleTouchStartForEdit = (e: React.TouchEvent<HTMLDivElement>) => {
-    if (isEditing) return; // Don't interfere if already in edit mode
+    if (isEditing) return;
     const now = new Date().getTime();
-    if ((now - lastTap.current) < 300) { // 300ms threshold for double tap
-        e.preventDefault(); // Prevent zoom on double tap
+    if ((now - lastTap.current) < 300) {
+        e.preventDefault();
         handleEnterEditMode();
     }
     lastTap.current = now;
@@ -247,7 +268,7 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMob
         className={`relative w-full h-full overflow-hidden select-none ${!isEditing && !isOverviewMode ? 'cursor-move' : ''}`}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        draggable={!isEditing && !isOverviewMode} // Draggable when NOT editing AND NOT in overview
+        draggable={!isEditing && !isOverviewMode}
         onDragStart={!isEditing && !isOverviewMode ? handleDragStart : undefined}
         onDragEnd={!isEditing && !isOverviewMode ? handleDragEnd : undefined}
         onDoubleClick={handleEnterEditMode}
@@ -255,7 +276,7 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMob
         title={!isEditing && !isOverviewMode ? t(isMobile ? 'doubleTapToEdit' : 'doubleClickToEdit') : undefined}
     >
         <div 
-            className={`w-full h-full ${isEditing ? (isDragging ? 'cursor-grabbing' : 'cursor-grab') : ''}`}
+            className={`w-full h-full ${isEditing ? (isMouseDragging ? 'cursor-grabbing' : 'cursor-grab') : ''}`}
             onMouseDown={handleMouseDown}
             onTouchStart={handleTouchStartPan}
         >
@@ -296,7 +317,8 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMob
             data-hide-on-capture="true"
             className="absolute bottom-0 left-0 right-0 bg-black/60 backdrop-blur-sm p-2 z-20"
             onClick={(e) => e.stopPropagation()}
-            onMouseDown={(e) => e.stopPropagation()} // Prevent dragging image while interacting with toolbar
+            onMouseDown={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
         >
           <div className="grid grid-cols-2 gap-2 items-center">
             {/* Zoom Slider */}
