@@ -12,9 +12,11 @@ interface HeaderProps {
   onDesignRandom: () => void;
   isDesignDisabled: boolean;
   onOpenProjectManager: () => void;
+  isMobile: boolean;
+  onOpenMobileDesignPicker: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ totalPages, isOverviewMode, onSubmitProject, onToggleOverview, onDesignForMe, onDesignRandom, isDesignDisabled, onOpenProjectManager }) => {
+const Header: React.FC<HeaderProps> = ({ totalPages, isOverviewMode, onSubmitProject, onToggleOverview, onDesignForMe, onDesignRandom, isDesignDisabled, onOpenProjectManager, isMobile, onOpenMobileDesignPicker }) => {
   const [isLangPickerOpen, setIsLangPickerOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const langPickerRef = useRef<HTMLDivElement>(null);
@@ -58,12 +60,12 @@ const Header: React.FC<HeaderProps> = ({ totalPages, isOverviewMode, onSubmitPro
             </button>
             <div className="h-6 border-l border-gray-600 hidden md:block"></div>
             <button 
-              onClick={onDesignForMe}
+              onClick={isMobile ? onOpenMobileDesignPicker : onDesignForMe}
               disabled={isDesignDisabled}
               className="px-4 py-2 rounded-lg bg-gray-700 text-gray-200 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-semibold transition-colors"
-              title={t('designForMe')}
+              title={isMobile ? t('designForMeMobile') : t('designForMe')}
             >
-              {t('designForMe')}
+              {isMobile ? t('designForMeMobile') : t('designForMe')}
             </button>
             <button 
               onClick={onDesignRandom}

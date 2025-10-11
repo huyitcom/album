@@ -1,5 +1,4 @@
 
-
 import React, { useState, useEffect, useRef } from 'react';
 import Header from './components/Header';
 import AlbumView from './components/AlbumView';
@@ -13,6 +12,7 @@ import ProjectManager from './components/ProjectManager';
 import SubmissionModal from './components/SubmissionModal';
 import MobileDragHint from './components/MobileDragHint';
 import MobileEditHint from './components/MobileEditHint';
+import MobileDesignPicker from './components/MobileDesignPicker';
 import { spreadsData as initialSpreadsData, libraryImages as initialLibraryImages } from './constants';
 import { layouts } from './layouts';
 import { AlbumImage, SpreadData, ImageTransform, PlacedImageData, AlbumSize, TextElement, TextStyle, StickerElement, SavedProjectData, SavedAlbumImage, SavedPlacedImageData, SavedSpreadData } from './types';
@@ -41,6 +41,7 @@ const App: React.FC = () => {
   const [textPickerTargetSpreadId, setTextPickerTargetSpreadId] = useState<string | null>(null);
   const [isStickerPickerOpen, setIsStickerPickerOpen] = useState(false);
   const [stickerPickerTargetSpreadId, setStickerPickerTargetSpreadId] = useState<string | null>(null);
+  const [isMobileDesignPickerOpen, setIsMobileDesignPickerOpen] = useState(false);
 
   // Project Management State
   const [isProjectManagerOpen, setIsProjectManagerOpen] = useState(false);
@@ -746,14 +747,15 @@ const App: React.FC = () => {
 
         // 2. Reconstruct spreads with updated image objects from the map.
         const newSpreads: SpreadData[] = projectData.spreads.map((spread: SavedSpreadData) => {
-          // FIX: Explicitly typed the [slotId, savedPlacedImage] tuple in the reduce function.
-          // This resolves a TypeScript inference issue where `savedPlacedImage` was being treated
-          // as `unknown`, causing errors when accessing its properties.
-          const reconstructedImages = Object.entries(spread.images).reduce<{ [key: string]: PlacedImageData }>((acc, [slotId, savedPlacedImage]: [string, SavedPlacedImageData]) => {
-            const fullImageObject = imageMap.get(savedPlacedImage.image.id);
+          // FIX: Use a type assertion on `savedPlacedImage` to resolve TypeScript's incorrect inference
+          // of `unknown` for values from `Object.entries`. This fixes errors when accessing properties
+          // like `.image` and when using the spread operator.
+          const reconstructedImages = Object.entries(spread.images).reduce<{ [key: string]: PlacedImageData }>((acc, [slotId, savedPlacedImage]) => {
+            const typedPlacedImage = savedPlacedImage as SavedPlacedImageData;
+            const fullImageObject = imageMap.get(typedPlacedImage.image.id);
             if (fullImageObject) {
               acc[slotId] = {
-                ...savedPlacedImage,
+                ...typedPlacedImage,
                 image: fullImageObject,
               };
             }
@@ -868,8 +870,22 @@ const App: React.FC = () => {
       )}
       {isRandomDesignPickerOpen && (
         <RandomDesignLayoutPicker
+          isMobile={isMobile}
           onConfirm={handleConfirmRandomDesign}
           onClose={() => setIsRandomDesignPickerOpen(false)}
+        />
+      )}
+      {isMobileDesignPickerOpen && (
+        <MobileDesignPicker
+          onClose={() => setIsMobileDesignPickerOpen(false)}
+          onAutoDesign={() => {
+            setIsMobileDesignPickerOpen(false);
+            handleDesignForMe();
+          }}
+          onRandomDesign={() => {
+            setIsMobileDesignPickerOpen(false);
+            handleDesignRandom();
+          }}
         />
       )}
       {isTextPickerOpen && (
@@ -919,6 +935,8 @@ const App: React.FC = () => {
         onDesignRandom={handleDesignRandom}
         isDesignDisabled={libraryImages.length === 0}
         onOpenProjectManager={() => setIsProjectManagerOpen(true)}
+        isMobile={isMobile}
+        onOpenMobileDesignPicker={() => setIsMobileDesignPickerOpen(true)}
       />
       <div className="flex flex-col md:flex-row flex-1 overflow-hidden">
         <div 
@@ -953,6 +971,7 @@ const App: React.FC = () => {
               onUpdateImageTransform={handleUpdateImageTransform}
               onRemoveImageFromSlot={handleRemoveImageFromSlot}
               onAddSpread={handleAddSpread}
+              // FIX: Corrected prop value from undefined `onReorderSpreads` to the handler function `handleReorderSpreads`.
               onReorderSpreads={handleReorderSpreads}
               onOpenTextPicker={handleOpenTextPicker}
               onUpdateText={handleUpdateText}

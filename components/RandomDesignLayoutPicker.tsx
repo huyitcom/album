@@ -1,15 +1,15 @@
-
 import React, { useState } from 'react';
 import { layoutList } from '../layouts';
 import { XMarkIcon, CheckIcon } from './icons';
 import { useI18n } from './i18n';
 
 interface RandomDesignLayoutPickerProps {
+  isMobile: boolean;
   onConfirm: (selectedLayoutIds: string[]) => void;
   onClose: () => void;
 }
 
-const RandomDesignLayoutPicker: React.FC<RandomDesignLayoutPickerProps> = ({ onConfirm, onClose }) => {
+const RandomDesignLayoutPicker: React.FC<RandomDesignLayoutPickerProps> = ({ isMobile, onConfirm, onClose }) => {
   const { language, t } = useI18n();
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
@@ -85,18 +85,22 @@ const RandomDesignLayoutPicker: React.FC<RandomDesignLayoutPickerProps> = ({ onC
           </div>
         </div>
         <footer className="flex items-center justify-end p-4 border-t space-x-4 bg-gray-50">
-           <button 
-                onClick={() => setSelectedIds(layoutList.map(l => l.id))}
-                className="px-4 py-2 bg-white border border-gray-300 text-gray-700 font-semibold rounded-md shadow-sm hover:bg-gray-100 text-sm"
-            >
-                {t('selectAll')}
-            </button>
-             <button 
-                onClick={() => setSelectedIds([])}
-                className="px-4 py-2 bg-white border border-gray-300 text-gray-700 font-semibold rounded-md shadow-sm hover:bg-gray-100 text-sm"
-            >
-                {t('selectNone')}
-            </button>
+           {!isMobile && (
+            <>
+              <button 
+                  onClick={() => setSelectedIds(layoutList.map(l => l.id))}
+                  className="px-4 py-2 bg-white border border-gray-300 text-gray-700 font-semibold rounded-md shadow-sm hover:bg-gray-100 text-sm"
+              >
+                  {t('selectAll')}
+              </button>
+              <button 
+                  onClick={() => setSelectedIds([])}
+                  className="px-4 py-2 bg-white border border-gray-300 text-gray-700 font-semibold rounded-md shadow-sm hover:bg-gray-100 text-sm"
+              >
+                  {t('selectNone')}
+              </button>
+            </>
+           )}
             <div className="flex-grow"></div>
             <button 
                 onClick={onClose}
