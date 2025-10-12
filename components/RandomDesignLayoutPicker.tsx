@@ -12,6 +12,9 @@ interface RandomDesignLayoutPickerProps {
 const RandomDesignLayoutPicker: React.FC<RandomDesignLayoutPickerProps> = ({ isMobile, onConfirm, onClose }) => {
   const { language, t } = useI18n();
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const filteredLayouts = isMobile 
+    ? layoutList.filter(layout => !layout.hideOnMobile)
+    : layoutList;
 
   const handleToggleSelection = (layoutId: string) => {
     setSelectedIds(prev => 
@@ -47,7 +50,7 @@ const RandomDesignLayoutPicker: React.FC<RandomDesignLayoutPickerProps> = ({ isM
         </header>
         <div className="p-6 overflow-y-auto">
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {layoutList.map((layout) => {
+            {filteredLayouts.map((layout) => {
               const isSelected = selectedIds.includes(layout.id);
               return (
                 <div 
@@ -88,7 +91,7 @@ const RandomDesignLayoutPicker: React.FC<RandomDesignLayoutPickerProps> = ({ isM
            {!isMobile && (
             <>
               <button 
-                  onClick={() => setSelectedIds(layoutList.map(l => l.id))}
+                  onClick={() => setSelectedIds(filteredLayouts.map(l => l.id))}
                   className="px-4 py-2 bg-white border border-gray-300 text-gray-700 font-semibold rounded-md shadow-sm hover:bg-gray-100 text-sm"
               >
                   {t('selectAll')}

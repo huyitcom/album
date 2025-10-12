@@ -11,10 +11,11 @@ const TextToolbar: React.FC<TextToolbarProps> = ({ textElement, onUpdateStyle })
   const { style } = textElement;
   
   const fonts = ['Arial', 'Verdana', 'Times New Roman', 'Georgia', 'Courier New', 'Roboto', 'Playfair Display', 'Sacramento', 'Lobster', 'Pacifico', 'Bungee Spice', 'Press Start 2P', 'Anton'];
+  const fontSizes = [12, 14, 16, 18, 24, 28, 32, 36, 42, 48, 56, 64, 72];
 
   return (
     <div 
-        className="absolute -top-12 left-1/2 -translate-x-1/2 bg-gray-800 text-white rounded-md shadow-lg p-1 flex items-center space-x-2 z-30"
+        className="absolute -top-14 left-1/2 -translate-x-1/2 bg-gray-800 text-white rounded-md shadow-lg p-1 flex items-center flex-wrap justify-center gap-1 z-30 w-max max-w-xs md:max-w-none"
         data-text-toolbar="true"
         onMouseDown={(e) => e.stopPropagation()}
     >
@@ -28,12 +29,13 @@ const TextToolbar: React.FC<TextToolbarProps> = ({ textElement, onUpdateStyle })
       </select>
 
       {/* Font Size */}
-      <input 
-        type="number"
+      <select 
         value={style.fontSize}
-        onChange={(e) => onUpdateStyle({ fontSize: parseInt(e.target.value, 10) || 12 })}
-        className="w-12 bg-gray-700 text-xs rounded px-1 py-0.5"
-      />
+        onChange={(e) => onUpdateStyle({ fontSize: parseInt(e.target.value, 10) })}
+        className="bg-gray-700 text-xs rounded px-1 py-0.5"
+      >
+        {fontSizes.map(size => <option key={size} value={size}>{size} pt</option>)}
+      </select>
 
       {/* Color */}
       <input 

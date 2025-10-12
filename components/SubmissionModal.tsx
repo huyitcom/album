@@ -1,5 +1,4 @@
 
-
 import React, { useState } from 'react';
 import { XMarkIcon, PaperAirplaneIcon } from './icons';
 import { useI18n } from './i18n';
@@ -71,6 +70,14 @@ const SubmissionModal: React.FC<SubmissionModalProps> = ({ projectName, albumSiz
       return;
     }
     
+    // Filter spreads and check if there are any with photos *before* doing anything else.
+    const spreadsWithPhotos = spreads.filter(s => Object.keys(s.images).length > 0);
+    if (spreadsWithPhotos.length === 0) {
+      setStatus('error');
+      setErrorMessage(t('submissionErrorNoPlacedImages'));
+      return;
+    }
+
     let finalProjectName = projectName;
 
     // Auto-save if project is unsaved
@@ -104,34 +111,42 @@ const SubmissionModal: React.FC<SubmissionModalProps> = ({ projectName, albumSiz
 
     try {
       const formData = new FormData();
-      
+      // FIX: Explicitly type the Map to ensure `spreadInfo` is correctly inferred as `SpreadData`.
+      const spreadsWithPhotosMap: Map<string, SpreadData> = new Map(spreadsWithPhotos.map(s => [s.id, s]));
       const spreadElements = document.querySelectorAll('[data-spread-capture-target="true"]');
-      if (spreadElements.length !== spreads.length) {
-          throw new Error("Could not find all spread elements to capture.");
-      }
-      
       const exportScale = getScaleForSize(albumSize);
 
-      // Generate a rendered image for each spread
-      for (let i = 0; i < spreadElements.length; i++) {
-        const element = spreadElements[i] as HTMLElement;
-        const spreadInfo = spreads[i];
-        
-        const canvas = await window.html2canvas(element, {
-            scale: exportScale, 
-            useCORS: true, // Needed for external images like stickers
-            backgroundColor: '#ffffff', // Ensure a solid background
-        });
+      // Generate a rendered image for each spread that has photos
+      for (const element of Array.from(spreadElements)) {
+        const htmlElement = element as HTMLElement;
+        const spreadContainer = htmlElement.closest('[data-spread-id]');
+        if (!spreadContainer) continue;
 
-        // Export as high-quality JPEG for smaller file size
-        const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/jpeg', 1.0));
-        
-        if (blob) {
-            const filename = `spread_${String(spreadInfo.pages[0]).padStart(2, '0')}-${String(spreadInfo.pages[1]).padStart(2, '0')}.jpg`;
-            formData.append('spreads[]', blob, filename);
-        } else {
-            throw new Error(`Failed to generate image for spread ${i + 1}.`);
+        const spreadId = spreadContainer.getAttribute('data-spread-id');
+        if (spreadId && spreadsWithPhotosMap.has(spreadId)) {
+            const spreadInfo = spreadsWithPhotosMap.get(spreadId)!;
+
+            const canvas = await window.html2canvas(htmlElement, {
+                scale: exportScale, 
+                useCORS: true, // Needed for external images like stickers
+                backgroundColor: '#ffffff', // Ensure a solid background
+            });
+
+            // Export as high-quality JPEG for smaller file size
+            const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/jpeg', 1.0));
+            
+            if (blob) {
+                const filename = `spread_${String(spreadInfo.pages[0]).padStart(2, '0')}-${String(spreadInfo.pages[1]).padStart(2, '0')}.jpg`;
+                formData.append('spreads[]', blob, filename);
+            } else {
+                throw new Error(`Failed to generate image for spread on pages ${spreadInfo.pages.join('-')}.`);
+            }
         }
+      }
+
+      // Safeguard check
+      if (!formData.has('spreads[]')) {
+          throw new Error("Rendering process failed: no images were added to the submission payload, even though spreads with photos were found.");
       }
 
       // Create a simple project data file with customer details
@@ -144,7 +159,7 @@ const SubmissionModal: React.FC<SubmissionModalProps> = ({ projectName, albumSiz
           email: email.trim(),
           address: address.trim(),
         },
-        pageCount: spreads.length * 2,
+        pageCount: spreadsWithPhotos.length * 2,
       };
 
       formData.append('projectData', JSON.stringify(projectData, null, 2));

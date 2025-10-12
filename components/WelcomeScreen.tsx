@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { AlbumSize } from '../types';
 import { useI18n } from './i18n';
@@ -31,7 +30,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ isMobile, onSelectSize, o
         <h1 className="text-3xl font-bold text-gray-800 mb-2">{t('welcomeTitle')}</h1>
         <p className="text-gray-600 mb-8">{t('welcomeSubtitle')}</p>
         
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-8 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-4 mb-8">
             {sizes.map(({ size, label, aspectRatio }) => (
             <div 
                 key={size} 

@@ -181,6 +181,7 @@ const Spread: React.FC<SpreadProps> = (props) => {
     >
         {isLayoutPickerOpen && (
             <LayoutPicker 
+                isMobile={isMobile}
                 onSelectLayout={handleSelectLayout}
                 onClose={() => setIsLayoutPickerOpen(false)}
             />

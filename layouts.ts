@@ -11,6 +11,7 @@ export interface LayoutTemplate {
   gridTemplateRows: string;
   gap: string;
   slots: LayoutSlot[];
+  hideOnMobile?: boolean;
 }
 
 export const layouts: { [id: string]: LayoutTemplate } = {
@@ -88,6 +89,7 @@ export const layouts: { [id: string]: LayoutTemplate } = {
       { id: 'slot-3', gridArea: '2 / 2 / 3 / 3' }, // small right 1
       { id: 'slot-4', gridArea: '3 / 2 / 4 / 3' }, // small right 2
     ],
+    hideOnMobile: true,
   },
   'offset-grid': {
     id: 'offset-grid',
@@ -116,6 +118,7 @@ export const layouts: { [id: string]: LayoutTemplate } = {
       { id: 'slot-3', gridArea: '2 / 2 / 3 / 3' }, // Middle right
       { id: 'slot-4', gridArea: '3 / 2 / 4 / 3' }, // Bottom right
     ],
+    hideOnMobile: true,
   },
   'five-photo-story': {
     id: 'five-photo-story',
@@ -130,7 +133,8 @@ export const layouts: { [id: string]: LayoutTemplate } = {
       { id: 'slot-3', gridArea: '2 / 2 / 3 / 3' },
       { id: 'slot-4', gridArea: '2 / 3 / 3 / 4' },
       { id: 'slot-5', gridArea: '2 / 4 / 3 / 5' },
-    ]
+    ],
+    hideOnMobile: true,
   },
   'left-triple-stack': {
     id: 'left-triple-stack',
@@ -144,7 +148,8 @@ export const layouts: { [id: string]: LayoutTemplate } = {
         { id: 'slot-2', gridArea: '1 / 1 / 2 / 2' },
         { id: 'slot-3', gridArea: '2 / 1 / 3 / 2' },
         { id: 'slot-4', gridArea: '3 / 1 / 4 / 2' }
-    ]
+    ],
+    hideOnMobile: true,
   },
   'left-split-feature': {
     id: 'left-split-feature',
@@ -249,6 +254,7 @@ export const layouts: { [id: string]: LayoutTemplate } = {
       { id: 'slot-4', gridArea: '2 / 3 / 3 / 5' }, // side-1
       { id: 'slot-5', gridArea: '3 / 3 / 4 / 5' }, // side-2
     ],
+    hideOnMobile: true,
   },
 };
 

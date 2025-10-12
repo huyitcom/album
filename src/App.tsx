@@ -769,16 +769,16 @@ const App: React.FC = () => {
 
         // 2. Reconstruct spreads with updated image objects from the map.
         const newSpreads: SpreadData[] = projectData.spreads.map((spread: SavedSpreadData) => {
-          // FIX: Explicitly typing the destructured arguments from `Object.entries`
-          // to resolve TypeScript's incorrect type inference of `savedPlacedImage` as `unknown`.
           const reconstructedImages: { [key: string]: PlacedImageData } = {};
+          // FIX: Explicitly typing the destructured arguments from `Object.entries`
+          // resolves TypeScript's incorrect type inference of `savedPlacedImage` as `unknown`.
           Object.entries(spread.images).forEach(([slotId, savedPlacedImage]: [string, SavedPlacedImageData]) => {
             const fullImageObject = imageMap.get(savedPlacedImage.image.id);
             if (fullImageObject) {
-                reconstructedImages[slotId] = {
-                    ...savedPlacedImage,
-                    image: fullImageObject,
-                };
+              reconstructedImages[slotId] = {
+                ...savedPlacedImage,
+                image: fullImageObject,
+              };
             }
           });
 

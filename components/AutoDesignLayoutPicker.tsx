@@ -4,12 +4,16 @@ import { XMarkIcon } from './icons';
 import { useI18n } from './i18n';
 
 interface AutoDesignLayoutPickerProps {
+  isMobile: boolean;
   onSelectLayout: (layoutId: string) => void;
   onClose: () => void;
 }
 
-const AutoDesignLayoutPicker: React.FC<AutoDesignLayoutPickerProps> = ({ onSelectLayout, onClose }) => {
+const AutoDesignLayoutPicker: React.FC<AutoDesignLayoutPickerProps> = ({ isMobile, onSelectLayout, onClose }) => {
   const { language, t } = useI18n();
+  const filteredLayouts = isMobile 
+    ? layoutList.filter(layout => !layout.hideOnMobile)
+    : layoutList;
 
   return (
     <div 
@@ -31,7 +35,7 @@ const AutoDesignLayoutPicker: React.FC<AutoDesignLayoutPickerProps> = ({ onSelec
         </header>
         <div className="p-6 overflow-y-auto">
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {layoutList.map((layout) => (
+            {filteredLayouts.map((layout) => (
               <div 
                 key={layout.id} 
                 className="cursor-pointer group"
