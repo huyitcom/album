@@ -24,29 +24,50 @@ const TextElement: React.FC<TextElementProps> = ({ spreadId, data, isSelected, i
   const elementRef = useRef<HTMLDivElement>(null);
   const dragStartRef = useRef({ x: 0, y: 0, elX: 0, elY: 0, elW: 0, elH: 0 });
 
-  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (isEditing) return;
+  const handleInteractionStart = (
+    e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>,
+    action: 'drag' | 'resize',
+    handle?: string
+  ) => {
+    if (isEditing || isOverviewMode) return;
     e.stopPropagation();
     onSelect(data.id);
-    setIsDragging(true);
-    dragStartRef.current = { x: e.clientX, y: e.clientY, elX: data.x, elY: data.y, elW: data.width, elH: data.height };
-  };
-  
-  const handleResizeHandleMouseDown = (e: React.MouseEvent<HTMLDivElement>, handle: string) => {
-    e.stopPropagation();
-    onSelect(data.id);
-    setIsResizing(handle);
-    dragStartRef.current = { x: e.clientX, y: e.clientY, elX: data.x, elY: data.y, elW: data.width, elH: data.height };
+
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+
+    if (action === 'drag') {
+      setIsDragging(true);
+    } else if (action === 'resize' && handle) {
+      setIsResizing(handle);
+    }
+
+    dragStartRef.current = { 
+      x: clientX, 
+      y: clientY, 
+      elX: data.x, 
+      elY: data.y, 
+      elW: data.width, 
+      elH: data.height 
+    };
   };
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
+    const handleMove = (e: MouseEvent | TouchEvent) => {
       if (!elementRef.current) return;
+      
+      if (e instanceof TouchEvent) {
+        e.preventDefault();
+      }
+
+      const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+      const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+
       const parentRect = elementRef.current.parentElement?.getBoundingClientRect();
       if (!parentRect || parentRect.width === 0 || parentRect.height === 0) return;
 
-      const dx = e.clientX - dragStartRef.current.x;
-      const dy = e.clientY - dragStartRef.current.y;
+      const dx = clientX - dragStartRef.current.x;
+      const dy = clientY - dragStartRef.current.y;
       
       if (isDragging) {
         const newX = dragStartRef.current.elX + (dx / parentRect.width) * 100;
@@ -75,18 +96,23 @@ const TextElement: React.FC<TextElementProps> = ({ spreadId, data, isSelected, i
           onUpdate(spreadId, data.id, { width: Math.max(5, newWidth), height: Math.max(5, newHeight), x: newX, y: newY });
       }
     };
-    const handleMouseUp = () => {
+    
+    const stopHandling = () => {
       setIsDragging(false);
       setIsResizing(null);
     };
 
     if (isDragging || isResizing) {
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseup', handleMouseUp);
+      window.addEventListener('mousemove', handleMove);
+      window.addEventListener('mouseup', stopHandling);
+      window.addEventListener('touchmove', handleMove, { passive: false });
+      window.addEventListener('touchend', stopHandling);
     }
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('mousemove', handleMove);
+      window.removeEventListener('mouseup', stopHandling);
+      window.removeEventListener('touchmove', handleMove);
+      window.removeEventListener('touchend', stopHandling);
     };
   }, [isDragging, isResizing, onUpdate, spreadId, data.id]);
 
@@ -138,7 +164,8 @@ const TextElement: React.FC<TextElementProps> = ({ spreadId, data, isSelected, i
         height: `${data.height}%`,
         zIndex: isSelected ? 20 : 10,
       }}
-      onMouseDown={isOverviewMode ? undefined : handleMouseDown}
+      onMouseDown={(e) => handleInteractionStart(e, 'drag')}
+      onTouchStart={(e) => handleInteractionStart(e, 'drag')}
       onDoubleClick={isOverviewMode ? undefined : handleDoubleClick}
       data-text-element="true"
     >
@@ -179,7 +206,8 @@ const TextElement: React.FC<TextElementProps> = ({ spreadId, data, isSelected, i
                 key={handle}
                 className={`absolute w-3 h-3 bg-white border border-gray-500 rounded-full z-30 ${handle.includes('left') ? '-left-1.5' : '-right-1.5'} ${handle.includes('top') ? '-top-1.5' : '-bottom-1.5'} 
                 ${(handle === 'top-left' || handle === 'bottom-right') ? 'cursor-nwse-resize' : 'cursor-nesw-resize'}`}
-                onMouseDown={(e) => handleResizeHandleMouseDown(e, handle)}
+                onMouseDown={(e) => handleInteractionStart(e, 'resize', handle)}
+                onTouchStart={(e) => handleInteractionStart(e, 'resize', handle)}
               />
           ))}
         </>

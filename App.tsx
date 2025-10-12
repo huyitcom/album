@@ -764,20 +764,21 @@ const App: React.FC = () => {
 
         // 2. Reconstruct spreads with updated image objects from the map.
         const newSpreads: SpreadData[] = projectData.spreads.map((spread: SavedSpreadData) => {
-          // FIX: Use a type assertion on `savedPlacedImage` to resolve TypeScript's incorrect inference
-          // of `unknown` for values from `Object.entries`. This fixes errors when accessing properties
-          // like `.image` and when using the spread operator.
-          const reconstructedImages = Object.entries(spread.images).reduce<{ [key: string]: PlacedImageData }>((acc, [slotId, savedPlacedImage]) => {
-            const typedPlacedImage = savedPlacedImage as SavedPlacedImageData;
-            const fullImageObject = imageMap.get(typedPlacedImage.image.id);
-            if (fullImageObject) {
-              acc[slotId] = {
-                ...typedPlacedImage,
-                image: fullImageObject,
-              };
+          // FIX: Replaced `Object.entries().reduce()` with a `for...in` loop to ensure correct type inference for placed images,
+          // avoiding errors where image data was treated as `unknown`.
+          const reconstructedImages: { [key: string]: PlacedImageData } = {};
+          for (const slotId in spread.images) {
+            if (Object.prototype.hasOwnProperty.call(spread.images, slotId)) {
+                const savedPlacedImage = spread.images[slotId];
+                const fullImageObject = imageMap.get(savedPlacedImage.image.id);
+                if (fullImageObject) {
+                    reconstructedImages[slotId] = {
+                        ...savedPlacedImage,
+                        image: fullImageObject,
+                    };
+                }
             }
-            return acc;
-          }, {});
+          }
 
           return {
             ...spread,
