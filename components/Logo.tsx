@@ -6,7 +6,7 @@ interface LogoProps {
 
 const Logo: React.FC<LogoProps> = ({ forceFull = false }) => {
   return (
-    <div className="flex items-center h-8" title="PHOTOBOOKVIETNAM Album Builder">
+    <div className="flex items-center" title="PHOTOBOOKVIETNAM Album Builder">
       {/* Full Logo */}
       <span 
         className={forceFull ? "inline text-3xl" : "hidden md:inline text-3xl"}
@@ -21,16 +21,16 @@ const Logo: React.FC<LogoProps> = ({ forceFull = false }) => {
       
       {/* Short Logo (only shows on mobile if not forceFull) */}
       {!forceFull && (
-        <span 
-          className="md:hidden text-3xl" 
+        <div 
+          className="md:hidden flex flex-col items-center justify-center leading-none" 
           style={{ 
             fontFamily: "'Fjalla One', sans-serif", 
-            letterSpacing: '-0.075em',
             textShadow: '1px 1px 3px rgba(0, 0, 0, 0.5)'
           }}
         >
-          <span className="text-black">PTB</span><span className="text-cyan-200">VN</span>
-        </span>
+          <span className="text-black text-base" style={{ letterSpacing: '-0.05em' }}>PHOTOBOOK</span>
+          <span className="text-cyan-200 text-base" style={{ letterSpacing: '-0.05em', marginTop: '-0.25rem' }}>VIETNAM</span>
+        </div>
       )}
     </div>
   );

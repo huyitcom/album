@@ -187,7 +187,7 @@ export const translations: { [lang in Language]: { [key: string]: string } } = {
     currentProject: 'Dự án hiện tại',
 
     // Submission Modal
-    submissionTitle: 'Gửi dự án của bạn',
+    submissionTitle: 'Gửi đơn hàng của bạn',
     submissionFormTitle: 'Thông tin đơn hàng của bạn',
     submissionOrderDetailsMessage: 'Vui lòng cung cấp thông tin liên hệ của bạn để chúng tôi có thể xử lý đơn hàng.',
     fullNameLabel: 'Họ và Tên',
