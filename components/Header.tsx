@@ -42,7 +42,62 @@ const Header: React.FC<HeaderProps> = ({ totalPages, isOverviewMode, onSubmitPro
   return (
     <header className="flex items-stretch shadow-sm border-b border-gray-300">
       {/* Left Section */}
-      <div className="bg-cyan-500 flex-shrink-0 flex items-center px-2 md:px-4 py-2">
+      <div className="bg-cyan-500 flex-shrink-0 flex items-center space-x-2 px-2 md:px-4 py-2">
+        {/* Mobile Menu */}
+        <div className="relative md:hidden" ref={mobileMenuRef}>
+          <button
+              onClick={() => setIsMobileMenuOpen(prev => !prev)}
+              className="p-2 rounded-lg text-black hover:bg-cyan-600/50"
+              aria-label="Open menu"
+              aria-haspopup="true"
+              aria-expanded={isMobileMenuOpen}
+          >
+              <Bars3Icon className="w-6 h-6" />
+          </button>
+          {isMobileMenuOpen && (
+              <div className="absolute top-full left-0 mt-2 w-64 bg-gray-700 rounded-md shadow-lg z-50 border border-gray-600 text-gray-200" role="menu">
+                  <div className="p-2 space-y-1">
+                      <button
+                        onClick={() => { onOpenProjectManager(); setIsMobileMenuOpen(false); }}
+                        className="w-full text-left flex items-center space-x-3 px-3 py-2 rounded-md hover:bg-gray-600"
+                        role="menuitem"
+                      >
+                        <FolderIcon className="w-5 h-5 text-gray-300" />
+                        <span>{t('myProjects')}</span>
+                      </button>
+                      <button 
+                        onClick={() => { onDesignRandom(); setIsMobileMenuOpen(false); }}
+                        disabled={isDesignDisabled}
+                        className="w-full text-left flex items-center space-x-3 px-3 py-2 rounded-md hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                        role="menuitem"
+                      >
+                          <ArrowPathIcon className="w-5 h-5 text-green-400" />
+                          <span>{t('designRandom')}</span>
+                      </button>
+                      
+                      <div className="border-t border-gray-600 my-1 !mx-2"></div>
+                      
+                      <div className="px-3 pt-2 pb-1 text-xs text-gray-400 font-semibold uppercase">{t('changeLanguageTitle')}</div>
+                      <button
+                        onClick={() => { setLanguage('en'); setIsMobileMenuOpen(false); }}
+                        className={`w-full text-left flex items-center justify-between px-3 py-2 rounded-md hover:bg-gray-600 ${language === 'en' ? 'font-bold' : ''}`}
+                        role="menuitem"
+                      >
+                        <span>{t('langEN')}</span>
+                        {language === 'en' && <CheckIcon className="w-4 h-4 text-blue-400" />}
+                      </button>
+                      <button
+                        onClick={() => { setLanguage('vn'); setIsMobileMenuOpen(false); }}
+                        className={`w-full text-left flex items-center justify-between px-3 py-2 rounded-md hover:bg-gray-600 ${language === 'vn' ? 'font-bold' : ''}`}
+                        role="menuitem"
+                      >
+                        <span>{t('langVN')}</span>
+                        {language === 'vn' && <CheckIcon className="w-4 h-4 text-blue-400" />}
+                      </button>
+                  </div>
+              </div>
+          )}
+        </div>
         <Logo />
       </div>
 
@@ -128,64 +183,8 @@ const Header: React.FC<HeaderProps> = ({ totalPages, isOverviewMode, onSubmitPro
             >
               <PaperAirplaneIcon className="w-5 h-5" />
               <span className="hidden md:inline">{t('submitProject')}</span>
-              <span className="md:hidden">Submit</span>
+              <span className="md:hidden">{t('submitProjectMobile')}</span>
             </button>
-          </div>
-          
-          {/* Mobile Menu */}
-          <div className="relative md:hidden" ref={mobileMenuRef}>
-            <button
-                onClick={() => setIsMobileMenuOpen(prev => !prev)}
-                className="p-2 ml-2 rounded-lg bg-gray-700 text-gray-200 hover:bg-gray-600"
-                aria-label="Open menu"
-                aria-haspopup="true"
-                aria-expanded={isMobileMenuOpen}
-            >
-                <Bars3Icon className="w-6 h-6" />
-            </button>
-            {isMobileMenuOpen && (
-                <div className="absolute top-full right-0 mt-2 w-64 bg-gray-700 rounded-md shadow-lg z-50 border border-gray-600 text-gray-200" role="menu">
-                    <div className="p-2 space-y-1">
-                        <button
-                          onClick={() => { onOpenProjectManager(); setIsMobileMenuOpen(false); }}
-                          className="w-full text-left flex items-center space-x-3 px-3 py-2 rounded-md hover:bg-gray-600"
-                          role="menuitem"
-                        >
-                          <FolderIcon className="w-5 h-5 text-gray-300" />
-                          <span>{t('myProjects')}</span>
-                        </button>
-                        <button 
-                          onClick={() => { onDesignRandom(); setIsMobileMenuOpen(false); }}
-                          disabled={isDesignDisabled}
-                          className="w-full text-left flex items-center space-x-3 px-3 py-2 rounded-md hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
-                          role="menuitem"
-                        >
-                            <ArrowPathIcon className="w-5 h-5 text-green-400" />
-                            <span>{t('designRandom')}</span>
-                        </button>
-                        
-                        <div className="border-t border-gray-600 my-1 !mx-2"></div>
-                        
-                        <div className="px-3 pt-2 pb-1 text-xs text-gray-400 font-semibold uppercase">{t('changeLanguageTitle')}</div>
-                        <button
-                          onClick={() => { setLanguage('en'); setIsMobileMenuOpen(false); }}
-                          className={`w-full text-left flex items-center justify-between px-3 py-2 rounded-md hover:bg-gray-600 ${language === 'en' ? 'font-bold' : ''}`}
-                          role="menuitem"
-                        >
-                          <span>{t('langEN')}</span>
-                          {language === 'en' && <CheckIcon className="w-4 h-4 text-blue-400" />}
-                        </button>
-                        <button
-                          onClick={() => { setLanguage('vn'); setIsMobileMenuOpen(false); }}
-                          className={`w-full text-left flex items-center justify-between px-3 py-2 rounded-md hover:bg-gray-600 ${language === 'vn' ? 'font-bold' : ''}`}
-                          role="menuitem"
-                        >
-                          <span>{t('langVN')}</span>
-                          {language === 'vn' && <CheckIcon className="w-4 h-4 text-blue-400" />}
-                        </button>
-                    </div>
-                </div>
-            )}
           </div>
         </div>
       </div>

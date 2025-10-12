@@ -23,7 +23,7 @@ interface I18nProviderProps {
 }
 
 export const I18nProvider: React.FC<I18nProviderProps> = ({ children }) => {
-  const [language, setLanguage] = useState<Language>('en');
+  const [language, setLanguage] = useState<Language>('vn');
 
   const t = (key: string, replacements?: { [key: string]: string | number }): string => {
     // Ensure we have a defined language object, default to 'en'

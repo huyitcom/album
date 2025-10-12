@@ -152,14 +152,31 @@ const App: React.FC = () => {
       linked: false,
     }));
 
-    // --- HINT FOR MOBILE DRAG ---
     const wasLibraryEmpty = libraryImages.length === 0;
-    const hintShown = localStorage.getItem('mobileDragHintShown');
-    if (isMobile && wasLibraryEmpty && !hintShown && newImages.length > 0) {
-      setShowMobileDragHint(true);
-      localStorage.setItem('mobileDragHintShown', 'true');
+    if (wasLibraryEmpty && newImages.length > 0) {
+      // --- HINT FOR MOBILE DRAG ---
+      const hintShown = localStorage.getItem('mobileDragHintShown');
+      if (isMobile && !hintShown) {
+        setShowMobileDragHint(true);
+        localStorage.setItem('mobileDragHintShown', 'true');
+      }
+      // ----------------------------
+
+      // --- HINT FOR AUTO DESIGN ---
+      const designHintShown = localStorage.getItem('designForMeHintShown');
+      if (!designHintShown) {
+          // Use a short delay so the two hints don't appear at the same time on mobile
+          setTimeout(() => {
+              if (isMobile) {
+                  setIsMobileDesignPickerOpen(true);
+              } else {
+                  setIsAutoDesignPickerOpen(true);
+              }
+              localStorage.setItem('designForMeHintShown', 'true');
+          }, 800);
+      }
+      // ----------------------------
     }
-    // ----------------------------
 
     setLibraryImages(prev => [...newImages, ...prev]);
   };
@@ -829,7 +846,8 @@ const App: React.FC = () => {
   if (!isAlbumSizeChosen || !albumSize) {
     return (
       <div className="bg-gray-200 h-full">
-          <WelcomeScreen 
+          <WelcomeScreen
+            isMobile={isMobile}
             onSelectSize={handleSelectInitialAlbumSize} 
             onOpenProjectManager={() => setIsProjectManagerOpen(true)}
           />

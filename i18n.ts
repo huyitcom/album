@@ -1,5 +1,3 @@
-
-
 import { Language } from './types';
 
 export const translations: { [lang in Language]: { [key: string]: string } } = {
@@ -16,6 +14,7 @@ export const translations: { [lang in Language]: { [key: string]: string } } = {
     totalPages: 'TOTAL PAGES',
     totalImages: 'TOTAL IMAGES',
     submitProject: 'Submit Project',
+    submitProjectMobile: 'Submit',
     langEN: 'English',
     langVN: 'Tiếng Việt',
     toggleOverviewTitle: 'Toggle Page Overview',
@@ -36,9 +35,9 @@ export const translations: { [lang in Language]: { [key: string]: string } } = {
     dropImagesToUpload: 'Drop images to upload',
     libraryEmptyTitle: 'Your library is empty',
     libraryEmptySubtitle: "Drag & drop photos here, or use the 'Add Photos' button.",
-    designForMe: 'AUTO',
+    designForMe: 'AUTO DESIGN',
     designForMeMobile: 'DESIGN FOR ME',
-    designRandom: 'RANDOM',
+    designRandom: 'RANDOM DESIGN',
     clear: 'CLEAR',
     addPhotos: '+ ADD PHOTOS',
     removeImageTitle: 'Remove image',
@@ -119,7 +118,7 @@ export const translations: { [lang in Language]: { [key: string]: string } } = {
   },
   vn: {
     // Welcome Screen
-    welcomeTitle: 'Tự Thiết Kế Album',
+    welcomeTitle: 'App Thiết Kế Album',
     welcomeSubtitle: 'Vui lòng chọn kích thước album',
     or: 'hoặc',
     loadExistingProject: 'Mở một dự án có sẵn',
@@ -130,6 +129,7 @@ export const translations: { [lang in Language]: { [key: string]: string } } = {
     totalPages: 'TỔNG SỐ TRANG',
     totalImages: 'TỔNG SỐ ẢNH',
     submitProject: 'Hoàn tất & Đặt hàng',
+    submitProjectMobile: 'Gửi in',
     langEN: 'English',
     langVN: 'Tiếng Việt',
     toggleOverviewTitle: 'Chuyển đổi chế độ xem tổng quan',
@@ -150,16 +150,16 @@ export const translations: { [lang in Language]: { [key: string]: string } } = {
     dropImagesToUpload: 'Thả ảnh để tải lên',
     libraryEmptyTitle: 'Thư viện của bạn trống',
     libraryEmptySubtitle: "Kéo và thả ảnh vào đây, hoặc sử dụng nút 'Thêm ảnh'.",
-    designForMe: 'TỰ ĐỘNG',
-    designForMeMobile: 'THIẾT KẾ CHO TÔI',
-    designRandom: 'NGẪU NHIÊN',
+    designForMe: 'Dàn trang tự động',
+    designForMeMobile: 'Thiết kế nhanh',
+    designRandom: 'Dàn trang ngẫu nhiên',
     clear: 'XÓA HẾT',
     addPhotos: '+ THÊM ẢNH',
     removeImageTitle: 'Xóa ảnh',
 
     // Modals
     chooseLayout: 'Chọn một bố cục',
-    designForMeTitle: '"Thiết kế cho tôi" - Chọn chủ đề cho album',
+    designForMeTitle: 'Chọn 1 layout cho tất cả trang',
     designForMeSubtitle: 'Chọn một bố cục để áp dụng cho tất cả các trang.',
     selectAlbumSize: 'Chọn kích thước Album',
     chooseTextStyle: 'Chọn một kiểu chữ',

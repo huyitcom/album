@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { SpreadData, ImageTransform, AlbumSize, TextElement as TextElementType, StickerElement as StickerElementType } from '../types';
 import { LayoutIcon, TypeIcon, SparklesIcon } from './icons';
@@ -101,6 +102,8 @@ const getAspectRatioForSize = (size: AlbumSize): string => {
 const Spread: React.FC<SpreadProps> = (props) => {
   const { data, index, albumSize, isMobile, isOverviewMode, onDropImageInSlot, onSwapImagesInSlots, onReorderSpreads, onChangeLayout, onUpdateImageTransform, onRemoveImageFromSlot, onOpenTextPicker, onUpdateText, onRemoveText, onSelectText, selectedTextId, onOpenStickerPicker, onUpdateSticker, onRemoveSticker, onSelectSticker, selectedStickerId } = props;
   const [isLayoutPickerOpen, setIsLayoutPickerOpen] = useState(false);
+  const [editingSlotId, setEditingSlotId] = useState<string | null>(null);
+  const [isAnyImageEditing, setIsAnyImageEditing] = useState(false);
   const layout = layouts[data.layoutId] || layouts['single-full'];
   const { t } = useI18n();
 
@@ -229,6 +232,8 @@ const Spread: React.FC<SpreadProps> = (props) => {
                               isOverviewMode={isOverviewMode}
                               onTransformChange={(newTransform) => onUpdateImageTransform(data.id, slot.id, newTransform)}
                               onRemove={() => onRemoveImageFromSlot(data.id, slot.id)}
+                              onEnterEditMode={() => setIsAnyImageEditing(true)}
+                              onExitEditMode={() => setIsAnyImageEditing(false)}
                           />
                       ) : (
                           <div className="flex items-center justify-center w-full h-full text-xs text-gray-400 p-2 text-center">
@@ -272,31 +277,31 @@ const Spread: React.FC<SpreadProps> = (props) => {
          {!isOverviewMode && (
             <div 
               data-hide-on-capture="true"
-              className="absolute top-2 left-2 flex items-center space-x-1 md:space-x-2 z-40 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+              className={`absolute top-2 left-2 flex flex-col items-start space-y-2 md:flex-row md:items-center md:space-y-0 md:space-x-2 z-40 transition-opacity duration-200 ${isAnyImageEditing ? 'opacity-0 pointer-events-none' : 'opacity-0 group-hover:opacity-100'}`}
             >
               <button 
                   onClick={() => setIsLayoutPickerOpen(true)}
-                  className="flex items-center md:space-x-1.5 p-2 md:px-2 md:py-1 bg-white/80 backdrop-blur-sm rounded-full md:rounded-md shadow hover:bg-white text-xs font-semibold"
+                  className="flex items-center justify-center p-3 md:p-2 bg-white/80 backdrop-blur-sm rounded-full shadow hover:bg-white text-xs font-semibold"
                   title={t('changeLayout')}
               >
                   <LayoutIcon className="w-5 h-5 md:w-4 md:h-4" />
-                  <span className="hidden md:inline">{t('changeLayout')}</span>
+                  <span className="hidden">{t('changeLayout')}</span>
               </button>
               <button
                   onClick={() => onOpenTextPicker(data.id)}
-                  className="flex items-center md:space-x-1.5 p-2 md:px-2 md:py-1 bg-white/80 backdrop-blur-sm rounded-full md:rounded-md shadow hover:bg-white text-xs font-semibold"
+                  className="flex items-center justify-center p-3 md:p-2 bg-white/80 backdrop-blur-sm rounded-full shadow hover:bg-white text-xs font-semibold"
                   title={t('addText')}
               >
                   <TypeIcon className="w-5 h-5 md:w-4 md:h-4" />
-                  <span className="hidden md:inline">{t('addText')}</span>
+                  <span className="hidden">{t('addText')}</span>
               </button>
               <button
                   onClick={() => onOpenStickerPicker(data.id)}
-                  className="flex items-center md:space-x-1.5 p-2 md:px-2 md:py-1 bg-white/80 backdrop-blur-sm rounded-full md:rounded-md shadow hover:bg-white text-xs font-semibold"
+                  className="flex items-center justify-center p-3 md:p-2 bg-white/80 backdrop-blur-sm rounded-full shadow hover:bg-white text-xs font-semibold"
                   title={t('addSticker')}
               >
                   <SparklesIcon className="w-5 h-5 md:w-4 md:h-4" />
-                  <span className="hidden md:inline">{t('addSticker')}</span>
+                  <span className="hidden">{t('addSticker')}</span>
               </button>
             </div>
          )}

@@ -1,7 +1,8 @@
 
+
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { PlacedImageData, ImageTransform } from '../types';
-import { XMarkIcon, PencilIcon, ArrowUturnLeftIcon, ArrowUturnRightIcon, ArrowsRightLeftIcon, ArrowsUpDownIcon, CheckIcon } from './icons';
+import { XMarkIcon, PencilIcon, ArrowUturnRightIcon, ArrowsRightLeftIcon, ArrowsUpDownIcon, CheckIcon } from './icons';
 import { useI18n } from './i18n';
 
 interface PlacedImageProps {
@@ -12,9 +13,11 @@ interface PlacedImageProps {
   isOverviewMode: boolean;
   onTransformChange: (newTransform: ImageTransform) => void;
   onRemove: () => void;
+  onEnterEditMode?: (slotId: string) => void;
+  onExitEditMode?: () => void;
 }
 
-const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMobile, onTransformChange, onRemove, isOverviewMode }) => {
+const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMobile, onTransformChange, onRemove, isOverviewMode, onEnterEditMode, onExitEditMode }) => {
   const { image, transform } = data;
   const { x, y, scale, rotation, flipHorizontal, flipVertical } = transform;
 
@@ -230,11 +233,17 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMob
     onTransformChange({ ...transform, flipVertical: !transform.flipVertical });
   };
   
-  const handleEnterEditMode = () => {
+  const handleEnterEditMode = useCallback(() => {
     if (!isOverviewMode) {
       setIsEditing(true);
+      onEnterEditMode?.(slotId);
     }
-  };
+  }, [isOverviewMode, onEnterEditMode, slotId]);
+  
+  const handleExitEditMode = useCallback(() => {
+    setIsEditing(false);
+    onExitEditMode?.();
+  }, [onExitEditMode]);
   
   const handleTouchStartForEdit = (e: React.TouchEvent<HTMLDivElement>) => {
     if (isEditing) return;
@@ -251,7 +260,7 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMob
 
     const handleClickOutside = (event: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        setIsEditing(false);
+        handleExitEditMode();
       }
     };
 
@@ -259,8 +268,63 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMob
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isEditing]);
+  }, [isEditing, handleExitEditMode]);
 
+  const renderDesktopToolbar = () => (
+    <div className="grid grid-cols-2 gap-2 items-center">
+      <div className="flex items-center space-x-2">
+        <label htmlFor={`zoom-${image.id}`} className="text-xs font-medium text-white whitespace-nowrap">{t('zoom')}</label>
+        <input
+          id={`zoom-${image.id}`}
+          type="range"
+          min="1"
+          max="3"
+          step="0.01"
+          value={scale}
+          onChange={(e) => handleZoomChange(parseFloat(e.target.value))}
+          className="w-full h-1.5 bg-gray-600 rounded-lg appearance-none cursor-pointer"
+        />
+      </div>
+      <div className="flex items-center justify-end space-x-1">
+        <button onClick={() => handleRotate(90)} title={t('rotateRightTitle')} className="p-1.5 text-white bg-gray-700/50 rounded hover:bg-gray-600/50"><ArrowUturnRightIcon className="w-4 h-4" /></button>
+        <div className="h-5 border-l border-gray-600 mx-1"></div>
+        <button onClick={handleFlipHorizontal} title={t('flipHorizontalTitle')} className="p-1.5 text-white bg-gray-700/50 rounded hover:bg-gray-600/50"><ArrowsRightLeftIcon className="w-4 h-4" /></button>
+        <button onClick={handleFlipVertical} title={t('flipVerticalTitle')} className="p-1.5 text-white bg-gray-700/50 rounded hover:bg-gray-600/50"><ArrowsUpDownIcon className="w-4 h-4" /></button>
+          <div className="h-5 border-l border-gray-600 mx-1"></div>
+        <button onClick={handleExitEditMode} className="p-1.5 bg-blue-600 text-white rounded hover:bg-blue-700">
+            <CheckIcon className="w-4 h-4" />
+        </button>
+      </div>
+    </div>
+  );
+
+  const renderMobileToolbar = () => (
+    <div className="flex flex-col gap-2">
+      {/* Row 1: Zoom Slider */}
+      <input
+        aria-label={t('zoom')}
+        type="range"
+        min="1"
+        max="3"
+        step="0.01"
+        value={scale}
+        onChange={(e) => handleZoomChange(parseFloat(e.target.value))}
+        className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer"
+      />
+      {/* Row 2: Action Buttons */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-1">
+            <button onClick={() => handleRotate(90)} title={t('rotateRightTitle')} className="p-2 text-white bg-gray-700/50 rounded-md hover:bg-gray-600/50"><ArrowUturnRightIcon className="w-5 h-5" /></button>
+            <div className="h-6 border-l border-gray-600 mx-1"></div>
+            <button onClick={handleFlipHorizontal} title={t('flipHorizontalTitle')} className="p-2 text-white bg-gray-700/50 rounded-md hover:bg-gray-600/50"><ArrowsRightLeftIcon className="w-5 h-5" /></button>
+            <button onClick={handleFlipVertical} title={t('flipVerticalTitle')} className="p-2 text-white bg-gray-700/50 rounded-md hover:bg-gray-600/50"><ArrowsUpDownIcon className="w-5 h-5" /></button>
+        </div>
+        <button onClick={handleExitEditMode} className="p-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+            <CheckIcon className="w-5 h-5" />
+        </button>
+      </div>
+    </div>
+  );
 
   return (
     <div 
@@ -302,7 +366,7 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMob
             data-hide-on-capture="true"
             className="absolute top-1 right-1 flex items-center space-x-1 bg-black/50 p-0.5 rounded-md z-10"
         >
-            <button onClick={() => setIsEditing(true)} className="p-1 text-white hover:bg-white/30 rounded">
+            <button onClick={handleEnterEditMode} className="p-1 text-white hover:bg-white/30 rounded">
                 <PencilIcon className="w-4 h-4" />
             </button>
             <button onClick={onRemove} className="p-1 text-white hover:bg-red-500/80 rounded">
@@ -320,34 +384,7 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMob
             onMouseDown={(e) => e.stopPropagation()}
             onTouchStart={(e) => e.stopPropagation()}
         >
-          <div className="grid grid-cols-2 gap-2 items-center">
-            {/* Zoom Slider */}
-            <div className="flex items-center space-x-2">
-              <label htmlFor={`zoom-${image.id}`} className="text-xs font-medium text-white whitespace-nowrap">{t('zoom')}</label>
-              <input
-                id={`zoom-${image.id}`}
-                type="range"
-                min="1"
-                max="3"
-                step="0.01"
-                value={scale}
-                onChange={(e) => handleZoomChange(parseFloat(e.target.value))}
-                className="w-full h-1.5 bg-gray-600 rounded-lg appearance-none cursor-pointer"
-              />
-            </div>
-             {/* Action Buttons */}
-             <div className="flex items-center justify-end space-x-1">
-                <button onClick={() => handleRotate(-90)} title={t('rotateLeftTitle')} className="p-1.5 text-white bg-gray-700/50 rounded hover:bg-gray-600/50"><ArrowUturnLeftIcon className="w-4 h-4" /></button>
-                <button onClick={() => handleRotate(90)} title={t('rotateRightTitle')} className="p-1.5 text-white bg-gray-700/50 rounded hover:bg-gray-600/50"><ArrowUturnRightIcon className="w-4 h-4" /></button>
-                <div className="h-5 border-l border-gray-600 mx-1"></div>
-                <button onClick={handleFlipHorizontal} title={t('flipHorizontalTitle')} className="p-1.5 text-white bg-gray-700/50 rounded hover:bg-gray-600/50"><ArrowsRightLeftIcon className="w-4 h-4" /></button>
-                <button onClick={handleFlipVertical} title={t('flipVerticalTitle')} className="p-1.5 text-white bg-gray-700/50 rounded hover:bg-gray-600/50"><ArrowsUpDownIcon className="w-4 h-4" /></button>
-                 <div className="h-5 border-l border-gray-600 mx-1"></div>
-                <button onClick={() => setIsEditing(false)} className="p-1.5 bg-blue-600 text-white rounded hover:bg-blue-700">
-                    <CheckIcon className="w-4 h-4" />
-                </button>
-            </div>
-          </div>
+          {isMobile ? renderMobileToolbar() : renderDesktopToolbar()}
         </div>
       )}
     </div>

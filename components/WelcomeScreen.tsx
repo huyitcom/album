@@ -6,11 +6,12 @@ import Logo from './Logo';
 import { FolderIcon } from './icons';
 
 interface WelcomeScreenProps {
+  isMobile: boolean;
   onSelectSize: (size: AlbumSize) => void;
   onOpenProjectManager: () => void;
 }
 
-const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSelectSize, onOpenProjectManager }) => {
+const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ isMobile, onSelectSize, onOpenProjectManager }) => {
   const { t } = useI18n();
   const sizes: { size: AlbumSize, label: string, aspectRatio: string }[] = [
     { size: '15x15', label: '15x15', aspectRatio: '2 / 1' },
@@ -25,7 +26,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSelectSize, onOpenProje
     <div className="bg-gray-200 flex items-center justify-center min-h-screen p-4">
       <div className="bg-white rounded-lg shadow-2xl w-full max-w-3xl flex flex-col p-8 text-center">
         <div className="mx-auto mb-4">
-            <Logo />
+            <Logo forceFull={true} />
         </div>
         <h1 className="text-3xl font-bold text-gray-800 mb-2">{t('welcomeTitle')}</h1>
         <p className="text-gray-600 mb-8">{t('welcomeSubtitle')}</p>
@@ -51,11 +52,13 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onSelectSize, onOpenProje
             ))}
         </div>
 
-        <div className="flex items-center justify-center space-x-4">
-            <div className="flex-grow border-t border-gray-300"></div>
-            <span className="text-gray-500 text-sm">{t('or')}</span>
-            <div className="flex-grow border-t border-gray-300"></div>
-        </div>
+        {!isMobile && (
+          <div className="flex items-center justify-center space-x-4">
+              <div className="flex-grow border-t border-gray-300"></div>
+              <span className="text-gray-500 text-sm">{t('or')}</span>
+              <div className="flex-grow border-t border-gray-300"></div>
+          </div>
+        )}
 
         <button 
             onClick={onOpenProjectManager} 
