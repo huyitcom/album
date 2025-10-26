@@ -29,6 +29,7 @@ export const translations: { [lang in Language]: { [key: string]: string } } = {
     dropPhotoHere: 'Drop Photo Here',
     changeLayout: 'Change Layout',
     addText: 'Add Text',
+    addOverlayImage: 'Add Image Overlay',
     addSticker: 'Add Sticker',
 
     // Image Library
@@ -49,6 +50,7 @@ export const translations: { [lang in Language]: { [key: string]: string } } = {
     selectAlbumSize: 'Select Album Size',
     chooseTextStyle: 'Choose a Text Style',
     chooseSticker: 'Choose a Sticker',
+    chooseBackground: 'Choose a Background',
     randomDesignTitle: 'Configure Random Design',
     randomDesignSubtitle: 'Select which layouts to include in the randomization.',
     designOptionsTitle: 'Design Options',
@@ -56,6 +58,7 @@ export const translations: { [lang in Language]: { [key: string]: string } } = {
     selectNone: 'Deselect All',
     cancel: 'Cancel',
     confirmRandomization: 'Randomize with {count} Layouts',
+    chooseEffect: 'Choose an Effect',
 
     // Project Manager Modal
     projectManagerTitle: 'Project Manager',
@@ -103,6 +106,26 @@ export const translations: { [lang in Language]: { [key: string]: string } } = {
     flipVerticalTitle: 'Flip Vertical',
     doubleClickToEdit: 'Double click to edit photo',
     doubleTapToEdit: 'Tap twice to edit photo',
+    back: 'Back',
+    aiRetouch: 'AI Retouch',
+    skinRetouch: 'Skin Retouch',
+    blurBackground: 'Blur Background',
+    aiRetouching: 'AI is retouching...',
+    replaceBackground: 'Replace Background',
+    editPhoto: 'Edit photo',
+    downloadImage: 'Download image',
+    downloadError: 'Could not download the image.',
+    effects: 'Effects',
+    colorGrading: 'Color Grading',
+    filterNone: 'None',
+    filterVintage: 'Vintage',
+    filterLomo: 'Lomo',
+    filterClarendon: 'Clarendon',
+    filterGingham: 'Gingham',
+    filterMoon: 'Moon',
+    filterNashville: 'Nashville',
+    filterXpro2: 'X-Pro II',
+    filterWillow: 'Willow',
 
     // Element Titles
     removeTextTitle: 'Remove text',
@@ -126,7 +149,7 @@ export const translations: { [lang in Language]: { [key: string]: string } } = {
     // Header
     albumSize: 'Kích thước album',
     pagesOverview: 'Xem tất cả trang',
-    totalPages: 'TỔNG SỐ TRANG',
+    totalPages: 'SỐ TRANG',
     totalImages: 'TỔNG SỐ ẢNH',
     submitProject: 'Hoàn tất & Đặt hàng',
     submitProjectMobile: 'Gửi in',
@@ -134,7 +157,7 @@ export const translations: { [lang in Language]: { [key: string]: string } } = {
     langVN: 'Tiếng Việt',
     toggleOverviewTitle: 'Chuyển đổi chế độ xem tổng quan',
     changeLanguageTitle: 'Thay đổi ngôn ngữ',
-    myProjects: 'Dự án của tôi',
+    myProjects: 'Dự án',
 
     // Album View
     addSpread: 'Thêm trang đôi',
@@ -144,6 +167,7 @@ export const translations: { [lang in Language]: { [key: string]: string } } = {
     dropPhotoHere: 'Thả ảnh vào đây',
     changeLayout: 'Thay đổi bố cục',
     addText: 'Thêm chữ',
+    addOverlayImage: 'Thêm ảnh nổi',
     addSticker: 'Thêm nhãn dán',
 
     // Image Library
@@ -164,6 +188,7 @@ export const translations: { [lang in Language]: { [key: string]: string } } = {
     selectAlbumSize: 'Chọn kích thước Album',
     chooseTextStyle: 'Chọn một kiểu chữ',
     chooseSticker: 'Chọn một nhãn dán',
+    chooseBackground: 'Chọn một ảnh nền',
     randomDesignTitle: 'Cấu hình Thiết kế Ngẫu nhiên',
     randomDesignSubtitle: 'Chọn các bố cục bạn muốn sử dụng để tạo ngẫu nhiên.',
     designOptionsTitle: 'Tùy chọn Thiết kế',
@@ -171,6 +196,7 @@ export const translations: { [lang in Language]: { [key: string]: string } } = {
     selectNone: 'Bỏ chọn tất cả',
     cancel: 'Hủy',
     confirmRandomization: 'Tạo ngẫu nhiên với {count} bố cục',
+    chooseEffect: 'Chọn một hiệu ứng',
 
     // Project Manager Modal
     projectManagerTitle: 'Quản lý dự án',
@@ -218,6 +244,26 @@ export const translations: { [lang in Language]: { [key: string]: string } } = {
     flipVerticalTitle: 'Lật dọc',
     doubleClickToEdit: 'Nhấp đúp để sửa ảnh',
     doubleTapToEdit: 'Chạm hai lần để sửa ảnh',
+    back: 'Quay lại',
+    aiRetouch: 'Chỉnh sửa AI',
+    skinRetouch: 'Làm mịn da',
+    blurBackground: 'Làm mờ nền',
+    aiRetouching: 'AI đang chỉnh sửa...',
+    replaceBackground: 'Thay nền',
+    editPhoto: 'Sửa ảnh',
+    downloadImage: 'Tải ảnh xuống',
+    downloadError: 'Không thể tải ảnh xuống.',
+    effects: 'Hiệu ứng',
+    colorGrading: 'Chỉnh màu',
+    filterNone: 'Gốc',
+    filterVintage: 'Cổ điển',
+    filterLomo: 'Lomo',
+    filterClarendon: 'Clarendon',
+    filterGingham: 'Gingham',
+    filterMoon: 'Trắng đen',
+    filterNashville: 'Nashville',
+    filterXpro2: 'X-Pro II',
+    filterWillow: 'Willow',
 
     // Element Titles
     removeTextTitle: 'Xóa chữ',

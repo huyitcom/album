@@ -1,5 +1,3 @@
-
-
 import React from 'react';
 import { SpreadData, ImageTransform, AlbumSize, TextElement, StickerElement } from '../types';
 import Spread from './Spread';
@@ -13,6 +11,7 @@ interface AlbumViewProps {
   isOverviewMode: boolean;
   selectedTextId: string | null;
   selectedStickerId: string | null;
+  touchDragOverSlot: { spreadId: string; slotId: string } | null;
   onDropImageInSlot: (imageId: string, spreadId: string, slotId: string) => void;
   onSwapImagesInSlots: (source: { spreadId: string; slotId: string }, target: { spreadId: string; slotId: string }) => void;
   onChangeLayout: (spreadId: string, layoutId: string) => void;
@@ -28,6 +27,8 @@ interface AlbumViewProps {
   onUpdateSticker: (spreadId: string, stickerId: string, newStickerData: Partial<StickerElement>) => void;
   onRemoveSticker: (spreadId: string, stickerId: string) => void;
   onSelectSticker: (stickerId: string | null) => void;
+  onAiRetouchImage: (originalImageId: string, slotId: string, spreadId: string, newImageBase64: string, mimeType: string) => void;
+  onTriggerAddOverlayImage: (spreadId: string) => void;
 }
 
 const AlbumView: React.FC<AlbumViewProps> = (props) => {

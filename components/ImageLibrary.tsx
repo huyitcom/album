@@ -13,9 +13,10 @@ interface ImageLibraryProps {
   onRemoveImage: (imageId: string) => void;
   onClearLibrary: () => void;
   isMobile: boolean;
+  onImageTouchStart: (image: AlbumImage, event: React.TouchEvent<HTMLDivElement>) => void;
 }
 
-const ImageLibrary: React.FC<ImageLibraryProps> = ({ images, totalImages, onAddImages, onReorder, onRemoveImage, onClearLibrary, isMobile }) => {
+const ImageLibrary: React.FC<ImageLibraryProps> = ({ images, totalImages, onAddImages, onReorder, onRemoveImage, onClearLibrary, isMobile, onImageTouchStart }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDraggingOver, setIsDraggingOver] = useState(false);
   const { t } = useI18n();
@@ -65,7 +66,7 @@ const ImageLibrary: React.FC<ImageLibraryProps> = ({ images, totalImages, onAddI
     // For reordering within the library
     draggedItemIndex.current = index;
     setTimeout(() => {
-        const draggedElement = document.getElementById(`lib-img-thumb-${index}`);
+        const draggedElement = document.getElementById(`lib-img-thumb-${imageId}`);
         if(draggedElement) draggedElement.style.opacity = '0.5';
     }, 0);
   };
@@ -76,9 +77,9 @@ const ImageLibrary: React.FC<ImageLibraryProps> = ({ images, totalImages, onAddI
     }
   };
   
-  const handleDragEnd = () => {
+  const handleDragEnd = (imageId: string) => {
     if (draggedItemIndex.current !== null) {
-      const draggedElement = document.getElementById(`lib-img-thumb-${draggedItemIndex.current}`);
+      const draggedElement = document.getElementById(`lib-img-thumb-${imageId}`);
       if(draggedElement) draggedElement.style.opacity = '1';
 
       if (dragOverItemIndex.current !== null && dragOverItemIndex.current !== draggedItemIndex.current) {
@@ -126,13 +127,14 @@ const ImageLibrary: React.FC<ImageLibraryProps> = ({ images, totalImages, onAddI
           {images.map((image, index) => (
             <div 
               key={image.id}
-              id={`lib-img-thumb-${index}`}
+              id={`lib-img-thumb-${image.id}`}
               className={`relative ${gridItemClass} aspect-square bg-gray-300 rounded-sm overflow-hidden shadow-md group cursor-grab transition-all duration-200`}
               draggable
               onDragStart={(e) => handleDragStart(e, image.id, index)}
               onDragEnter={() => handleDragEnter(index)}
               onDragOver={(e) => e.preventDefault()}
-              onDragEnd={handleDragEnd}
+              onDragEnd={() => handleDragEnd(image.id)}
+              onTouchStart={(e) => onImageTouchStart(image, e)}
             >
               <img src={image.url} alt={`library image ${image.id}`} className="w-full h-full object-cover pointer-events-none" />
               <button 

@@ -1,3 +1,4 @@
+
 export interface LayoutSlot {
   id: string;
   gridArea: string;
@@ -206,7 +207,7 @@ export const layouts: { [id: string]: LayoutTemplate } = {
     name: 'Centered Horizontal Pair',
     name_vn: 'Cặp ảnh ngang giữa',
     gridTemplateColumns: '1fr 1fr',
-    gridTemplateRows: '1fr 2fr 1fr',
+    gridTemplateRows: '1fr 8fr 1fr',
     gap: '8px',
     slots: [
       { id: 'slot-1', gridArea: '2 / 1 / 3 / 2' },
@@ -218,12 +219,12 @@ export const layouts: { [id: string]: LayoutTemplate } = {
     name: 'Tall with Two Sides',
     name_vn: 'Dọc với hai bên',
     gridTemplateColumns: '2fr 1fr 1fr',
-    gridTemplateRows: '1fr',
+    gridTemplateRows: '1fr 8fr 1fr',
     gap: '8px',
     slots: [
-        { id: 'slot-1', gridArea: '1 / 1 / 2 / 2' },
-        { id: 'slot-2', gridArea: '1 / 2 / 2 / 3' },
-        { id: 'slot-3', gridArea: '1 / 3 / 2 / 4' }
+        { id: 'slot-1', gridArea: '1 / 1 / 4 / 2' },
+        { id: 'slot-2', gridArea: '2 / 2 / 3 / 3' },
+        { id: 'slot-3', gridArea: '2 / 3 / 3 / 4' }
     ]
   },
   'asymmetric-four': {
@@ -255,6 +256,46 @@ export const layouts: { [id: string]: LayoutTemplate } = {
       { id: 'slot-5', gridArea: '3 / 3 / 4 / 5' }, // side-2
     ],
     hideOnMobile: true,
+  },
+  'feature-left-two-right-stack': {
+    id: 'feature-left-two-right-stack',
+    name: 'Feature Left, Two Right Stack',
+    name_vn: 'Trái nổi bật, hai ảnh dọc phải',
+    gridTemplateColumns: '1fr 1fr',
+    gridTemplateRows: '1fr 1fr',
+    gap: '8px',
+    slots: [
+      { id: 'slot-1', gridArea: '1 / 1 / 3 / 2' },
+      { id: 'slot-2', gridArea: '1 / 2 / 2 / 3' },
+      { id: 'slot-3', gridArea: '2 / 2 / 3 / 3' },
+    ],
+  },
+  'dominant-left-portrait': {
+    id: 'dominant-left-portrait',
+    name: 'Dominant Left, Portrait Right',
+    name_vn: 'Trái chính, phải phụ',
+    gridTemplateColumns: '3fr 2fr',
+    gridTemplateRows: '1fr',
+    gap: '8px',
+    slots: [
+      { id: 'slot-1', gridArea: '1 / 1 / 2 / 2' },
+      { id: 'slot-2', gridArea: '1 / 2 / 2 / 3' },
+    ],
+  },
+  'feature-left-mosaic-right': {
+    id: 'feature-left-mosaic-right',
+    name: 'Feature Left, Mosaic Right',
+    name_vn: 'Trái chính, phải mosaic',
+    gridTemplateColumns: '1fr 1fr 1fr 1fr',
+    gridTemplateRows: '1fr 1fr',
+    gap: '8px',
+    slots: [
+      { id: 'slot-1', gridArea: '1 / 1 / 3 / 3' },
+      { id: 'slot-2', gridArea: '1 / 3 / 2 / 4' },
+      { id: 'slot-3', gridArea: '1 / 4 / 2 / 5' },
+      { id: 'slot-4', gridArea: '2 / 3 / 3 / 4' },
+      { id: 'slot-5', gridArea: '2 / 4 / 3 / 5' },
+    ],
   },
 };
 

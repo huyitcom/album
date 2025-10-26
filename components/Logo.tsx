@@ -7,22 +7,24 @@ interface LogoProps {
 const Logo: React.FC<LogoProps> = ({ forceFull = false }) => {
   return (
     <div className="flex items-center" title="PHOTOBOOKVIETNAM Album Builder">
-      {/* Full Logo */}
-      <span 
-        className={forceFull ? "inline text-3xl" : "hidden md:inline text-3xl"}
-        style={{ 
-          fontFamily: "'Fjalla One', sans-serif", 
-          letterSpacing: '-0.075em',
-          textShadow: '1px 1px 3px rgba(0, 0, 0, 0.5)'
-        }}
-      >
-        <span className="text-black">PHOTOBOOK</span><span className="text-cyan-200">VIETNAM</span>
-      </span>
+      {/* Full Logo - only shows when forceFull is true */}
+      {forceFull && (
+        <span 
+          className="inline text-3xl"
+          style={{ 
+            fontFamily: "'Fjalla One', sans-serif", 
+            letterSpacing: '-0.075em',
+            textShadow: '1px 1px 3px rgba(0, 0, 0, 0.5)'
+          }}
+        >
+          <span className="text-black">PHOTOBOOK</span><span className="text-cyan-200">VIETNAM</span>
+        </span>
+      )}
       
-      {/* Short Logo (only shows on mobile if not forceFull) */}
+      {/* Short/Stacked Logo (shows everywhere by default unless forceFull is true) */}
       {!forceFull && (
         <div 
-          className="md:hidden flex flex-col items-center justify-center leading-none" 
+          className="flex flex-col items-center justify-center leading-none" 
           style={{ 
             fontFamily: "'Fjalla One', sans-serif", 
             textShadow: '1px 1px 3px rgba(0, 0, 0, 0.5)'

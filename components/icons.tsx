@@ -140,6 +140,15 @@ export const PhotoIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) => (
     </svg>
 );
 
+export const PhotoPlusIcon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+        {/* Photo Icon Path */}
+        <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5z" />
+        {/* Plus Icon Path, adjusted and overlaid */}
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 7.5v6m3-3h-6" strokeWidth={2} />
+    </svg>
+);
+
 export const CheckIcon: React.FC<IconProps> = ({ className = 'w-4 h-4' }) => (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
@@ -156,6 +165,16 @@ export const ArrowPathIcon: React.FC<IconProps> = ({ className = 'w-4 h-4' }) =>
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0011.667 0l3.181-3.183m-11.667 0a8.25 8.25 0 0111.667 0l3.181 3.183m0 0V19.645m0-4.992a8.25 8.25 0 01-11.667 0M2.985 19.644l3.181-3.182m0 0l-3.181 3.182m0 0l3.181-3.182" />
     </svg>
+);
+
+export const PaletteIcon: React.FC<IconProps> = ({ className = 'w-4 h-4' }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+    <path d="M12 21a9 9 0 1 1 0 -18a9 8 0 0 1 9 8a4.5 4 0 0 1 -4.5 4h-2.5a2 2 0 0 0 -1 3.75a1.3 1.3 0 0 1 -1 2.25" />
+    <circle cx="7.5" cy="10.5" r=".5" fill="currentColor" />
+    <circle cx="12" cy="7.5" r=".5" fill="currentColor" />
+    <circle cx="16.5" cy="10.5" r=".5" fill="currentColor" />
+  </svg>
 );
 
 export const Bars3Icon: React.FC<IconProps> = ({ className = 'w-6 h-6' }) => (

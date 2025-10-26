@@ -1,9 +1,12 @@
-
-
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { PlacedImageData, ImageTransform } from '../types';
-import { XMarkIcon, PencilIcon, ArrowUturnRightIcon, ArrowsRightLeftIcon, ArrowsUpDownIcon, CheckIcon } from './icons';
+import { XMarkIcon, PencilIcon, ArrowUturnRightIcon, ArrowsRightLeftIcon, ArrowsUpDownIcon, CheckIcon, SparklesIcon, ArrowUturnLeftIcon, DownloadIcon, PaletteIcon } from './icons';
 import { useI18n } from './i18n';
+import { GoogleGenAI, Modality } from '@google/genai';
+import { blobToBase64 } from '../utils';
+import BackgroundTemplatePicker from './BackgroundTemplatePicker';
+import ColorGradingPicker from './ColorGradingPicker';
+import EffectsPicker from './EffectsPicker';
 
 interface PlacedImageProps {
   data: PlacedImageData;
@@ -15,15 +18,21 @@ interface PlacedImageProps {
   onRemove: () => void;
   onEnterEditMode?: (slotId: string) => void;
   onExitEditMode?: () => void;
+  onAiRetouchImage: (originalImageId: string, slotId: string, spreadId: string, newImageBase64: string, mimeType: string) => void;
 }
 
-const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMobile, onTransformChange, onRemove, isOverviewMode, onEnterEditMode, onExitEditMode }) => {
+const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMobile, onTransformChange, onRemove, isOverviewMode, onEnterEditMode, onExitEditMode, onAiRetouchImage }) => {
   const { image, transform } = data;
   const { x, y, scale, rotation, flipHorizontal, flipVertical } = transform;
 
   const [isHovered, setIsHovered] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isMouseDragging, setIsMouseDragging] = useState(false); // For mouse panning only
+  const [editMode, setEditMode] = useState<'transform' | 'ai'>('transform');
+  const [isRetouching, setIsRetouching] = useState(false);
+  const [isBgPickerOpen, setIsBgPickerOpen] = useState(false);
+  const [isColorPickerOpen, setIsColorPickerOpen] = useState(false);
+  const [isEffectsPickerOpen, setIsEffectsPickerOpen] = useState(false);
   
   const containerRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
@@ -236,14 +245,68 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMob
   const handleEnterEditMode = useCallback(() => {
     if (!isOverviewMode) {
       setIsEditing(true);
+      setEditMode('transform');
       onEnterEditMode?.(slotId);
     }
   }, [isOverviewMode, onEnterEditMode, slotId]);
   
   const handleExitEditMode = useCallback(() => {
     setIsEditing(false);
+    setEditMode('transform');
     onExitEditMode?.();
   }, [onExitEditMode]);
+
+  const handleSelectFilter = (filterClassName: string) => {
+    onTransformChange({ ...transform, filter: filterClassName });
+  };
+
+  const runAiImageTask = async (prompt: string) => {
+    setIsRetouching(true);
+
+    try {
+        const response = await fetch(data.image.url);
+        const blob = await response.blob();
+        
+        const base64Data = await blobToBase64(blob);
+
+        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+        const result = await ai.models.generateContent({
+            model: 'gemini-2.5-flash-image',
+            contents: {
+                parts: [
+                    { inlineData: { data: base64Data, mimeType: blob.type } },
+                    { text: prompt },
+                ],
+            },
+            config: {
+                responseModalities: [Modality.IMAGE, Modality.TEXT],
+            },
+        });
+
+        const imagePart = result.candidates?.[0]?.content?.parts?.find(p => p.inlineData);
+        if (imagePart?.inlineData) {
+            onAiRetouchImage(data.image.id, slotId, spreadId, imagePart.inlineData.data, imagePart.inlineData.mimeType);
+            handleExitEditMode();
+        } else {
+            throw new Error(`AI did not return an image.`);
+        }
+    } catch (error) {
+        console.error(`AI task failed:`, error);
+        alert(`AI task failed: ${error instanceof Error ? error.message : String(error)}`);
+    } finally {
+        setIsRetouching(false);
+    }
+  };
+  
+  const handleSelectBackgroundTemplate = (prompt: string) => {
+    setIsBgPickerOpen(false);
+    runAiImageTask(prompt);
+  };
+
+  const handleSelectEffect = (prompt: string) => {
+    setIsEffectsPickerOpen(false);
+    runAiImageTask(prompt);
+  };
   
   const handleTouchStartForEdit = (e: React.TouchEvent<HTMLDivElement>) => {
     if (isEditing) return;
@@ -254,6 +317,30 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMob
     }
     lastTap.current = now;
   };
+  
+  const handleDownload = async (e: React.MouseEvent) => {
+    e.stopPropagation(); // prevent entering edit mode
+    try {
+      const response = await fetch(image.url);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+  
+      const extension = blob.type.split('/')[1] || 'jpg';
+      a.download = `photobook-image-${image.id}.${extension}`;
+  
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Error downloading image:', error);
+      alert(t('downloadError'));
+    }
+  };
+
 
   useEffect(() => {
     if (!isEditing) return;
@@ -290,7 +377,10 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMob
         <div className="h-5 border-l border-gray-600 mx-1"></div>
         <button onClick={handleFlipHorizontal} title={t('flipHorizontalTitle')} className="p-1.5 text-white bg-gray-700/50 rounded hover:bg-gray-600/50"><ArrowsRightLeftIcon className="w-4 h-4" /></button>
         <button onClick={handleFlipVertical} title={t('flipVerticalTitle')} className="p-1.5 text-white bg-gray-700/50 rounded hover:bg-gray-600/50"><ArrowsUpDownIcon className="w-4 h-4" /></button>
-          <div className="h-5 border-l border-gray-600 mx-1"></div>
+        <div className="h-5 border-l border-gray-600 mx-1"></div>
+        <button onClick={() => setIsColorPickerOpen(true)} title={t('colorGrading')} className="p-1.5 text-white bg-orange-500/80 rounded hover:bg-orange-400/80"><PaletteIcon className="w-4 h-4" /></button>
+        <button onClick={() => setEditMode('ai')} title={t('aiRetouch')} className="p-1.5 text-white bg-purple-600/80 rounded hover:bg-purple-500/80"><SparklesIcon className="w-4 h-4" /></button>
+        <div className="h-5 border-l border-gray-600 mx-1"></div>
         <button onClick={handleExitEditMode} className="p-1.5 bg-blue-600 text-white rounded hover:bg-blue-700">
             <CheckIcon className="w-4 h-4" />
         </button>
@@ -318,6 +408,9 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMob
             <div className="h-6 border-l border-gray-600 mx-1"></div>
             <button onClick={handleFlipHorizontal} title={t('flipHorizontalTitle')} className="p-2 text-white bg-gray-700/50 rounded-md hover:bg-gray-600/50"><ArrowsRightLeftIcon className="w-5 h-5" /></button>
             <button onClick={handleFlipVertical} title={t('flipVerticalTitle')} className="p-2 text-white bg-gray-700/50 rounded-md hover:bg-gray-600/50"><ArrowsUpDownIcon className="w-5 h-5" /></button>
+            <div className="h-6 border-l border-gray-600 mx-1"></div>
+            <button onClick={() => setIsColorPickerOpen(true)} title={t('colorGrading')} className="p-2 text-white bg-orange-500/80 rounded-md hover:bg-orange-400/80"><PaletteIcon className="w-5 h-5" /></button>
+            <button onClick={() => setEditMode('ai')} title={t('aiRetouch')} className="p-2 text-white bg-purple-600/80 rounded-md hover:bg-purple-500/80"><SparklesIcon className="w-5 h-5" /></button>
         </div>
         <button onClick={handleExitEditMode} className="p-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
             <CheckIcon className="w-5 h-5" />
@@ -326,68 +419,149 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMob
     </div>
   );
 
-  return (
-    <div 
-        ref={containerRef}
-        className={`relative w-full h-full overflow-hidden select-none ${!isEditing && !isOverviewMode ? 'cursor-move' : ''}`}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        draggable={!isEditing && !isOverviewMode}
-        onDragStart={!isEditing && !isOverviewMode ? handleDragStart : undefined}
-        onDragEnd={!isEditing && !isOverviewMode ? handleDragEnd : undefined}
-        onDoubleClick={handleEnterEditMode}
-        onTouchStart={handleTouchStartForEdit}
-        title={!isEditing && !isOverviewMode ? t(isMobile ? 'doubleTapToEdit' : 'doubleClickToEdit') : undefined}
-    >
-        <div 
-            className={`w-full h-full ${isEditing ? (isMouseDragging ? 'cursor-grabbing' : 'cursor-grab') : ''}`}
-            onMouseDown={handleMouseDown}
-            onTouchStart={handleTouchStartPan}
+  const renderAiToolbar = () => (
+    <div className="flex items-center justify-between gap-1 w-full">
+        <button 
+            onClick={() => setEditMode('transform')} 
+            title={t('back')}
+            className="p-2 text-white bg-gray-700/50 rounded-md hover:bg-gray-600/50"
+            disabled={isRetouching}
         >
-            <img
-                ref={imageRef}
-                src={image.url}
-                alt={image.id}
-                className="absolute pointer-events-none"
-                style={{
-                  transform: `translate(-50%, -50%) scale(${scale}) rotate(${rotation}deg) scaleX(${flipHorizontal ? -1 : 1}) scaleY(${flipVertical ? -1 : 1})`,
-                  top: `${y}%`,
-                  left: `${x}%`,
-                  ...coverStyle,
-                  maxWidth: 'none',
-                  maxHeight: 'none',
-                }}
-            />
-        </div>
-
-      {/* Hover Controls (Edit/Remove) */}
-      {isHovered && !isEditing && !isOverviewMode && (
-        <div 
-            data-hide-on-capture="true"
-            className="absolute top-1 right-1 flex items-center space-x-1 bg-black/50 p-0.5 rounded-md z-10"
-        >
-            <button onClick={handleEnterEditMode} className="p-1 text-white hover:bg-white/30 rounded">
-                <PencilIcon className="w-4 h-4" />
+            <ArrowUturnLeftIcon className={isMobile ? "w-5 h-5" : "w-4 h-4"} />
+        </button>
+        <div className="flex items-center gap-1 flex-grow justify-center flex-wrap">
+            <button 
+                onClick={() => runAiImageTask('Reduce minor blemishes and smooth skin texture while preserving character')} 
+                className="px-2 py-2 text-xs md:text-sm text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:bg-gray-500"
+                disabled={isRetouching}
+            >
+                {t('skinRetouch')} 
             </button>
-            <button onClick={onRemove} className="p-1 text-white hover:bg-red-500/80 rounded">
-                <XMarkIcon className="w-4 h-4" />
+            <button 
+                onClick={() => runAiImageTask('Adjust background blur to make the subject stand out without overdoing it')} 
+                className="px-2 py-2 text-xs md:text-sm text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:bg-gray-500"
+                disabled={isRetouching}
+            >
+                {t('blurBackground')}
+            </button>
+             <button
+                onClick={() => setIsBgPickerOpen(true)}
+                className="px-2 py-2 text-xs md:text-sm text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:bg-gray-500"
+                disabled={isRetouching}
+            >
+                {t('replaceBackground')}
+            </button>
+            <button
+                onClick={() => setIsEffectsPickerOpen(true)}
+                className="px-2 py-2 text-xs md:text-sm text-white bg-green-600 rounded-md hover:bg-green-700 disabled:bg-gray-500"
+                title={t('effects')}
+                disabled={isRetouching}
+            >
+                {t('effects')}
             </button>
         </div>
-      )}
-
-      {/* In-place Editing Toolbar */}
-      {isEditing && (
-        <div 
-            data-hide-on-capture="true"
-            className="absolute bottom-0 left-0 right-0 bg-black/60 backdrop-blur-sm p-2 z-20"
-            onClick={(e) => e.stopPropagation()}
-            onMouseDown={(e) => e.stopPropagation()}
-            onTouchStart={(e) => e.stopPropagation()}
-        >
-          {isMobile ? renderMobileToolbar() : renderDesktopToolbar()}
-        </div>
-      )}
+        <div className="w-9 h-9 md:w-8 md:h-8"></div>
     </div>
+  );
+
+  return (
+    <>
+      {isColorPickerOpen && (
+        <ColorGradingPicker
+            onSelectFilter={handleSelectFilter}
+            onClose={() => setIsColorPickerOpen(false)}
+        />
+      )}
+      {isBgPickerOpen && (
+        <BackgroundTemplatePicker
+          onClose={() => setIsBgPickerOpen(false)}
+          onSelectTemplate={handleSelectBackgroundTemplate}
+        />
+      )}
+      {isEffectsPickerOpen && (
+        <EffectsPicker
+          onClose={() => setIsEffectsPickerOpen(false)}
+          onSelectTemplate={handleSelectEffect}
+        />
+      )}
+        <div 
+            ref={containerRef}
+            className={`relative w-full h-full overflow-hidden select-none ${!isEditing && !isOverviewMode ? 'cursor-move' : ''}`}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            draggable={!isEditing && !isOverviewMode}
+            onDragStart={!isEditing && !isOverviewMode ? handleDragStart : undefined}
+            onDragEnd={!isEditing && !isOverviewMode ? handleDragEnd : undefined}
+            onDoubleClick={handleEnterEditMode}
+            onTouchStart={handleTouchStartForEdit}
+            title={!isEditing && !isOverviewMode ? t(isMobile ? 'doubleTapToEdit' : 'doubleClickToEdit') : undefined}
+        >
+            <div 
+                className={`w-full h-full ${isEditing ? (isMouseDragging ? 'cursor-grabbing' : 'cursor-grab') : ''}`}
+                onMouseDown={handleMouseDown}
+                onTouchStart={handleTouchStartPan}
+            >
+                <img
+                    ref={imageRef}
+                    src={image.url}
+                    alt={image.id}
+                    className={`absolute pointer-events-none ${transform.filter || ''}`}
+                    style={{
+                      transform: `translate(-50%, -50%) scale(${scale}) rotate(${rotation}deg) scaleX(${flipHorizontal ? -1 : 1}) scaleY(${flipVertical ? -1 : 1})`,
+                      top: `${y}%`,
+                      left: `${x}%`,
+                      ...coverStyle,
+                      maxWidth: 'none',
+                      maxHeight: 'none',
+                    }}
+                />
+            </div>
+
+            {isRetouching && (
+                <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center z-30">
+                    <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-white"></div>
+                    <p className="text-white mt-3 text-sm">
+                      {t('aiRetouching')}
+                    </p>
+                </div>
+            )}
+
+          {/* Hover Controls (Edit/Remove) */}
+          {isHovered && !isEditing && !isOverviewMode && (
+            <div 
+                data-hide-on-capture="true"
+                className="absolute top-1 right-1 flex items-center space-x-1 bg-black/50 p-0.5 rounded-md z-10"
+            >
+                <button onClick={handleEnterEditMode} className="p-1 text-white hover:bg-white/30 rounded" title={t('editPhoto')}>
+                    <PencilIcon className="w-4 h-4" />
+                </button>
+                <button onClick={handleDownload} className="p-1 text-white hover:bg-white/30 rounded" title={t('downloadImage')}>
+                    <DownloadIcon className="w-4 h-4" />
+                </button>
+                <button onClick={onRemove} className="p-1 text-white hover:bg-red-500/80 rounded" title={t('removeImageTitle')}>
+                    <XMarkIcon className="w-4 h-4" />
+                </button>
+            </div>
+          )}
+
+          {/* In-place Editing Toolbar */}
+          {isEditing && (
+            <div 
+                data-hide-on-capture="true"
+                className="absolute bottom-0 left-0 right-0 bg-black/60 backdrop-blur-sm p-2 z-20"
+                onClick={(e) => e.stopPropagation()}
+                onMouseDown={(e) => e.stopPropagation()}
+                onTouchStart={(e) => e.stopPropagation()}
+            >
+              {editMode === 'transform' ? (
+                  isMobile ? renderMobileToolbar() : renderDesktopToolbar()
+              ) : (
+                  renderAiToolbar()
+              )}
+            </div>
+          )}
+        </div>
+    </>
   );
 };
 

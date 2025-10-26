@@ -1,7 +1,6 @@
-
 import React, { useState, useRef } from 'react';
 import { SpreadData, ImageTransform, AlbumSize, TextElement as TextElementType, StickerElement as StickerElementType } from '../types';
-import { LayoutIcon, TypeIcon, SparklesIcon } from './icons';
+import { LayoutIcon, TypeIcon, SparklesIcon, PhotoIcon, PhotoPlusIcon } from './icons';
 import { layouts } from '../layouts';
 import LayoutPicker from './LayoutPicker';
 import PlacedImage from './PlacedImage';
@@ -14,9 +13,10 @@ interface SlotProps {
   slotId: string;
   onDrop: (e: React.DragEvent<HTMLDivElement>) => void;
   children?: React.ReactNode;
+  isTouchDraggingOver?: boolean;
 }
 
-const Slot: React.FC<SlotProps> = ({ gridArea, slotId, onDrop, children }) => {
+const Slot: React.FC<SlotProps> = ({ gridArea, slotId, onDrop, children, isTouchDraggingOver }) => {
     const [isDraggingOver, setIsDraggingOver] = useState(false);
 
     const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
@@ -43,11 +43,13 @@ const Slot: React.FC<SlotProps> = ({ gridArea, slotId, onDrop, children }) => {
         onDrop(e);
     };
 
+    const isHighlighted = isDraggingOver || isTouchDraggingOver;
+
     return (
         <div 
             style={{ gridArea }}
             data-slot-id={slotId}
-            className={`relative w-full h-full bg-gray-50 rounded-sm transition-all duration-200 overflow-hidden ${isDraggingOver ? 'outline-dashed outline-2 outline-offset-2 outline-blue-500' : ''}`}
+            className={`relative w-full h-full bg-gray-50 rounded-sm transition-all duration-200 overflow-hidden ${isHighlighted ? 'outline-dashed outline-2 outline-offset-2 outline-blue-500' : ''}`}
             onDragOver={handleDragOver}
             onDrop={handleDrop}
             onDragEnter={handleDragEnter}
@@ -66,6 +68,7 @@ interface SpreadProps {
   isOverviewMode: boolean;
   selectedTextId: string | null;
   selectedStickerId: string | null;
+  touchDragOverSlot: { spreadId: string; slotId: string } | null;
   onDropImageInSlot: (imageId: string, spreadId:string, slotId: string) => void;
   onSwapImagesInSlots: (source: { spreadId: string; slotId: string }, target: { spreadId: string; slotId: string }) => void;
   onReorderSpreads: (dragIndex: number, hoverIndex: number) => void;
@@ -80,6 +83,8 @@ interface SpreadProps {
   onUpdateSticker: (spreadId: string, stickerId: string, newStickerData: Partial<StickerElementType>) => void;
   onRemoveSticker: (spreadId: string, stickerId: string) => void;
   onSelectSticker: (stickerId: string | null) => void;
+  onAiRetouchImage: (originalImageId: string, slotId: string, spreadId: string, newImageBase64: string, mimeType: string) => void;
+  onTriggerAddOverlayImage: (spreadId: string) => void;
 }
 
 const getAspectRatioForSize = (size: AlbumSize): string => {
@@ -100,7 +105,7 @@ const getAspectRatioForSize = (size: AlbumSize): string => {
 };
 
 const Spread: React.FC<SpreadProps> = (props) => {
-  const { data, index, albumSize, isMobile, isOverviewMode, onDropImageInSlot, onSwapImagesInSlots, onReorderSpreads, onChangeLayout, onUpdateImageTransform, onRemoveImageFromSlot, onOpenTextPicker, onUpdateText, onRemoveText, onSelectText, selectedTextId, onOpenStickerPicker, onUpdateSticker, onRemoveSticker, onSelectSticker, selectedStickerId } = props;
+  const { data, index, albumSize, isMobile, isOverviewMode, onDropImageInSlot, onSwapImagesInSlots, onReorderSpreads, onChangeLayout, onUpdateImageTransform, onRemoveImageFromSlot, onOpenTextPicker, onUpdateText, onRemoveText, onSelectText, selectedTextId, onOpenStickerPicker, onUpdateSticker, onRemoveSticker, onSelectSticker, selectedStickerId, onAiRetouchImage, onTriggerAddOverlayImage, touchDragOverSlot } = props;
   const [isLayoutPickerOpen, setIsLayoutPickerOpen] = useState(false);
   const [editingSlotId, setEditingSlotId] = useState<string | null>(null);
   const [isAnyImageEditing, setIsAnyImageEditing] = useState(false);
@@ -207,6 +212,7 @@ const Spread: React.FC<SpreadProps> = (props) => {
                       key={slot.id} 
                       gridArea={slot.gridArea}
                       slotId={slot.id}
+                      isTouchDraggingOver={touchDragOverSlot?.spreadId === data.id && touchDragOverSlot?.slotId === slot.id}
                       onDrop={(e) => {
                           const imageIdFromLibrary = e.dataTransfer.getData('album/image-id');
                           const placedImageDataSource = e.dataTransfer.getData('album/placed-image');
@@ -235,6 +241,7 @@ const Spread: React.FC<SpreadProps> = (props) => {
                               onRemove={() => onRemoveImageFromSlot(data.id, slot.id)}
                               onEnterEditMode={() => setIsAnyImageEditing(true)}
                               onExitEditMode={() => setIsAnyImageEditing(false)}
+                              onAiRetouchImage={onAiRetouchImage}
                           />
                       ) : (
                           <div className="flex items-center justify-center w-full h-full text-xs text-gray-400 p-2 text-center">
@@ -295,6 +302,14 @@ const Spread: React.FC<SpreadProps> = (props) => {
               >
                   <TypeIcon className="w-5 h-5 md:w-4 md:h-4" />
                   <span className="hidden">{t('addText')}</span>
+              </button>
+              <button
+                  onClick={() => onTriggerAddOverlayImage(data.id)}
+                  className="flex items-center justify-center p-3 md:p-2 bg-white/80 backdrop-blur-sm rounded-full shadow hover:bg-white text-xs font-semibold"
+                  title={t('addOverlayImage')}
+              >
+                  <PhotoPlusIcon className="w-5 h-5 md:w-4 md:h-4" />
+                  <span className="hidden">{t('addOverlayImage')}</span>
               </button>
               <button
                   onClick={() => onOpenStickerPicker(data.id)}

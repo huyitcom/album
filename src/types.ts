@@ -1,4 +1,5 @@
 
+
 export interface AlbumImage {
   id: string;
   url: string;
@@ -13,6 +14,7 @@ export interface ImageTransform {
   rotation: number; // in degrees
   flipHorizontal: boolean;
   flipVertical: boolean;
+  filter?: string;
 }
 
 export interface PlacedImageData {

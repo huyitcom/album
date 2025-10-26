@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Header from './components/Header';
 import AlbumView from './components/AlbumView';
 import ImageLibrary from './components/ImageLibrary';
@@ -54,6 +53,14 @@ const App: React.FC = () => {
   const [showMobileDragHint, setShowMobileDragHint] = useState(false);
   const [showMobileEditHint, setShowMobileEditHint] = useState(false);
   const [editHintTarget, setEditHintTarget] = useState<{ spreadId: string; slotId: string; } | null>(null);
+
+  // Ref for overlay image adding
+  const addOverlayImageFileInputRef = useRef<HTMLInputElement>(null);
+  const [addOverlayTargetSpreadId, setAddOverlayTargetSpreadId] = useState<string | null>(null);
+  
+  // State for mobile touch drag-and-drop
+  const [touchDragItem, setTouchDragItem] = useState<{ image: AlbumImage; x: number; y: number; width: number; height: number; } | null>(null);
+  const [touchDragOverSlot, setTouchDragOverSlot] = useState<{ spreadId: string; slotId: string } | null>(null);
 
 
   const handleAppClick = (e: MouseEvent) => {
@@ -224,7 +231,7 @@ const App: React.FC = () => {
     });
   };
 
-  const handleDropImageInSlot = (imageId: string, spreadId: string, slotId: string) => {
+  const handleDropImageInSlot = useCallback((imageId: string, spreadId: string, slotId: string) => {
       const imageToDrop = libraryImages.find(img => img.id === imageId);
       if (!imageToDrop) return;
       
@@ -270,7 +277,7 @@ const App: React.FC = () => {
         localStorage.setItem('mobileEditHintShown', 'true');
       }
       // ----------------------------
-  };
+  }, [libraryImages, isMobile]);
 
   const handleSwapImagesInSlots = (
     source: { spreadId: string; slotId: string },
@@ -683,6 +690,41 @@ const App: React.FC = () => {
     );
   };
 
+  const handleTriggerAddOverlayImage = (spreadId: string) => {
+    setAddOverlayTargetSpreadId(spreadId);
+    addOverlayImageFileInputRef.current?.click();
+  };
+
+  const handleAddOverlayImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0 || !addOverlayTargetSpreadId) {
+      return;
+    }
+    const file = e.target.files[0];
+    const imageUrl = URL.createObjectURL(file);
+
+    const newOverlay: StickerElement = {
+      id: `overlay-${Date.now()}`,
+      url: imageUrl,
+      x: 25,
+      y: 25,
+      width: 30, // percentage
+      height: 60, // percentage, to maintain aspect on a 2:1 spread
+      rotation: 0,
+    };
+
+    setSpreads(currentSpreads =>
+      currentSpreads.map(spread =>
+        spread.id === addOverlayTargetSpreadId
+          ? { ...spread, stickers: [...spread.stickers, newOverlay] }
+          : spread
+      )
+    );
+    handleSelectSticker(newOverlay.id);
+
+    setAddOverlayTargetSpreadId(null);
+    if (e.target) e.target.value = '';
+  };
+
   // Project Management Handlers
   const handleSaveProject = async (projectName: string) => {
     if (!albumSize) {
@@ -705,7 +747,9 @@ const App: React.FC = () => {
       const cleanedSpreads: SavedSpreadData[] = spreads.map(spread => ({
         ...spread,
         images: Object.fromEntries(
-          Object.entries(spread.images).map(([slotId, placedImage]) => {
+          // FIX: Explicitly typed the arguments of the map callback to resolve a TypeScript inference issue
+          // where `placedImage` was being inferred as `unknown`, causing property access and spread operator errors.
+          Object.entries(spread.images).map(([slotId, placedImage]: [string, PlacedImageData]) => {
             const { url, ...restOfImage } = placedImage.image;
             const savedPlacedImage: SavedPlacedImageData = {
                 ...placedImage,
@@ -769,18 +813,20 @@ const App: React.FC = () => {
 
         // 2. Reconstruct spreads with updated image objects from the map.
         const newSpreads: SpreadData[] = projectData.spreads.map((spread: SavedSpreadData) => {
-          // FIX: Explicitly typing the destructured arguments from `Object.entries`
-          // to resolve TypeScript's incorrect type inference of `savedPlacedImage` as `unknown`.
+          // FIX: Replaced the loop to iterate over spread images using `Object.keys`. This avoids a
+          // TypeScript inference issue where the value from `Object.entries` was incorrectly inferred
+          // as `unknown`, causing property access to fail.
           const reconstructedImages: { [key: string]: PlacedImageData } = {};
-          Object.entries(spread.images).forEach(([slotId, savedPlacedImage]: [string, SavedPlacedImageData]) => {
+          for (const slotId of Object.keys(spread.images)) {
+            const savedPlacedImage = spread.images[slotId];
             const fullImageObject = imageMap.get(savedPlacedImage.image.id);
             if (fullImageObject) {
-                reconstructedImages[slotId] = {
-                    ...savedPlacedImage,
-                    image: fullImageObject,
-                };
+              reconstructedImages[slotId] = {
+                ...savedPlacedImage,
+                image: fullImageObject,
+              };
             }
-          });
+          }
 
           return {
             ...spread,
@@ -845,6 +891,145 @@ const App: React.FC = () => {
     setAlbumSize(null);
     setIsAlbumSizeChosen(false);
   };
+  
+  const handleAiRetouchImage = (
+    originalImageId: string,
+    slotId: string,
+    spreadId: string,
+    newImageBase64: string,
+    mimeType: string
+  ) => {
+    // 1. Convert base64 to Blob
+    const byteCharacters = atob(newImageBase64);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+    const blob = new Blob([byteArray], { type: mimeType });
+    const newImageUrl = URL.createObjectURL(blob);
+
+    // 2. Create new AlbumImage
+    const newImage: AlbumImage = {
+        id: `ai-img-${Date.now()}`,
+        url: newImageUrl,
+        used: 1,
+        linked: false,
+    };
+
+    // 3. Add to library and update old image usage
+    setLibraryImages(prev => {
+        const updatedImages = prev.map(img => {
+            if (img.id === originalImageId) {
+                return { ...img, used: Math.max(0, (img.used || 0) - 1) };
+            }
+            return img;
+        });
+        const originalIndex = updatedImages.findIndex(img => img.id === originalImageId);
+        if (originalIndex !== -1) {
+            updatedImages.splice(originalIndex + 1, 0, newImage);
+        } else {
+            updatedImages.unshift(newImage); // Fallback to add at start
+        }
+        return updatedImages;
+    });
+
+    // 4. Update spread
+    setSpreads(prev => prev.map(spread => {
+        if (spread.id === spreadId) {
+            const newImages = { ...spread.images };
+            const oldPlacedImage = newImages[slotId];
+            if (oldPlacedImage && oldPlacedImage.image.id === originalImageId) {
+                newImages[slotId] = {
+                    ...oldPlacedImage, // Keep transform
+                    image: newImage
+                };
+            }
+            return { ...spread, images: newImages };
+        }
+        return spread;
+    }));
+  };
+  
+    // --- Touch Drag & Drop Handlers ---
+  const handleImageTouchStart = (image: AlbumImage, startEvent: React.TouchEvent<HTMLDivElement>) => {
+    if (!isMobile) return;
+    if (startEvent.cancelable) startEvent.preventDefault();
+    
+    const touch = startEvent.touches[0];
+    const targetRect = (startEvent.currentTarget as HTMLElement).getBoundingClientRect();
+    
+    setTouchDragItem({
+        image,
+        x: touch.clientX,
+        y: touch.clientY,
+        width: Math.min(targetRect.width, 100),
+        height: Math.min(targetRect.height, 100),
+    });
+  };
+
+  useEffect(() => {
+    if (!touchDragItem) return;
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length === 0) return;
+      const touch = e.touches[0];
+
+      setTouchDragItem(prev => (prev ? { ...prev, x: touch.clientX, y: touch.clientY } : null));
+
+      const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
+      if (dropTarget) {
+        const slotElement = dropTarget.closest('[data-slot-id]');
+        const spreadElement = dropTarget.closest('[data-spread-id]');
+        if (slotElement && spreadElement) {
+          const slotId = slotElement.getAttribute('data-slot-id');
+          const spreadId = spreadElement.getAttribute('data-spread-id');
+          if (slotId && spreadId) {
+            if (touchDragOverSlot?.spreadId !== spreadId || touchDragOverSlot?.slotId !== slotId) {
+              setTouchDragOverSlot({ spreadId, slotId });
+            }
+            return;
+          }
+        }
+      }
+      if (touchDragOverSlot !== null) {
+        setTouchDragOverSlot(null);
+      }
+    };
+
+    const handleTouchEnd = () => {
+      if (touchDragItem && touchDragOverSlot) {
+        handleDropImageInSlot(touchDragItem.image.id, touchDragOverSlot.spreadId, touchDragOverSlot.slotId);
+      }
+      setTouchDragItem(null);
+      setTouchDragOverSlot(null);
+    };
+
+    window.addEventListener('touchmove', handleTouchMove, { passive: false });
+    window.addEventListener('touchend', handleTouchEnd);
+    window.addEventListener('touchcancel', handleTouchEnd);
+
+    return () => {
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchend', handleTouchEnd);
+      window.removeEventListener('touchcancel', handleTouchEnd);
+    };
+  }, [touchDragItem, touchDragOverSlot, handleDropImageInSlot]);
+  
+  // Effect to hide original element during touch drag
+  useEffect(() => {
+    const originalElementId = touchDragItem ? `lib-img-thumb-${touchDragItem.image.id}` : null;
+    if (originalElementId) {
+        const element = document.getElementById(originalElementId);
+        if (element) element.style.visibility = 'hidden';
+    }
+    return () => {
+        if (originalElementId) {
+            const element = document.getElementById(originalElementId);
+            if (element) element.style.visibility = 'visible';
+        }
+    };
+  }, [touchDragItem]);
 
   if (!isAlbumSizeChosen || !albumSize) {
     return (
@@ -870,6 +1055,23 @@ const App: React.FC = () => {
 
   return (
     <div className="flex flex-col h-full font-sans bg-gray-200 text-gray-800">
+      <input type="file" accept="image/*" ref={addOverlayImageFileInputRef} onChange={handleAddOverlayImage} className="hidden" />
+       {touchDragItem && (
+        <div
+            style={{
+            position: 'fixed',
+            top: touchDragItem.y - touchDragItem.height / 2,
+            left: touchDragItem.x - touchDragItem.width / 2,
+            width: `${touchDragItem.width}px`,
+            height: `${touchDragItem.height}px`,
+            zIndex: 1000,
+            pointerEvents: 'none',
+            opacity: 0.8,
+            }}
+        >
+            <img src={touchDragItem.image.url} alt="drag-preview" className="w-full h-full object-cover rounded-md shadow-lg" />
+        </div>
+       )}
       {showMobileDragHint && (
         <MobileDragHint libraryHeight={libraryHeight} onClose={() => setShowMobileDragHint(false)} />
       )}
@@ -973,6 +1175,7 @@ const App: React.FC = () => {
             onRemoveImage={handleRemoveImageFromLibrary}
             onClearLibrary={handleClearLibrary}
             isMobile={isMobile}
+            onImageTouchStart={handleImageTouchStart}
           />
         </div>
         <div 
@@ -987,13 +1190,13 @@ const App: React.FC = () => {
               isOverviewMode={isOverviewMode}
               selectedTextId={selectedTextId}
               selectedStickerId={selectedStickerId}
+              touchDragOverSlot={touchDragOverSlot}
               onDropImageInSlot={handleDropImageInSlot} 
               onSwapImagesInSlots={handleSwapImagesInSlots}
               onChangeLayout={handleChangeLayout}
               onUpdateImageTransform={handleUpdateImageTransform}
               onRemoveImageFromSlot={handleRemoveImageFromSlot}
               onAddSpread={handleAddSpread}
-              // FIX: Corrected prop value from undefined `onReorderSpreads` to the handler function `handleReorderSpreads`.
               onReorderSpreads={handleReorderSpreads}
               onOpenTextPicker={handleOpenTextPicker}
               onUpdateText={handleUpdateText}
@@ -1003,6 +1206,8 @@ const App: React.FC = () => {
               onUpdateSticker={handleUpdateSticker}
               onRemoveSticker={handleRemoveSticker}
               onSelectSticker={handleSelectSticker}
+              onAiRetouchImage={handleAiRetouchImage}
+              onTriggerAddOverlayImage={handleTriggerAddOverlayImage}
           />
         </main>
       </div>
