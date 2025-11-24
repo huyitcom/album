@@ -18,7 +18,27 @@ import { AlbumImage, SpreadData, ImageTransform, PlacedImageData, AlbumSize, Tex
 import { initDB, saveImageToDB, getImageFromDB, deleteImageFromDB } from './db';
 import { useI18n } from './components/i18n';
 
+import AdminPage from './pages/AdminPage';
+
 const App: React.FC = () => {
+
+  // ---------------------------------------------------------
+  // 2. THÊM ĐOẠN CODE NÀY VÀO ĐÂY
+  // Kiểm tra xem người dùng có đang truy cập trang /admin không
+  const [isAdminRoute, setIsAdminRoute] = useState(false);
+
+  useEffect(() => {
+    if (window.location.pathname === '/admin') {
+      setIsAdminRoute(true);
+    }
+  }, []);
+
+  if (isAdminRoute) {
+    return <AdminPage />;
+  }
+  // ---------------------------------------------------------
+
+  
   const [libraryImages, setLibraryImages] = useState<AlbumImage[]>(initialLibraryImages);
   const [spreads, setSpreads] = useState<SpreadData[]>(initialSpreadsData);
   const [isAutoDesignPickerOpen, setIsAutoDesignPickerOpen] = useState(false);
