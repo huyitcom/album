@@ -25,20 +25,15 @@ const App: React.FC = () => {
   // ---------------------------------------------------------
   // 2. THÊM ĐOẠN CODE NÀY VÀO ĐÂY
   // Kiểm tra xem người dùng có đang truy cập trang /admin không
-  const [isAdminRoute, setIsAdminRoute] = useState(false);
+  // Kiểm tra ngay lập tức khi khởi tạo, hỗ trợ cả /admin và /admin/
+  const [isAdminRoute] = useState(() => window.location.pathname.startsWith('/admin'));
 
-  useEffect(() => {
-    if (window.location.pathname === '/admin') {
-      setIsAdminRoute(true);
-    }
-  }, []);
-
-  if (isAdminRoute) {
-    return <AdminPage />;
-  }
+  //if (isAdminRoute) {
+  //  return <AdminPage />;
+  //}
   // ---------------------------------------------------------
 
-  
+
   const [libraryImages, setLibraryImages] = useState<AlbumImage[]>(initialLibraryImages);
   const [spreads, setSpreads] = useState<SpreadData[]>(initialSpreadsData);
   const [isAutoDesignPickerOpen, setIsAutoDesignPickerOpen] = useState(false);
@@ -966,6 +961,12 @@ const App: React.FC = () => {
         return spread;
     }));
   };
+
+  // --- CHÈN CODE MỚI VÀO ĐÂY (SAU KHI TẤT CẢ HOOKS ĐÃ CHẠY) ---
+  if (isAdminRoute) {
+    return <AdminPage />;
+  }
+  // -----------------------------------------------------------
 
   if (!isAlbumSizeChosen || !albumSize) {
     return (
