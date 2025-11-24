@@ -1,3 +1,5 @@
+
+
 import React from 'react';
 import { SpreadData, ImageTransform, AlbumSize, TextElement, StickerElement } from '../types';
 import Spread from './Spread';
@@ -29,10 +31,11 @@ interface AlbumViewProps {
   onSelectSticker: (stickerId: string | null) => void;
   onAiRetouchImage: (originalImageId: string, slotId: string, spreadId: string, newImageBase64: string, mimeType: string) => void;
   onTriggerAddOverlayImage: (spreadId: string) => void;
+  aiResolution: '2K' | '4K';
 }
 
 const AlbumView: React.FC<AlbumViewProps> = (props) => {
-  const { spreads, albumSize, isMobile, isOverviewMode, onAddSpread, onReorderSpreads, ...spreadProps } = props;
+  const { spreads, albumSize, isMobile, isOverviewMode, onAddSpread, onReorderSpreads, aiResolution, ...spreadProps } = props;
   const { t } = useI18n();
 
   return (
@@ -47,6 +50,7 @@ const AlbumView: React.FC<AlbumViewProps> = (props) => {
             isMobile={isMobile}
             isOverviewMode={isOverviewMode}
             onReorderSpreads={onReorderSpreads}
+            aiResolution={aiResolution}
             {...spreadProps}
           />
         ))}

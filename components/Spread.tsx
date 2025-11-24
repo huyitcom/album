@@ -1,3 +1,5 @@
+
+
 import React, { useState, useRef } from 'react';
 import { SpreadData, ImageTransform, AlbumSize, TextElement as TextElementType, StickerElement as StickerElementType } from '../types';
 import { LayoutIcon, TypeIcon, SparklesIcon, PhotoIcon, PhotoPlusIcon } from './icons';
@@ -85,6 +87,7 @@ interface SpreadProps {
   onSelectSticker: (stickerId: string | null) => void;
   onAiRetouchImage: (originalImageId: string, slotId: string, spreadId: string, newImageBase64: string, mimeType: string) => void;
   onTriggerAddOverlayImage: (spreadId: string) => void;
+  aiResolution: '2K' | '4K';
 }
 
 const getAspectRatioForSize = (size: AlbumSize): string => {
@@ -105,7 +108,7 @@ const getAspectRatioForSize = (size: AlbumSize): string => {
 };
 
 const Spread: React.FC<SpreadProps> = (props) => {
-  const { data, index, albumSize, isMobile, isOverviewMode, onDropImageInSlot, onSwapImagesInSlots, onReorderSpreads, onChangeLayout, onUpdateImageTransform, onRemoveImageFromSlot, onOpenTextPicker, onUpdateText, onRemoveText, onSelectText, selectedTextId, onOpenStickerPicker, onUpdateSticker, onRemoveSticker, onSelectSticker, selectedStickerId, onAiRetouchImage, onTriggerAddOverlayImage, touchDragOverSlot } = props;
+  const { data, index, albumSize, isMobile, isOverviewMode, onDropImageInSlot, onSwapImagesInSlots, onReorderSpreads, onChangeLayout, onUpdateImageTransform, onRemoveImageFromSlot, onOpenTextPicker, onUpdateText, onRemoveText, onSelectText, selectedTextId, onOpenStickerPicker, onUpdateSticker, onRemoveSticker, onSelectSticker, selectedStickerId, onAiRetouchImage, onTriggerAddOverlayImage, touchDragOverSlot, aiResolution } = props;
   const [isLayoutPickerOpen, setIsLayoutPickerOpen] = useState(false);
   const [editingSlotId, setEditingSlotId] = useState<string | null>(null);
   const [isAnyImageEditing, setIsAnyImageEditing] = useState(false);
@@ -242,6 +245,7 @@ const Spread: React.FC<SpreadProps> = (props) => {
                               onEnterEditMode={() => setIsAnyImageEditing(true)}
                               onExitEditMode={() => setIsAnyImageEditing(false)}
                               onAiRetouchImage={onAiRetouchImage}
+                              aiResolution={aiResolution}
                           />
                       ) : (
                           <div className="flex items-center justify-center w-full h-full text-xs text-gray-400 p-2 text-center">

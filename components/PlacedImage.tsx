@@ -1,3 +1,5 @@
+
+
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { PlacedImageData, ImageTransform } from '../types';
 import { XMarkIcon, PencilIcon, ArrowUturnRightIcon, ArrowsRightLeftIcon, ArrowsUpDownIcon, CheckIcon, SparklesIcon, ArrowUturnLeftIcon, DownloadIcon, PaletteIcon } from './icons';
@@ -19,9 +21,10 @@ interface PlacedImageProps {
   onEnterEditMode?: (slotId: string) => void;
   onExitEditMode?: () => void;
   onAiRetouchImage: (originalImageId: string, slotId: string, spreadId: string, newImageBase64: string, mimeType: string) => void;
+  aiResolution: '2K' | '4K';
 }
 
-const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMobile, onTransformChange, onRemove, isOverviewMode, onEnterEditMode, onExitEditMode, onAiRetouchImage }) => {
+const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMobile, onTransformChange, onRemove, isOverviewMode, onEnterEditMode, onExitEditMode, onAiRetouchImage, aiResolution }) => {
   const { image, transform } = data;
   const { x, y, scale, rotation, flipHorizontal, flipVertical } = transform;
 
@@ -271,7 +274,7 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMob
 
         const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
         const result = await ai.models.generateContent({
-            model: 'gemini-2.5-flash-image',
+            model: 'gemini-3-pro-image-preview', // Nano Banana Pro
             contents: {
                 parts: [
                     { inlineData: { data: base64Data, mimeType: blob.type } },
@@ -279,20 +282,43 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMob
                 ],
             },
             config: {
-                responseModalities: [Modality.IMAGE, Modality.TEXT],
+                // responseModalities not strictly required for generateContent inference, but good for clarity if model supports it.
+                // However, imageConfig is the critical part for Nano Banana Pro.
+                imageConfig: { imageSize: aiResolution }, // Set default resolution based on user setting
             },
         });
 
-        const imagePart = result.candidates?.[0]?.content?.parts?.find(p => p.inlineData);
+        // Iterate through all parts to find the image, as per SDK guidelines.
+        let imagePart: any = null;
+        if (result.candidates?.[0]?.content?.parts) {
+            for (const part of result.candidates[0].content.parts) {
+                if (part.inlineData) {
+                    imagePart = part;
+                    break;
+                }
+            }
+        }
+
         if (imagePart?.inlineData) {
             onAiRetouchImage(data.image.id, slotId, spreadId, imagePart.inlineData.data, imagePart.inlineData.mimeType);
             handleExitEditMode();
         } else {
-            throw new Error(`AI did not return an image.`);
+             // Fallback to text check if no image was returned (error or text response)
+             const textPart = result.candidates?.[0]?.content?.parts?.find(p => p.text);
+             if (textPart) {
+                console.warn("AI returned text instead of image:", textPart.text);
+             }
+            throw new Error(`AI did not return an image. The model might have refused the request.`);
         }
     } catch (error) {
         console.error(`AI task failed:`, error);
-        alert(`AI task failed: ${error instanceof Error ? error.message : String(error)}`);
+        let message = error instanceof Error ? error.message : String(error);
+        
+        if (message.includes('403') || message.toLowerCase().includes('permission denied')) {
+             message = "Permission Denied: You must select a PAID API Key (Billing enabled) to use the Nano Banana Pro (4K) model. Please refresh the page and select the correct key.";
+        }
+        
+        alert(`AI task failed: ${message}`);
     } finally {
         setIsRetouching(false);
     }

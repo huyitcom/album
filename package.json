@@ -1,5 +1,5 @@
 {
-  "name": "ptbvn-album-builder",
+  "name": "ptbvn-album-builder-pro",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -11,7 +11,9 @@
   "dependencies": {
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "@google/genai": "^1.24.0"
+    "@google/genai": "^1.24.0",
+    "next": "^16.0.3",
+    "@vercel/postgres": "^0.10.0"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

@@ -1,3 +1,5 @@
+
+
 import { Language } from './types';
 
 export const translations: { [lang in Language]: { [key: string]: string } } = {
@@ -18,8 +20,11 @@ export const translations: { [lang in Language]: { [key: string]: string } } = {
     langEN: 'English',
     langVN: 'Tiếng Việt',
     toggleOverviewTitle: 'Toggle Page Overview',
-    changeLanguageTitle: 'Change language',
+    changeLanguageTitle: 'Settings',
     myProjects: 'My Projects',
+    settings: 'Settings',
+    language: 'Language',
+    aiResolution: 'AI Resolution',
 
     // Album View
     addSpread: 'Add Spread (2 Pages)',
@@ -156,8 +161,11 @@ export const translations: { [lang in Language]: { [key: string]: string } } = {
     langEN: 'English',
     langVN: 'Tiếng Việt',
     toggleOverviewTitle: 'Chuyển đổi chế độ xem tổng quan',
-    changeLanguageTitle: 'Thay đổi ngôn ngữ',
+    changeLanguageTitle: 'Cài đặt',
     myProjects: 'Dự án',
+    settings: 'Cài đặt',
+    language: 'Ngôn ngữ',
+    aiResolution: 'Độ phân giải AI',
 
     // Album View
     addSpread: 'Thêm trang đôi',

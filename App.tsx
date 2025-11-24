@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Header from './components/Header';
 import AlbumView from './components/AlbumView';
@@ -19,6 +20,7 @@ import { initDB, saveImageToDB, getImageFromDB, deleteImageFromDB } from './db';
 import { useI18n } from './components/i18n';
 
 const App: React.FC = () => {
+  const [hasApiKey, setHasApiKey] = useState(false);
   const [libraryImages, setLibraryImages] = useState<AlbumImage[]>(initialLibraryImages);
   const [spreads, setSpreads] = useState<SpreadData[]>(initialSpreadsData);
   const [isAutoDesignPickerOpen, setIsAutoDesignPickerOpen] = useState(false);
@@ -29,6 +31,7 @@ const App: React.FC = () => {
   const [libraryWidth, setLibraryWidth] = useState(288); // 18rem
   const [libraryHeight, setLibraryHeight] = useState(150); // For mobile
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [aiResolution, setAiResolution] = useState<'2K' | '4K'>('4K');
   const { t } = useI18n();
   
   // Element Selection State
@@ -73,6 +76,16 @@ const App: React.FC = () => {
   };
 
   useEffect(() => {
+    const checkApiKey = async () => {
+      if ((window as any).aistudio && (window as any).aistudio.hasSelectedApiKey) {
+        const has = await (window as any).aistudio.hasSelectedApiKey();
+        setHasApiKey(has);
+      } else {
+        setHasApiKey(true);
+      }
+    };
+    checkApiKey();
+
     initDB().catch(err => console.error("Failed to initialize database:", err));
     document.addEventListener('click', handleAppClick);
     
@@ -86,6 +99,13 @@ const App: React.FC = () => {
       window.removeEventListener('resize', handleWindowResize);
     };
   }, []);
+
+  const handleSelectApiKey = async () => {
+    if ((window as any).aistudio && (window as any).aistudio.openSelectKey) {
+      await (window as any).aistudio.openSelectKey();
+      setHasApiKey(true);
+    }
+  };
 
   const handleResizeMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -892,65 +912,6 @@ const App: React.FC = () => {
     setIsAlbumSizeChosen(false);
   };
   
-  const handleAiRetouchImage = (
-    originalImageId: string,
-    slotId: string,
-    spreadId: string,
-    newImageBase64: string,
-    mimeType: string
-  ) => {
-    // 1. Convert base64 to Blob
-    const byteCharacters = atob(newImageBase64);
-    const byteNumbers = new Array(byteCharacters.length);
-    for (let i = 0; i < byteCharacters.length; i++) {
-        byteNumbers[i] = byteCharacters.charCodeAt(i);
-    }
-    const byteArray = new Uint8Array(byteNumbers);
-    const blob = new Blob([byteArray], { type: mimeType });
-    const newImageUrl = URL.createObjectURL(blob);
-
-    // 2. Create new AlbumImage
-    const newImage: AlbumImage = {
-        id: `ai-img-${Date.now()}`,
-        url: newImageUrl,
-        used: 1,
-        linked: false,
-    };
-
-    // 3. Add to library and update old image usage
-    setLibraryImages(prev => {
-        const updatedImages = prev.map(img => {
-            if (img.id === originalImageId) {
-                return { ...img, used: Math.max(0, (img.used || 0) - 1) };
-            }
-            return img;
-        });
-        const originalIndex = updatedImages.findIndex(img => img.id === originalImageId);
-        if (originalIndex !== -1) {
-            updatedImages.splice(originalIndex + 1, 0, newImage);
-        } else {
-            updatedImages.unshift(newImage); // Fallback to add at start
-        }
-        return updatedImages;
-    });
-
-    // 4. Update spread
-    setSpreads(prev => prev.map(spread => {
-        if (spread.id === spreadId) {
-            const newImages = { ...spread.images };
-            const oldPlacedImage = newImages[slotId];
-            if (oldPlacedImage && oldPlacedImage.image.id === originalImageId) {
-                newImages[slotId] = {
-                    ...oldPlacedImage, // Keep transform
-                    image: newImage
-                };
-            }
-            return { ...spread, images: newImages };
-        }
-        return spread;
-    }));
-  };
-  
     // --- Touch Drag & Drop Handlers ---
   const handleImageTouchStart = (image: AlbumImage, startEvent: React.TouchEvent<HTMLDivElement>) => {
     if (!isMobile) return;
@@ -1030,6 +991,89 @@ const App: React.FC = () => {
         }
     };
   }, [touchDragItem]);
+
+  const handleAiRetouchImage = (
+    originalImageId: string,
+    slotId: string,
+    spreadId: string,
+    newImageBase64: string,
+    mimeType: string
+  ) => {
+    // 1. Convert base64 to Blob
+    const byteCharacters = atob(newImageBase64);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+    const blob = new Blob([byteArray], { type: mimeType });
+    const newImageUrl = URL.createObjectURL(blob);
+
+    // 2. Create new AlbumImage
+    const newImage: AlbumImage = {
+        id: `ai-img-${Date.now()}`,
+        url: newImageUrl,
+        used: 1,
+        linked: false,
+    };
+
+    // 3. Add to library and update old image usage
+    setLibraryImages(prev => {
+        const updatedImages = prev.map(img => {
+            if (img.id === originalImageId) {
+                return { ...img, used: Math.max(0, (img.used || 0) - 1) };
+            }
+            return img;
+        });
+        const originalIndex = updatedImages.findIndex(img => img.id === originalImageId);
+        if (originalIndex !== -1) {
+            updatedImages.splice(originalIndex + 1, 0, newImage);
+        } else {
+            updatedImages.unshift(newImage); // Fallback to add at start
+        }
+        return updatedImages;
+    });
+
+    // 4. Update spread
+    setSpreads(prev => prev.map(spread => {
+        if (spread.id === spreadId) {
+            const newImages = { ...spread.images };
+            const oldPlacedImage = newImages[slotId];
+            if (oldPlacedImage && oldPlacedImage.image.id === originalImageId) {
+                newImages[slotId] = {
+                    ...oldPlacedImage, // Keep transform
+                    image: newImage
+                };
+            }
+            return { ...spread, images: newImages };
+        }
+        return spread;
+    }));
+  };
+
+  if (!hasApiKey) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full bg-gray-200 font-sans text-gray-800">
+        <div className="bg-white p-8 rounded-lg shadow-xl text-center max-w-md mx-4">
+          <h1 className="text-2xl font-bold mb-4">API Key Required</h1>
+          <p className="mb-6 text-gray-600">
+            To use the high-quality Nano Banana Pro model (4K), you must select a paid API key.
+          </p>
+          <button 
+            onClick={handleSelectApiKey}
+            className="px-6 py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition-colors shadow-md"
+          >
+            Select API Key
+          </button>
+          <div className="mt-6 text-sm text-gray-500">
+            <a href="https://ai.google.dev/gemini-api/docs/billing" target="_blank" rel="noreferrer" className="text-blue-500 hover:underline">
+              Billing Information
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!isAlbumSizeChosen || !albumSize) {
     return (
@@ -1161,6 +1205,8 @@ const App: React.FC = () => {
         onOpenProjectManager={() => setIsProjectManagerOpen(true)}
         isMobile={isMobile}
         onOpenMobileDesignPicker={() => setIsMobileDesignPickerOpen(true)}
+        aiResolution={aiResolution}
+        setAiResolution={setAiResolution}
       />
       <div className="flex flex-col md:flex-row flex-1 overflow-hidden">
         <div 
@@ -1208,6 +1254,7 @@ const App: React.FC = () => {
               onSelectSticker={handleSelectSticker}
               onAiRetouchImage={handleAiRetouchImage}
               onTriggerAddOverlayImage={handleTriggerAddOverlayImage}
+              aiResolution={aiResolution}
           />
         </main>
       </div>
