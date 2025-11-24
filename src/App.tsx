@@ -26,12 +26,22 @@ const App: React.FC = () => {
   // 2. THÊM ĐOẠN CODE NÀY VÀO ĐÂY
   // Kiểm tra xem người dùng có đang truy cập trang /admin không
   // Kiểm tra ngay lập tức khi khởi tạo, hỗ trợ cả /admin và /admin/
-  const [isAdminRoute] = useState(() => window.location.pathname.startsWith('/admin'));
+  //const [isAdminRoute] = useState(() => window.location.pathname.startsWith('/admin'));
 
   //if (isAdminRoute) {
   //  return <AdminPage />;
   //}
   // ---------------------------------------------------------
+
+  // --- SỬA: KIỂM TRA TRỰC TIẾP URL (KHÔNG DÙNG STATE) ---
+  // Cách này đảm bảo luôn lấy đúng URL hiện tại mỗi khi App render
+  const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
+  const isAdminRoute = currentPath.startsWith('/admin');
+
+  // In ra Console (F12) để kiểm tra
+  console.log("Đường dẫn hiện tại:", currentPath);
+  console.log("Có phải Admin không?:", isAdminRoute);
+  // -----------------------------------------------------
 
 
   const [libraryImages, setLibraryImages] = useState<AlbumImage[]>(initialLibraryImages);
