@@ -5,11 +5,12 @@ export default function AdminPage() {
   const [adminKey, setAdminKey] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [users, setUsers] = useState<any[]>([]);
+  const [isInitializing, setIsInitializing] = useState(false);
   
   // Form thêm mới
   const [newUser, setNewUser] = useState({ key: '', tier: 'basic', limit: 100 });
 
-  // 1. Hàm đăng nhập (Chỉ lưu key vào state để gửi đi)
+  // 1. Hàm đăng nhập
   const handleLogin = () => {
     if (adminKey) {
       setIsAuthenticated(true);
@@ -19,22 +20,27 @@ export default function AdminPage() {
 
   // 2. Lấy danh sách User
   const fetchUsers = async () => {
-    const res = await fetch('/api/admin/users', {
+    // Corrected URL: /api/admin/user
+    const res = await fetch('/api/admin/user', {
       headers: { 'x-admin-secret': adminKey }
     });
     if (res.ok) {
       const data = await res.json();
       setUsers(data.users);
     } else {
-      alert('Sai mật khẩu Admin hoặc lỗi Server');
-      setIsAuthenticated(false);
+      if (res.status === 500) {
+        console.error("Database might not be initialized");
+      } else {
+        alert('Sai mật khẩu Admin hoặc lỗi Server');
+        setIsAuthenticated(false);
+      }
     }
   };
 
   // 3. Thêm User
   const handleAddUser = async (e: React.FormEvent) => {
     e.preventDefault();
-    const res = await fetch('/api/admin/users', {
+    const res = await fetch('/api/admin/user', {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
@@ -45,8 +51,8 @@ export default function AdminPage() {
 
     if (res.ok) {
       alert('Đã thêm thành công!');
-      setNewUser({ key: '', tier: 'basic', limit: 100 }); // Reset form
-      fetchUsers(); // Tải lại danh sách
+      setNewUser({ key: '', tier: 'basic', limit: 100 }); 
+      fetchUsers(); 
     } else {
       alert('Lỗi: Có thể Key đã tồn tại.');
     }
@@ -56,12 +62,34 @@ export default function AdminPage() {
   const handleDelete = async (id: number) => {
     if (!confirm('Bạn chắc chắn muốn xóa khách này?')) return;
     
-    const res = await fetch(`/api/admin/users?id=${id}`, {
+    const res = await fetch(`/api/admin/user?id=${id}`, {
       method: 'DELETE',
       headers: { 'x-admin-secret': adminKey }
     });
 
     if (res.ok) fetchUsers();
+  };
+  
+  // 5. Khởi tạo Database
+  const handleInitDB = async () => {
+      setIsInitializing(true);
+      try {
+        // Corrected URL: /api/setup
+        const res = await fetch('/api/setup', {
+            headers: { 'x-admin-secret': adminKey }
+        });
+        const data = await res.json();
+        if (res.ok) {
+            alert('Khởi tạo Database thành công! Bạn có thể bắt đầu thêm user.');
+            fetchUsers();
+        } else {
+            alert('Lỗi: ' + (data.error || 'Không thể khởi tạo'));
+        }
+      } catch (e) {
+          alert('Lỗi kết nối');
+      } finally {
+          setIsInitializing(false);
+      }
   };
 
   // --- GIAO DIỆN ---
@@ -88,7 +116,17 @@ export default function AdminPage() {
   return (
     <div className="min-h-screen bg-gray-50 p-8 text-black">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-2xl font-bold mb-6 text-gray-800">Quản lý Khách hàng (Album Layout App)</h1>
+        <div className="flex justify-between items-center mb-6">
+            <h1 className="text-2xl font-bold text-gray-800">Quản lý Khách hàng</h1>
+            <button 
+                onClick={handleInitDB} 
+                disabled={isInitializing}
+                className="text-xs bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-2 rounded border border-gray-300"
+                title="Chạy lệnh tạo bảng trong Database lần đầu tiên"
+            >
+                {isInitializing ? 'Đang chạy...' : 'Khởi tạo / Reset Database'}
+            </button>
+        </div>
 
         {/* Form Thêm mới */}
         <div className="bg-white p-6 rounded shadow mb-8">
@@ -169,7 +207,9 @@ export default function AdminPage() {
               ))}
               {users.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="p-8 text-center text-gray-500">Chưa có dữ liệu</td>
+                  <td colSpan={5} className="p-8 text-center text-gray-500">
+                    {users.length === 0 ? "Chưa có dữ liệu. Hãy bấm 'Khởi tạo Database' nếu đây là lần đầu." : "Đang tải..."}
+                  </td>
                 </tr>
               )}
             </tbody>

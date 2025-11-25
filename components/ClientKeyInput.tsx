@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { XMarkIcon, CheckIcon } from './icons';
 
@@ -20,6 +19,7 @@ const ClientKeyInput: React.FC<ClientKeyInputProps> = ({ onSave, onClose }) => {
     setError(null);
 
     try {
+      // Corrected URL
       const res = await fetch('/api/user/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

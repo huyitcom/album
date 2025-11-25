@@ -1,4 +1,3 @@
-
 'use client';
 import React, { useState, useEffect } from 'react';
 
@@ -11,7 +10,7 @@ export default function AdminPage() {
   // Form thêm mới
   const [newUser, setNewUser] = useState({ key: '', tier: 'basic', limit: 100 });
 
-  // 1. Hàm đăng nhập (Chỉ lưu key vào state để gửi đi)
+  // 1. Hàm đăng nhập
   const handleLogin = () => {
     if (adminKey) {
       setIsAuthenticated(true);
@@ -21,7 +20,7 @@ export default function AdminPage() {
 
   // 2. Lấy danh sách User
   const fetchUsers = async () => {
-    // FIX: Using /api/admin/user (singular) to match the route file path
+    // Corrected URL: /api/admin/user
     const res = await fetch('/api/admin/user', {
       headers: { 'x-admin-secret': adminKey }
     });
@@ -29,7 +28,6 @@ export default function AdminPage() {
       const data = await res.json();
       setUsers(data.users);
     } else {
-      // Don't alert immediately, user might just need to init DB
       if (res.status === 500) {
         console.error("Database might not be initialized");
       } else {
@@ -53,8 +51,8 @@ export default function AdminPage() {
 
     if (res.ok) {
       alert('Đã thêm thành công!');
-      setNewUser({ key: '', tier: 'basic', limit: 100 }); // Reset form
-      fetchUsers(); // Tải lại danh sách
+      setNewUser({ key: '', tier: 'basic', limit: 100 }); 
+      fetchUsers(); 
     } else {
       alert('Lỗi: Có thể Key đã tồn tại.');
     }
@@ -64,7 +62,6 @@ export default function AdminPage() {
   const handleDelete = async (id: number) => {
     if (!confirm('Bạn chắc chắn muốn xóa khách này?')) return;
     
-    // FIX: Using /api/admin/user (singular)
     const res = await fetch(`/api/admin/user?id=${id}`, {
       method: 'DELETE',
       headers: { 'x-admin-secret': adminKey }
@@ -77,6 +74,7 @@ export default function AdminPage() {
   const handleInitDB = async () => {
       setIsInitializing(true);
       try {
+        // Corrected URL: /api/setup
         const res = await fetch('/api/setup', {
             headers: { 'x-admin-secret': adminKey }
         });

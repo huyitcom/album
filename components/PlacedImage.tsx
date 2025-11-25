@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { PlacedImageData, ImageTransform } from '../types';
 import { XMarkIcon, PencilIcon, ArrowUturnRightIcon, ArrowsRightLeftIcon, ArrowsUpDownIcon, CheckIcon, SparklesIcon, ArrowUturnLeftIcon, DownloadIcon, PaletteIcon } from './icons';
@@ -264,7 +263,7 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMob
         const blob = await response.blob();
         const base64Data = await blobToBase64(blob);
 
-        // Call the Backend Proxy instead of Google SDK directly
+        // Corrected URL
         const res = await fetch('/api/ai/generate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -297,8 +296,8 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMob
     } catch (error) {
         console.error(`AI task failed:`, error);
         let message = error instanceof Error ? error.message : String(error);
-        if(message.includes('403') || message.includes('Client key')) {
-             onRequireClientKey(); // Prompt user to check key
+        if(message.includes('403') || message.includes('Client key') || message.includes('401')) {
+             onRequireClientKey(); 
              message = "Invalid or missing Client Access Key.";
         }
         alert(`AI task failed: ${message}`);
