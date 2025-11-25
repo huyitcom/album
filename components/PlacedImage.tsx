@@ -1,10 +1,8 @@
 
-
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { PlacedImageData, ImageTransform } from '../types';
 import { XMarkIcon, PencilIcon, ArrowUturnRightIcon, ArrowsRightLeftIcon, ArrowsUpDownIcon, CheckIcon, SparklesIcon, ArrowUturnLeftIcon, DownloadIcon, PaletteIcon } from './icons';
 import { useI18n } from './i18n';
-import { GoogleGenAI, Modality } from '@google/genai';
 import { blobToBase64 } from '../utils';
 import BackgroundTemplatePicker from './BackgroundTemplatePicker';
 import ColorGradingPicker from './ColorGradingPicker';
@@ -22,15 +20,17 @@ interface PlacedImageProps {
   onExitEditMode?: () => void;
   onAiRetouchImage: (originalImageId: string, slotId: string, spreadId: string, newImageBase64: string, mimeType: string) => void;
   aiResolution: '2K' | '4K';
+  clientKey: string | null; // Receive client key from App
+  onRequireClientKey: () => void; // Callback to ask App to show key modal
 }
 
-const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMobile, onTransformChange, onRemove, isOverviewMode, onEnterEditMode, onExitEditMode, onAiRetouchImage, aiResolution }) => {
+const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMobile, onTransformChange, onRemove, isOverviewMode, onEnterEditMode, onExitEditMode, onAiRetouchImage, aiResolution, clientKey, onRequireClientKey }) => {
   const { image, transform } = data;
   const { x, y, scale, rotation, flipHorizontal, flipVertical } = transform;
 
   const [isHovered, setIsHovered] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [isMouseDragging, setIsMouseDragging] = useState(false); // For mouse panning only
+  const [isMouseDragging, setIsMouseDragging] = useState(false);
   const [editMode, setEditMode] = useState<'transform' | 'ai'>('transform');
   const [isRetouching, setIsRetouching] = useState(false);
   const [isBgPickerOpen, setIsBgPickerOpen] = useState(false);
@@ -130,7 +130,6 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMob
      if(containerRef.current) containerRef.current.style.opacity = '1';
   };
 
-  // --- Mouse Panning Logic ---
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!isEditing) return;
     e.preventDefault();
@@ -177,13 +176,10 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMob
   }, [isMouseDragging, onTransformChange, scale, transform, getConstrainedPosition]);
 
 
-  // --- Touch Panning Logic ---
   const handleTouchStartPan = (e: React.TouchEvent<HTMLDivElement>) => {
     if (!isEditing || e.touches.length !== 1) return;
-    
     e.preventDefault();
     e.stopPropagation();
-
     const touch = e.touches[0];
     const dragStart = {
         x: touch.clientX,
@@ -191,32 +187,25 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMob
         imageX: transform.x,
         imageY: transform.y,
     };
-    
     const container = containerRef.current;
     if (!container) return;
 
     const handleTouchMove = (moveEvent: TouchEvent) => {
       moveEvent.preventDefault();
-      
       if (moveEvent.touches.length !== 1) return;
-
       const moveTouch = moveEvent.touches[0];
       const dx = moveTouch.clientX - dragStart.x;
       const dy = moveTouch.clientY - dragStart.y;
-      
       const { width: containerW, height: containerH } = container.getBoundingClientRect();
       if (containerW === 0 || containerH === 0) return;
-      
       const newX = dragStart.imageX + (dx / containerW) * 100;
       const newY = dragStart.imageY + (dy / containerH) * 100;
-
       const { constrainedX, constrainedY } = getConstrainedPosition(newX, newY, scale);
       onTransformChange({ ...transform, x: constrainedX, y: constrainedY });
     };
 
     const handleTouchEnd = (endEvent: TouchEvent) => {
       endEvent.preventDefault();
-      
       document.removeEventListener('touchmove', handleTouchMove);
       document.removeEventListener('touchend', handleTouchEnd);
       document.removeEventListener('touchcancel', handleTouchEnd);
@@ -226,7 +215,6 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMob
     document.addEventListener('touchend', handleTouchEnd, { passive: false });
     document.addEventListener('touchcancel', handleTouchEnd, { passive: false });
   };
-
 
   const handleZoomChange = (newScale: number) => {
     const { constrainedX, constrainedY } = getConstrainedPosition(transform.x, transform.y, newScale);
@@ -264,60 +252,55 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMob
   };
 
   const runAiImageTask = async (prompt: string) => {
+    if (!clientKey) {
+        onRequireClientKey();
+        return;
+    }
+
     setIsRetouching(true);
 
     try {
         const response = await fetch(data.image.url);
         const blob = await response.blob();
-        
         const base64Data = await blobToBase64(blob);
 
-        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-        const result = await ai.models.generateContent({
-            model: 'gemini-3-pro-image-preview', // Nano Banana Pro
-            contents: {
-                parts: [
-                    { inlineData: { data: base64Data, mimeType: blob.type } },
-                    { text: prompt },
-                ],
-            },
-            config: {
-                // responseModalities not strictly required for generateContent inference, but good for clarity if model supports it.
-                // However, imageConfig is the critical part for Nano Banana Pro.
-                imageConfig: { imageSize: aiResolution }, // Set default resolution based on user setting
-            },
+        // Call the Backend Proxy instead of Google SDK directly
+        const res = await fetch('/api/ai/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                prompt: prompt,
+                imageBase64: base64Data,
+                mimeType: blob.type,
+                clientKey: clientKey,
+                resolution: aiResolution
+            })
         });
 
-        // Iterate through all parts to find the image, as per SDK guidelines.
-        let imagePart: any = null;
-        if (result.candidates?.[0]?.content?.parts) {
-            for (const part of result.candidates[0].content.parts) {
-                if (part.inlineData) {
-                    imagePart = part;
-                    break;
-                }
-            }
+        const json = await res.json();
+
+        if (!res.ok) {
+            throw new Error(json.error || 'Server error');
         }
 
-        if (imagePart?.inlineData) {
-            onAiRetouchImage(data.image.id, slotId, spreadId, imagePart.inlineData.data, imagePart.inlineData.mimeType);
+        // json.data contains the base64 image string from Gemini
+        if (json.data) {
+            onAiRetouchImage(data.image.id, slotId, spreadId, json.data, json.mimeType || 'image/jpeg');
             handleExitEditMode();
+            if (json.remaining !== undefined) {
+                console.log(`Remaining daily uses: ${json.remaining}`);
+            }
         } else {
-             // Fallback to text check if no image was returned (error or text response)
-             const textPart = result.candidates?.[0]?.content?.parts?.find(p => p.text);
-             if (textPart) {
-                console.warn("AI returned text instead of image:", textPart.text);
-             }
-            throw new Error(`AI did not return an image. The model might have refused the request.`);
+            throw new Error("No image data returned from server.");
         }
+
     } catch (error) {
         console.error(`AI task failed:`, error);
         let message = error instanceof Error ? error.message : String(error);
-        
-        if (message.includes('403') || message.toLowerCase().includes('permission denied')) {
-             message = "Permission Denied: You must select a PAID API Key (Billing enabled) to use the Nano Banana Pro (4K) model. Please refresh the page and select the correct key.";
+        if(message.includes('403') || message.includes('Client key')) {
+             onRequireClientKey(); // Prompt user to check key
+             message = "Invalid or missing Client Access Key.";
         }
-        
         alert(`AI task failed: ${message}`);
     } finally {
         setIsRetouching(false);
@@ -345,7 +328,7 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMob
   };
   
   const handleDownload = async (e: React.MouseEvent) => {
-    e.stopPropagation(); // prevent entering edit mode
+    e.stopPropagation();
     try {
       const response = await fetch(image.url);
       const blob = await response.blob();
@@ -353,10 +336,8 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMob
       const a = document.createElement('a');
       a.style.display = 'none';
       a.href = url;
-  
       const extension = blob.type.split('/')[1] || 'jpg';
       a.download = `photobook-image-${image.id}.${extension}`;
-  
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
@@ -370,13 +351,11 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMob
 
   useEffect(() => {
     if (!isEditing) return;
-
     const handleClickOutside = (event: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
         handleExitEditMode();
       }
     };
-
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
@@ -416,7 +395,6 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMob
 
   const renderMobileToolbar = () => (
     <div className="flex flex-col gap-2">
-      {/* Row 1: Zoom Slider */}
       <input
         aria-label={t('zoom')}
         type="range"
@@ -427,7 +405,6 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMob
         onChange={(e) => handleZoomChange(parseFloat(e.target.value))}
         className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer"
       />
-      {/* Row 2: Action Buttons */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-1">
             <button onClick={() => handleRotate(90)} title={t('rotateRightTitle')} className="p-2 text-white bg-gray-700/50 rounded-md hover:bg-gray-600/50"><ArrowUturnRightIcon className="w-5 h-5" /></button>
@@ -552,7 +529,6 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMob
                 </div>
             )}
 
-          {/* Hover Controls (Edit/Remove) */}
           {isHovered && !isEditing && !isOverviewMode && (
             <div 
                 data-hide-on-capture="true"
@@ -570,7 +546,6 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMob
             </div>
           )}
 
-          {/* In-place Editing Toolbar */}
           {isEditing && (
             <div 
                 data-hide-on-capture="true"

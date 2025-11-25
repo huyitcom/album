@@ -1,5 +1,4 @@
 
-
 import React from 'react';
 import { SpreadData, ImageTransform, AlbumSize, TextElement, StickerElement } from '../types';
 import Spread from './Spread';
@@ -32,10 +31,12 @@ interface AlbumViewProps {
   onAiRetouchImage: (originalImageId: string, slotId: string, spreadId: string, newImageBase64: string, mimeType: string) => void;
   onTriggerAddOverlayImage: (spreadId: string) => void;
   aiResolution: '2K' | '4K';
+  clientKey: string | null;
+  onRequireClientKey: () => void;
 }
 
 const AlbumView: React.FC<AlbumViewProps> = (props) => {
-  const { spreads, albumSize, isMobile, isOverviewMode, onAddSpread, onReorderSpreads, aiResolution, ...spreadProps } = props;
+  const { spreads, albumSize, isMobile, isOverviewMode, onAddSpread, onReorderSpreads, aiResolution, clientKey, onRequireClientKey, ...spreadProps } = props;
   const { t } = useI18n();
 
   return (
@@ -51,6 +52,8 @@ const AlbumView: React.FC<AlbumViewProps> = (props) => {
             isOverviewMode={isOverviewMode}
             onReorderSpreads={onReorderSpreads}
             aiResolution={aiResolution}
+            clientKey={clientKey}
+            onRequireClientKey={onRequireClientKey}
             {...spreadProps}
           />
         ))}
