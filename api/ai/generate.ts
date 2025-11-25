@@ -5,6 +5,8 @@ import { GoogleGenAI } from '@google/genai';
 // Initialize Gemini with server-side key
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -45,27 +47,56 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
     }
 
-    // 4. Call Gemini AI
+    // 4. Call Gemini AI with Retry Logic
     const model = 'gemini-3-pro-image-preview'; 
-    
-    const response = await ai.models.generateContent({
-        model: model,
-        contents: {
-            parts: [
-                { inlineData: { data: imageBase64, mimeType: mimeType } },
-                { text: prompt },
-            ],
-        },
-        config: {
-            imageConfig: { imageSize: resolution || '4K' },
-        },
-    });
+    let response;
+    let attempts = 0;
+    const maxAttempts = 3;
+    let lastError;
+
+    while (attempts < maxAttempts) {
+        try {
+            response = await ai.models.generateContent({
+                model: model,
+                contents: {
+                    parts: [
+                        { inlineData: { data: imageBase64, mimeType: mimeType } },
+                        { text: prompt },
+                    ],
+                },
+                config: {
+                    imageConfig: { imageSize: resolution || '4K' },
+                },
+            });
+            break; // Success, exit loop
+        } catch (e: any) {
+            lastError = e;
+            attempts++;
+            console.warn(`Gemini Attempt ${attempts} failed:`, e.message);
+            
+            // Check for 503 Service Unavailable / Overloaded
+            const isOverloaded = e.message?.includes('503') || e.message?.includes('overloaded') || e.message?.includes('UNAVAILABLE');
+            
+            if (isOverloaded && attempts < maxAttempts) {
+                // Exponential backoff: 2s, 4s
+                await delay(2000 * attempts); 
+                continue;
+            }
+            
+            // If it's not an overload error (e.g., 400 Bad Request), fail immediately
+            break; 
+        }
+    }
+
+    if (!response && lastError) {
+        throw lastError;
+    }
 
     // 5. Extract Image
     let resultImage = null;
     let resultMime = null;
 
-    if (response.candidates?.[0]?.content?.parts) {
+    if (response?.candidates?.[0]?.content?.parts) {
         for (const part of response.candidates[0].content.parts) {
             if (part.inlineData) {
                 resultImage = part.inlineData.data;
@@ -76,7 +107,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (!resultImage) {
-        throw new Error("Model did not return an image.");
+        throw new Error("Model completed but did not return an image.");
     }
 
     // 6. Increment Usage
@@ -90,6 +121,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   } catch (error: any) {
     console.error("AI Gen Error:", error);
-    return res.status(500).json({ error: error.message || "Internal Server Error" });
+    
+    // Try to parse the error message if it's a stringified JSON (common with Google SDK)
+    let errorMessage = error.message || "Internal Server Error";
+    try {
+        // Sometimes the error message is a JSON string like '{"error":...}'
+        if (errorMessage.startsWith('{')) {
+            const parsed = JSON.parse(errorMessage);
+            if (parsed.error && parsed.error.message) {
+                errorMessage = parsed.error.message;
+            }
+        }
+    } catch (e) {
+        // ignore parse error
+    }
+
+    if (errorMessage.includes('503') || errorMessage.includes('overloaded')) {
+        return res.status(503).json({ error: "Server is currently overloaded (High Traffic). Please try again in a moment." });
+    }
+
+    return res.status(500).json({ error: errorMessage });
   }
 }

@@ -296,10 +296,14 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMob
     } catch (error) {
         console.error(`AI task failed:`, error);
         let message = error instanceof Error ? error.message : String(error);
+        
         if(message.includes('403') || message.includes('Client key') || message.includes('401')) {
              onRequireClientKey(); 
              message = "Invalid or missing Client Access Key.";
+        } else if (message.includes('503') || message.includes('overloaded')) {
+             message = "The AI Server is currently busy/overloaded. Please wait a moment and try again.";
         }
+
         alert(`AI task failed: ${message}`);
     } finally {
         setIsRetouching(false);
