@@ -23,30 +23,58 @@ export default function AdminPage() {
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [editForm, setEditForm] = useState({ tier: 'basic', limit: 100 });
 
-  // 1. Hàm đăng nhập
-  const handleLogin = () => {
-    if (adminKey) {
-      setIsAuthenticated(true);
-      fetchUsers();
+  // 1. Hàm đăng nhập (Secure Version)
+  const handleLogin = async () => {
+    if (!adminKey) return;
+
+    try {
+        // Verify key with server BEFORE setting authenticated state
+        const res = await fetch('/api/admin/user', {
+            headers: { 'x-admin-secret': adminKey }
+        });
+
+        if (res.ok) {
+            const data = await res.json();
+            setUsers(data.users);
+            setIsAuthenticated(true); // Only set true if request succeeds
+        } else {
+            setIsAuthenticated(false);
+            if (res.status === 401) {
+                alert('Sai mật khẩu Admin');
+            } else if (res.status === 500) {
+                // Special case: If DB is not initialized, it might return 500 but auth was technically correct/passed to get there.
+                // We allow entry so user can click "Init Database"
+                setIsAuthenticated(true);
+            } else {
+                alert('Lỗi kết nối hoặc lỗi Server: ' + res.status);
+            }
+        }
+    } catch (error) {
+        alert('Không thể kết nối tới Server');
+        console.error(error);
+        setIsAuthenticated(false);
     }
   };
 
   // 2. Lấy danh sách User
   const fetchUsers = async () => {
     // Corrected URL: /api/admin/user
-    const res = await fetch('/api/admin/user', {
-      headers: { 'x-admin-secret': adminKey }
-    });
-    if (res.ok) {
-      const data = await res.json();
-      setUsers(data.users);
-    } else {
-      if (res.status === 500) {
-        console.error("Database might not be initialized");
-      } else {
-        alert('Sai mật khẩu Admin hoặc lỗi Server');
-        setIsAuthenticated(false);
-      }
+    try {
+        const res = await fetch('/api/admin/user', {
+            headers: { 'x-admin-secret': adminKey }
+        });
+        if (res.ok) {
+            const data = await res.json();
+            setUsers(data.users);
+        } else {
+            if (res.status === 401) {
+                setIsAuthenticated(false); // Logout if session invalid
+            } else {
+                console.error("Failed to fetch users, status:", res.status);
+            }
+        }
+    } catch (e) {
+        console.error("Network error fetching users");
     }
   };
 
@@ -149,6 +177,7 @@ export default function AdminPage() {
             placeholder="Nhập Admin Secret Key..."
             value={adminKey}
             onChange={(e) => setAdminKey(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
           />
           <button onClick={handleLogin} className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700">
             Truy cập
