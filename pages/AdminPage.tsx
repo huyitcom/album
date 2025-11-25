@@ -1,14 +1,27 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 
+// Interface for User Type
+interface User {
+    id: number;
+    client_api_key: string;
+    tier: string;
+    daily_limit: number;
+    usage_count: number;
+}
+
 export default function AdminPage() {
   const [adminKey, setAdminKey] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [users, setUsers] = useState<any[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [isInitializing, setIsInitializing] = useState(false);
   
   // Form thêm mới
   const [newUser, setNewUser] = useState({ key: '', tier: 'basic', limit: 100 });
+
+  // Edit Modal State
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [editForm, setEditForm] = useState({ tier: 'basic', limit: 100 });
 
   // 1. Hàm đăng nhập
   const handleLogin = () => {
@@ -58,7 +71,39 @@ export default function AdminPage() {
     }
   };
 
-  // 4. Xóa User
+  // 4. Open Edit Modal
+  const handleEditClick = (user: User) => {
+      setEditingUser(user);
+      setEditForm({ tier: user.tier, limit: user.daily_limit });
+  };
+
+  // 5. Save Edit
+  const handleSaveEdit = async () => {
+      if (!editingUser) return;
+
+      const res = await fetch('/api/admin/user', {
+          method: 'PUT',
+          headers: {
+              'Content-Type': 'application/json',
+              'x-admin-secret': adminKey
+          },
+          body: JSON.stringify({
+              id: editingUser.id,
+              tier: editForm.tier,
+              limit: editForm.limit
+          })
+      });
+
+      if (res.ok) {
+          alert('Cập nhật thành công!');
+          setEditingUser(null);
+          fetchUsers();
+      } else {
+          alert('Lỗi khi cập nhật.');
+      }
+  };
+
+  // 6. Xóa User
   const handleDelete = async (id: number) => {
     if (!confirm('Bạn chắc chắn muốn xóa khách này?')) return;
     
@@ -70,7 +115,7 @@ export default function AdminPage() {
     if (res.ok) fetchUsers();
   };
   
-  // 5. Khởi tạo Database
+  // 7. Khởi tạo Database
   const handleInitDB = async () => {
       setIsInitializing(true);
       try {
@@ -114,7 +159,56 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8 text-black">
+    <div className="min-h-screen bg-gray-50 p-8 text-black relative">
+      
+      {/* Edit Modal Overlay */}
+      {editingUser && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+              <div className="bg-white p-6 rounded-lg shadow-xl w-96">
+                  <h3 className="text-lg font-bold mb-4">Chỉnh sửa User #{editingUser.id}</h3>
+                  <div className="mb-4">
+                      <p className="text-sm text-gray-500 mb-1">Client Key</p>
+                      <p className="font-mono font-bold text-blue-600 bg-gray-100 p-2 rounded">{editingUser.client_api_key}</p>
+                  </div>
+                  <div className="mb-4">
+                      <label className="block text-sm text-gray-700 mb-1">Gói (Tier)</label>
+                      <select 
+                          className="w-full border p-2 rounded"
+                          value={editForm.tier}
+                          onChange={(e) => setEditForm({...editForm, tier: e.target.value})}
+                      >
+                          <option value="free">Free</option>
+                          <option value="basic">Basic</option>
+                          <option value="pro">Pro</option>
+                      </select>
+                  </div>
+                  <div className="mb-6">
+                      <label className="block text-sm text-gray-700 mb-1">Giới hạn/ngày</label>
+                      <input 
+                          type="number" 
+                          className="w-full border p-2 rounded"
+                          value={editForm.limit}
+                          onChange={(e) => setEditForm({...editForm, limit: parseInt(e.target.value)})}
+                      />
+                  </div>
+                  <div className="flex justify-end gap-2">
+                      <button 
+                          onClick={() => setEditingUser(null)}
+                          className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded"
+                      >
+                          Hủy
+                      </button>
+                      <button 
+                          onClick={handleSaveEdit}
+                          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                      >
+                          Lưu thay đổi
+                      </button>
+                  </div>
+              </div>
+          </div>
+      )}
+
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-6">
             <h1 className="text-2xl font-bold text-gray-800">Quản lý Khách hàng</h1>
@@ -195,7 +289,14 @@ export default function AdminPage() {
                     <span className="text-gray-400 mx-1">/</span> 
                     {user.daily_limit}
                   </td>
-                  <td className="p-3 text-right">
+                  <td className="p-3 text-right space-x-2">
+                    <button 
+                      onClick={() => handleEditClick(user)}
+                      className="text-blue-500 hover:text-blue-700 text-sm font-medium"
+                    >
+                      Sửa
+                    </button>
+                    <span className="text-gray-300">|</span>
                     <button 
                       onClick={() => handleDelete(user.id)}
                       className="text-red-500 hover:text-red-700 text-sm font-medium"

@@ -29,10 +29,33 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(200).json({ success: true });
     }
 
-    // 3. DELETE: Remove user
+    // 3. PUT: Update user
+    if (req.method === 'PUT') {
+      const { id, tier, limit } = req.body;
+      
+      if (!id) {
+          return res.status(400).json({ error: 'User ID is required' });
+      }
+
+      await sql`
+        UPDATE users 
+        SET tier = ${tier}, daily_limit = ${limit}
+        WHERE id = ${id}
+      `;
+      return res.status(200).json({ success: true });
+    }
+
+    // 4. DELETE: Remove user
     if (req.method === 'DELETE') {
       const { id } = req.query;
-      await sql`DELETE FROM users WHERE id = ${id}`;
+      // Fix: Ensure id is a single string, VercelRequest query params can be string | string[]
+      const userId = Array.isArray(id) ? id[0] : id;
+
+      if (!userId) {
+        return res.status(400).json({ error: 'User ID is required' });
+      }
+      
+      await sql`DELETE FROM users WHERE id = ${userId}`;
       return res.status(200).json({ success: true });
     }
 
