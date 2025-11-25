@@ -20,13 +20,29 @@ import { AlbumImage, SpreadData, ImageTransform, PlacedImageData, AlbumSize, Tex
 import { initDB, saveImageToDB, getImageFromDB, deleteImageFromDB } from './db';
 import { useI18n } from './components/i18n';
 
-// FIX: Ensure this is a relative import, not an alias
+// Import Admin Page
 import AdminPage from './pages/AdminPage';
 
 const App: React.FC = () => {
 
-  // Check for admin route
-  const [isAdminRoute] = useState(() => window.location.pathname.startsWith('/admin'));
+  // ---------------------------------------------------------
+  // ADMIN ROUTE CHECK - MUST BE AT THE TOP
+  // ---------------------------------------------------------
+  const [isAdminRoute] = useState(() => {
+    // Check if the path starts with /admin
+    return window.location.pathname.startsWith('/admin');
+  });
+
+  // If we are on the admin route, render it immediately inside a scrollable container
+  // This bypasses the global 'overflow: hidden' set in index.html
+  if (isAdminRoute) {
+    return (
+      <div className="h-full w-full overflow-y-auto bg-gray-50">
+        <AdminPage />
+      </div>
+    );
+  }
+  // ---------------------------------------------------------
 
   const [libraryImages, setLibraryImages] = useState<AlbumImage[]>(initialLibraryImages);
   const [spreads, setSpreads] = useState<SpreadData[]>(initialSpreadsData);
@@ -1053,12 +1069,6 @@ const App: React.FC = () => {
         }
     };
   }, [touchDragItem]);
-
-  // --- RENDER ADMIN OR MAIN APP ---
-  if (isAdminRoute) {
-    return <AdminPage />;
-  }
-  // --------------------------------
 
   if (!isAlbumSizeChosen || !albumSize) {
     return (
