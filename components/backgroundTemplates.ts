@@ -279,7 +279,7 @@ INSTRUCTIONS:
         id: 'double-happiness',
         name: 'Double Happiness',
         name_vn: 'Vải lụa hoa',
-        thumbnailUrl: 'https://photobookvietnam.net/app/images/background (26).jpg',
+        thumbnailUrl: 'https://photobookvietnam.net/app/images/background (29).jpg',
         prompt: `ROLE: Professional Photo Editor.
 TASK: Your task is to expertly replace the background of the first image (the original subject). You must meticulously cut out the subject and place it seamlessly into the new background.
 INSTRUCTIONS:
@@ -292,7 +292,7 @@ INSTRUCTIONS:
         id: 'double-happiness',
         name: 'Double Happiness',
         name_vn: 'Vải lụa hoa',
-        thumbnailUrl: 'https://photobookvietnam.net/app/images/background (26).jpg',
+        thumbnailUrl: 'https://photobookvietnam.net/app/images/background (30).jpg',
         prompt: `ROLE: Professional Photo Editor.
 TASK: Your task is to expertly replace the background of the first image (the original subject). You must meticulously cut out the subject and place it seamlessly into the new background.
 INSTRUCTIONS:
@@ -300,5 +300,21 @@ INSTRUCTIONS:
 2. Place the isolated subject(s) into a background that features A serene, winding asphalt road cuts through a dense forest of towering pine trees, bathed in bright, dappled sunlight. The road, featuring faint white dashed lines, curves gently into the distant soft-focus woods, creating strong leading lines that draw the eye into the depth of the image. Lush, vibrant green grass and undergrowth carpet the forest floor on both sides of the road, glistening with areas of direct sunlight and deep shadows. Tall, straight pine trunks with rough, textured bark stand like sentinels, forming a natural, almost symmetrical tunnel or corridor. The lighting is natural daylight, with strong, sharp shadows cast by the trees onto the road and grass, indicating a high sun angle. The overall style is photo-realistic with a high dynamic range, featuring a shallow depth of field; the foreground (road, nearest grass, and tree trunks) is sharply in focus, while the background (distant trees and road) dissolves into a pleasing, soft bokeh, enhancing the sense of depth and tranquility. The dominant colors are rich, verdant greens (pine needles, grass), earthy browns (tree trunks, fallen debris), and dark greys/blacks (asphalt), punctuated by bright patches of sunlight. The atmosphere is peaceful, inviting, and tranquil, capturing the quiet beauty of a forest road. This entire scene and aesthetic should serve as the backdrop and visual style for the primary subject from the input image, integrating [primary subject from input image] seamlessly into this specific environment, composition, and lighting.
 3. Crucially, you must create a Medium-full shot photorealistic final image of the subject(s), prominently featured to occupy 75% of the frame's height. This means harmonizing lighting, shadows, color grading, and perspective between the subject and the new background. The final result should look like a single, professionally taken photograph, not a composite.
 4. Make sure the subject(s) size 75% of the frame's height, the background is only serving as a grand and heavenly backdrop for the subject(s)`,
+    },
+    {
+        id: 'double-happiness',
+        name: 'Double Happiness',
+        name_vn: 'Vải lụa hoa',
+        thumbnailUrl: 'https://photobookvietnam.net/app/images/background (31).jpg',
+        prompt: `ROLE: Professional Photo Editor.
+TASK: Your task is to expertly replace the background of the first image (the original subject). You must meticulously cut out the subject and place it seamlessly into the new background.
+INSTRUCTIONS:
+1. Identify and isolate the primary subject(s) from the first image.
+2. Place the isolated subject(s) into a background that features Dominating the left and central background is a grand, multi-tiered waterfall, cascading forcefully down a towering, dark, moss-covered rock cliff. The water appears white and frothy, creating a soft mist at its base. The top of the cliff and the surrounding areas are densely covered with lush, dark green foliage, suggesting a rich, tropical forest environment. The sky above is a soft, overcast light grey, providing a diffused and ethereal illumination. The ground in the foreground is covered with vibrant, well-maintained green grass. Numerous beds of brightly colored flowers, predominantly rich orange and warm yellow roses, are arranged in pleasing clusters along the bottom and right side of the frame, leading the eye towards the subject and the waterfall's base. To the left of the subject and extending towards the waterfall, there's a large, artistic floral arch or structure, heavily adorned with similar orange and yellow flowers interwoven with abundant dark green foliage, creating a celebratory and natural altar-like setting.
+3. Crucially, you must create a Medium-full shot photorealistic final image of the subject(s), prominently featured to occupy 75% of the frame's height. This means harmonizing lighting, shadows, color grading, and perspective between the subject and the new background. The final result should look like a single, professionally taken photograph, not a composite.
+4. Make sure the subject(s) size 75% of the frame's height, the background is only serving as a grand and heavenly backdrop for the subject(s)`,
     }
+
+
+    
 ];
