@@ -5,8 +5,6 @@ import { GoogleGenAI } from '@google/genai';
 // Initialize Gemini with server-side key
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -47,49 +45,31 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
     }
 
-    // 4. Call Gemini AI with Retry Logic
+    // 4. Call Gemini AI (No internal retry loop to avoid Vercel timeout)
     const model = 'gemini-3-pro-image-preview'; 
     let response;
-    let attempts = 0;
-    const maxAttempts = 3;
-    let lastError;
 
-    while (attempts < maxAttempts) {
-        try {
-            response = await ai.models.generateContent({
-                model: model,
-                contents: {
-                    parts: [
-                        { inlineData: { data: imageBase64, mimeType: mimeType } },
-                        { text: prompt },
-                    ],
-                },
-                config: {
-                    imageConfig: { imageSize: resolution || '4K' },
-                },
-            });
-            break; // Success, exit loop
-        } catch (e: any) {
-            lastError = e;
-            attempts++;
-            console.warn(`Gemini Attempt ${attempts} failed:`, e.message);
-            
-            // Check for 503 Service Unavailable / Overloaded
-            const isOverloaded = e.message?.includes('503') || e.message?.includes('overloaded') || e.message?.includes('UNAVAILABLE');
-            
-            if (isOverloaded && attempts < maxAttempts) {
-                // Exponential backoff: 2s, 4s
-                await delay(2000 * attempts); 
-                continue;
-            }
-            
-            // If it's not an overload error (e.g., 400 Bad Request), fail immediately
-            break; 
+    try {
+        response = await ai.models.generateContent({
+            model: model,
+            contents: {
+                parts: [
+                    { inlineData: { data: imageBase64, mimeType: mimeType } },
+                    { text: prompt },
+                ],
+            },
+            config: {
+                imageConfig: { imageSize: resolution || '4K' },
+            },
+        });
+    } catch (e: any) {
+        console.error("Gemini Generation Failed:", e.message);
+        const isOverloaded = e.message?.includes('503') || e.message?.includes('overloaded') || e.message?.includes('UNAVAILABLE');
+        
+        if (isOverloaded) {
+            return res.status(503).json({ error: "Server is currently overloaded (High Traffic). Please try again in a moment." });
         }
-    }
-
-    if (!response && lastError) {
-        throw lastError;
+        throw e;
     }
 
     // 5. Extract Image
@@ -122,10 +102,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   } catch (error: any) {
     console.error("AI Gen Error:", error);
     
-    // Try to parse the error message if it's a stringified JSON (common with Google SDK)
     let errorMessage = error.message || "Internal Server Error";
     try {
-        // Sometimes the error message is a JSON string like '{"error":...}'
         if (errorMessage.startsWith('{')) {
             const parsed = JSON.parse(errorMessage);
             if (parsed.error && parsed.error.message) {
