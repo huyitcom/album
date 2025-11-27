@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { PlacedImageData, ImageTransform } from '../types';
 import { XMarkIcon, PencilIcon, ArrowUturnRightIcon, ArrowsRightLeftIcon, ArrowsUpDownIcon, CheckIcon, SparklesIcon, ArrowUturnLeftIcon, DownloadIcon, PaletteIcon } from './icons';
 import { useI18n } from './i18n';
-import { blobToBase64 } from '../utils';
+import { blobToBase64, compressImage } from '../utils';
 import BackgroundTemplatePicker from './BackgroundTemplatePicker';
 import ColorGradingPicker from './ColorGradingPicker';
 import EffectsPicker from './EffectsPicker';
@@ -261,7 +261,10 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMob
     try {
         const response = await fetch(data.image.url);
         const blob = await response.blob();
-        const base64Data = await blobToBase64(blob);
+        
+        // Compress image to avoid 413 Payload Too Large errors (Vercel limit ~4.5MB)
+        // Resize to max 1536px width/height and 80% quality jpeg
+        const base64Data = await compressImage(blob, 1536, 0.8);
 
         // Corrected URL
         const res = await fetch('/api/ai/generate', {
@@ -270,13 +273,21 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMob
             body: JSON.stringify({
                 prompt: prompt,
                 imageBase64: base64Data,
-                mimeType: blob.type,
+                mimeType: 'image/jpeg', // We converted to JPEG in compressImage
                 clientKey: clientKey,
                 resolution: aiResolution
             })
         });
 
-        const json = await res.json();
+        // Safely handle response parsing
+        const responseText = await res.text();
+        let json;
+        try {
+            json = JSON.parse(responseText);
+        } catch (e) {
+            // If parsing fails, the response is likely a raw error message from Vercel/Gateway
+            throw new Error(responseText || `Server returned status ${res.status}`);
+        }
 
         if (!res.ok) {
             throw new Error(json.error || 'Server error');
@@ -302,6 +313,8 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMob
              message = "Invalid or missing Client Access Key.";
         } else if (message.includes('503') || message.includes('overloaded')) {
              message = "The AI Server is currently busy/overloaded. Please wait a moment and try again.";
+        } else if (message.includes('Request Entity Too Large') || message.includes('413')) {
+             message = "The image is too large for the server to process. Please try a smaller image.";
         }
 
         alert(`AI task failed: ${message}`);
@@ -436,20 +449,6 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMob
             <ArrowUturnLeftIcon className={isMobile ? "w-5 h-5" : "w-4 h-4"} />
         </button>
         <div className="flex items-center gap-1 flex-grow justify-center flex-wrap">
-            <button 
-                onClick={() => runAiImageTask('Reduce minor blemishes and smooth skin texture while preserving character')} 
-                className="px-2 py-2 text-xs md:text-sm text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:bg-gray-500"
-                disabled={isRetouching}
-            >
-                {t('skinRetouch')} 
-            </button>
-            <button 
-                onClick={() => runAiImageTask('Adjust background blur to make the subject stand out without overdoing it')} 
-                className="px-2 py-2 text-xs md:text-sm text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:bg-gray-500"
-                disabled={isRetouching}
-            >
-                {t('blurBackground')}
-            </button>
              <button
                 onClick={() => setIsBgPickerOpen(true)}
                 className="px-2 py-2 text-xs md:text-sm text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:bg-gray-500"

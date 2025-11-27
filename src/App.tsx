@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Header from './components/Header';
 import AlbumView from './components/AlbumView';
 import ImageLibrary from './components/ImageLibrary';
@@ -12,27 +12,36 @@ import SubmissionModal from './components/SubmissionModal';
 import MobileDragHint from './components/MobileDragHint';
 import MobileEditHint from './components/MobileEditHint';
 import MobileDesignPicker from './components/MobileDesignPicker';
+import ClientKeyInput from './components/ClientKeyInput';
 import { spreadsData as initialSpreadsData, libraryImages as initialLibraryImages } from './constants';
 import { layouts } from './layouts';
 import { AlbumImage, SpreadData, ImageTransform, PlacedImageData, AlbumSize, TextElement, TextStyle, StickerElement, SavedProjectData, SavedAlbumImage, SavedPlacedImageData, SavedSpreadData } from './types';
 import { initDB, saveImageToDB, getImageFromDB, deleteImageFromDB } from './db';
 import { useI18n } from './components/i18n';
 
+// Import Admin Page
 import AdminPage from './pages/AdminPage';
 
 const App: React.FC = () => {
 
   // ---------------------------------------------------------
-  // 2. THÊM ĐOẠN CODE NÀY VÀO ĐÂY
-  // Kiểm tra xem người dùng có đang truy cập trang /admin không
-  // Kiểm tra ngay lập tức khi khởi tạo, hỗ trợ cả /admin và /admin/
-  const [isAdminRoute] = useState(() => window.location.pathname.startsWith('/admin'));
-
-  //if (isAdminRoute) {
-  //  return <AdminPage />;
-  //}
+  // ADMIN ROUTE CHECK - MUST BE AT THE TOP
   // ---------------------------------------------------------
+  const [isAdminRoute] = useState(() => {
+    // Check if the path starts with /admin
+    return window.location.pathname.startsWith('/admin');
+  });
 
+  // If we are on the admin route, render it immediately inside a scrollable container
+  // This bypasses the global 'overflow: hidden' set in index.html
+  if (isAdminRoute) {
+    return (
+      <div className="h-full w-full overflow-y-auto bg-gray-50">
+        <AdminPage />
+      </div>
+    );
+  }
+  // ---------------------------------------------------------
 
   const [libraryImages, setLibraryImages] = useState<AlbumImage[]>(initialLibraryImages);
   const [spreads, setSpreads] = useState<SpreadData[]>(initialSpreadsData);
@@ -44,6 +53,10 @@ const App: React.FC = () => {
   const [libraryWidth, setLibraryWidth] = useState(288); // 18rem
   const [libraryHeight, setLibraryHeight] = useState(150); // For mobile
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [aiResolution, setAiResolution] = useState<'2K' | '4K'>('2K');
+  const [clientKey, setClientKey] = useState<string | null>(null);
+  const [isClientKeyModalOpen, setIsClientKeyModalOpen] = useState(false);
+
   const { t } = useI18n();
   
   // Element Selection State
@@ -72,6 +85,10 @@ const App: React.FC = () => {
   // Ref for overlay image adding
   const addOverlayImageFileInputRef = useRef<HTMLInputElement>(null);
   const [addOverlayTargetSpreadId, setAddOverlayTargetSpreadId] = useState<string | null>(null);
+  
+  // State for mobile touch drag-and-drop
+  const [touchDragItem, setTouchDragItem] = useState<{ image: AlbumImage; x: number; y: number; width: number; height: number; } | null>(null);
+  const [touchDragOverSlot, setTouchDragOverSlot] = useState<{ spreadId: string; slotId: string } | null>(null);
 
 
   const handleAppClick = (e: MouseEvent) => {
@@ -84,6 +101,10 @@ const App: React.FC = () => {
   };
 
   useEffect(() => {
+    // Load client key from localStorage
+    const savedKey = localStorage.getItem('photobook_client_key');
+    if (savedKey) setClientKey(savedKey);
+
     initDB().catch(err => console.error("Failed to initialize database:", err));
     document.addEventListener('click', handleAppClick);
     
@@ -97,6 +118,12 @@ const App: React.FC = () => {
       window.removeEventListener('resize', handleWindowResize);
     };
   }, []);
+
+  const handleSaveClientKey = (key: string) => {
+      setClientKey(key);
+      localStorage.setItem('photobook_client_key', key);
+      setIsClientKeyModalOpen(false);
+  };
 
   const handleResizeMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -242,7 +269,7 @@ const App: React.FC = () => {
     });
   };
 
-  const handleDropImageInSlot = (imageId: string, spreadId: string, slotId: string) => {
+  const handleDropImageInSlot = useCallback((imageId: string, spreadId: string, slotId: string) => {
       const imageToDrop = libraryImages.find(img => img.id === imageId);
       if (!imageToDrop) return;
       
@@ -288,7 +315,7 @@ const App: React.FC = () => {
         localStorage.setItem('mobileEditHintShown', 'true');
       }
       // ----------------------------
-  };
+  }, [libraryImages, isMobile]);
 
   const handleSwapImagesInSlots = (
     source: { spreadId: string; slotId: string },
@@ -962,11 +989,85 @@ const App: React.FC = () => {
     }));
   };
 
-  // --- CHÈN CODE MỚI VÀO ĐÂY (SAU KHI TẤT CẢ HOOKS ĐÃ CHẠY) ---
-  if (isAdminRoute) {
-    return <AdminPage />;
-  }
-  // -----------------------------------------------------------
+    // --- Touch Drag & Drop Handlers ---
+  const handleImageTouchStart = (image: AlbumImage, startEvent: React.TouchEvent<HTMLDivElement>) => {
+    if (!isMobile) return;
+    if (startEvent.cancelable) startEvent.preventDefault();
+    
+    const touch = startEvent.touches[0];
+    const targetRect = (startEvent.currentTarget as HTMLElement).getBoundingClientRect();
+    
+    setTouchDragItem({
+        image,
+        x: touch.clientX,
+        y: touch.clientY,
+        width: Math.min(targetRect.width, 100),
+        height: Math.min(targetRect.height, 100),
+    });
+  };
+
+  useEffect(() => {
+    if (!touchDragItem) return;
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length === 0) return;
+      const touch = e.touches[0];
+
+      setTouchDragItem(prev => (prev ? { ...prev, x: touch.clientX, y: touch.clientY } : null));
+
+      const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
+      if (dropTarget) {
+        const slotElement = dropTarget.closest('[data-slot-id]');
+        const spreadElement = dropTarget.closest('[data-spread-id]');
+        if (slotElement && spreadElement) {
+          const slotId = slotElement.getAttribute('data-slot-id');
+          const spreadId = spreadElement.getAttribute('data-spread-id');
+          if (slotId && spreadId) {
+            if (touchDragOverSlot?.spreadId !== spreadId || touchDragOverSlot?.slotId !== slotId) {
+              setTouchDragOverSlot({ spreadId, slotId });
+            }
+            return;
+          }
+        }
+      }
+      if (touchDragOverSlot !== null) {
+        setTouchDragOverSlot(null);
+      }
+    };
+
+    const handleTouchEnd = () => {
+      if (touchDragItem && touchDragOverSlot) {
+        handleDropImageInSlot(touchDragItem.image.id, touchDragOverSlot.spreadId, touchDragOverSlot.slotId);
+      }
+      setTouchDragItem(null);
+      setTouchDragOverSlot(null);
+    };
+
+    window.addEventListener('touchmove', handleTouchMove, { passive: false });
+    window.addEventListener('touchend', handleTouchEnd);
+    window.addEventListener('touchcancel', handleTouchEnd);
+
+    return () => {
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchend', handleTouchEnd);
+      window.removeEventListener('touchcancel', handleTouchEnd);
+    };
+  }, [touchDragItem, touchDragOverSlot, handleDropImageInSlot]);
+  
+  // Effect to hide original element during touch drag
+  useEffect(() => {
+    const originalElementId = touchDragItem ? `lib-img-thumb-${touchDragItem.image.id}` : null;
+    if (originalElementId) {
+        const element = document.getElementById(originalElementId);
+        if (element) element.style.visibility = 'hidden';
+    }
+    return () => {
+        if (originalElementId) {
+            const element = document.getElementById(originalElementId);
+            if (element) element.style.visibility = 'visible';
+        }
+    };
+  }, [touchDragItem]);
 
   if (!isAlbumSizeChosen || !albumSize) {
     return (
@@ -992,7 +1093,33 @@ const App: React.FC = () => {
 
   return (
     <div className="flex flex-col h-full font-sans bg-gray-200 text-gray-800">
+      {/* Modals and Overlays */}
       <input type="file" accept="image/*" ref={addOverlayImageFileInputRef} onChange={handleAddOverlayImage} className="hidden" />
+      
+      {isClientKeyModalOpen && (
+        <ClientKeyInput 
+          onSave={handleSaveClientKey} 
+          onClose={() => setIsClientKeyModalOpen(false)} 
+        />
+      )}
+
+      {touchDragItem && (
+        <div
+            style={{
+            position: 'fixed',
+            top: touchDragItem.y - touchDragItem.height / 2,
+            left: touchDragItem.x - touchDragItem.width / 2,
+            width: `${touchDragItem.width}px`,
+            height: `${touchDragItem.height}px`,
+            zIndex: 1000,
+            pointerEvents: 'none',
+            opacity: 0.8,
+            }}
+        >
+            <img src={touchDragItem.image.url} alt="drag-preview" className="w-full h-full object-cover rounded-md shadow-lg" />
+        </div>
+       )}
+
       {showMobileDragHint && (
         <MobileDragHint libraryHeight={libraryHeight} onClose={() => setShowMobileDragHint(false)} />
       )}
@@ -1071,6 +1198,8 @@ const App: React.FC = () => {
           onSaveProject={handleSaveProject}
         />
       )}
+      
+      {/* Main Layout */}
       <Header 
         totalPages={spreads.length * 2} 
         onSubmitProject={handleOpenSubmissionModal}
@@ -1082,6 +1211,8 @@ const App: React.FC = () => {
         onOpenProjectManager={() => setIsProjectManagerOpen(true)}
         isMobile={isMobile}
         onOpenMobileDesignPicker={() => setIsMobileDesignPickerOpen(true)}
+        aiResolution={aiResolution}
+        setAiResolution={setAiResolution}
       />
       <div className="flex flex-col md:flex-row flex-1 overflow-hidden">
         <div 
@@ -1096,6 +1227,7 @@ const App: React.FC = () => {
             onRemoveImage={handleRemoveImageFromLibrary}
             onClearLibrary={handleClearLibrary}
             isMobile={isMobile}
+            onImageTouchStart={handleImageTouchStart}
           />
         </div>
         <div 
@@ -1110,6 +1242,7 @@ const App: React.FC = () => {
               isOverviewMode={isOverviewMode}
               selectedTextId={selectedTextId}
               selectedStickerId={selectedStickerId}
+              touchDragOverSlot={touchDragOverSlot}
               onDropImageInSlot={handleDropImageInSlot} 
               onSwapImagesInSlots={handleSwapImagesInSlots}
               onChangeLayout={handleChangeLayout}
@@ -1127,6 +1260,9 @@ const App: React.FC = () => {
               onSelectSticker={handleSelectSticker}
               onAiRetouchImage={handleAiRetouchImage}
               onTriggerAddOverlayImage={handleTriggerAddOverlayImage}
+              aiResolution={aiResolution}
+              clientKey={clientKey}
+              onRequireClientKey={() => setIsClientKeyModalOpen(true)}
           />
         </main>
       </div>

@@ -39,3 +39,59 @@ export const blobToBase64 = (blob: Blob): Promise<string> => {
     reader.readAsDataURL(blob);
   });
 };
+
+/**
+ * Compresses and resizes an image blob to ensure it fits within API payload limits.
+ * Returns base64 string without prefix.
+ */
+export const compressImage = (blob: Blob, maxWidth: number, quality: number): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(blob);
+    img.src = url;
+    
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      let width = img.width;
+      let height = img.height;
+
+      // Maintain aspect ratio
+      if (width > maxWidth) {
+        height = Math.round((height * maxWidth) / width);
+        width = maxWidth;
+      }
+      
+      // If height is still too big (e.g. panorama), constrain by height too
+      if (height > maxWidth) {
+          width = Math.round((width * maxWidth) / height);
+          height = maxWidth;
+      }
+
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        reject(new Error('Could not get canvas context'));
+        return;
+      }
+      
+      // Draw white background to handle transparent PNGs converting to JPEG
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(0, 0, width, height);
+      
+      ctx.drawImage(img, 0, 0, width, height);
+      
+      // Export as JPEG with reduced quality
+      const dataUrl = canvas.toDataURL('image/jpeg', quality);
+      
+      // Remove prefix "data:image/jpeg;base64,"
+      resolve(dataUrl.split(',')[1]);
+    };
+    
+    img.onerror = (err) => {
+        URL.revokeObjectURL(url);
+        reject(err);
+    };
+  });
+};

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Header from './components/Header';
 import AlbumView from './components/AlbumView';
@@ -54,7 +53,7 @@ const App: React.FC = () => {
   const [libraryWidth, setLibraryWidth] = useState(288); // 18rem
   const [libraryHeight, setLibraryHeight] = useState(150); // For mobile
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  const [aiResolution, setAiResolution] = useState<'2K' | '4K'>('4K');
+  const [aiResolution, setAiResolution] = useState<'2K' | '4K'>('2K');
   const [clientKey, setClientKey] = useState<string | null>(null);
   const [isClientKeyModalOpen, setIsClientKeyModalOpen] = useState(false);
 
