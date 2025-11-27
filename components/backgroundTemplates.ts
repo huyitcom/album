@@ -11,7 +11,7 @@ export const backgroundTemplates: BackgroundTemplate[] = [
         id: 'floral-arch-door',
         name: 'Floral Arch Doorway',
         name_vn: 'Cổng hoa',
-        thumbnailUrl: 'https://canvasvietnam.com/images/background1.jpg',
+        thumbnailUrl: 'https://photobookvietnam.net/app/images/background1.jpg',
         prompt: `ROLE: Professional Photo Editor.
 TASK: Your task is to expertly replace the background of the first image (the original subject). You must meticulously cut out the subject and place it seamlessly into the new background.
 INSTRUCTIONS:
@@ -23,7 +23,7 @@ INSTRUCTIONS:
         id: 'indoor-curtain-arch',
         name: 'Indoor Curtain Arch',
         name_vn: 'Cổng trong nhà',
-        thumbnailUrl: 'https://canvasvietnam.com/images/background3.jpg',
+        thumbnailUrl: 'https://photobookvietnam.net/app/images/background3.jpg',
         prompt: `ROLE: Professional Photo Editor.
 TASK: Your task is to expertly replace the background of the first image (the original subject). You must meticulously cut out the subject and place it seamlessly into the new background.
 INSTRUCTIONS:
@@ -35,7 +35,7 @@ INSTRUCTIONS:
         id: 'grand-window-room',
         name: 'Grand Window Room',
         name_vn: 'Phòng cửa sổ lớn',
-        thumbnailUrl: 'https://canvasvietnam.com/images/background2.jpg',
+        thumbnailUrl: 'https://photobookvietnam.net/app/images/background2.jpg',
         prompt: `ROLE: Professional Photo Editor.
 TASK: Your task is to expertly replace the background of the first image (the original subject). You must meticulously cut out the subject and place it seamlessly into the new background.
 INSTRUCTIONS:
@@ -47,7 +47,7 @@ INSTRUCTIONS:
         id: 'double-happiness',
         name: 'Double Happiness',
         name_vn: 'Song Hỷ',
-        thumbnailUrl: 'https://canvasvietnam.com/images/background4.jpg',
+        thumbnailUrl: 'https://photobookvietnam.net/app/images/background4.jpg',
         prompt: `ROLE: Professional Photo Editor.
 TASK: Your task is to expertly replace the background of the first image (the original subject). You must meticulously cut out the subject and place it seamlessly into the new background.
 INSTRUCTIONS:
@@ -59,7 +59,7 @@ INSTRUCTIONS:
         id: 'double-happiness',
         name: 'Double Happiness',
         name_vn: 'Trái tim hồng',
-        thumbnailUrl: 'https://canvasvietnam.com/images/background5.jpg',
+        thumbnailUrl: 'https://photobookvietnam.net/app/images/background5.jpg',
         prompt: `ROLE: Professional Photo Editor.
 TASK: Your task is to expertly replace the background of the first image (the original subject). You must meticulously cut out the subject and place it seamlessly into the new background.
 INSTRUCTIONS:
@@ -71,7 +71,7 @@ INSTRUCTIONS:
         id: 'double-happiness',
         name: 'Double Happiness',
         name_vn: 'Nền đen kim tuyến',
-        thumbnailUrl: 'https://canvasvietnam.com/images/background6.jpg',
+        thumbnailUrl: 'https://photobookvietnam.net/app/images/background6.jpg',
         prompt: `ROLE: Professional Photo Editor.
 TASK: Your task is to expertly replace the background of the first image (the original subject). You must meticulously cut out the subject and place it seamlessly into the new background.
 INSTRUCTIONS:
@@ -83,7 +83,7 @@ INSTRUCTIONS:
         id: 'double-happiness',
         name: 'Double Happiness',
         name_vn: 'Nền đen huyền ảo',
-        thumbnailUrl: 'https://canvasvietnam.com/images/background7.jpg',
+        thumbnailUrl: 'https://photobookvietnam.net/app/images/background7.jpg',
         prompt: `ROLE: Professional Photo Editor.
 TASK: Your task is to expertly replace the background of the first image (the original subject). You must meticulously cut out the subject and place it seamlessly into the new background.
 INSTRUCTIONS:
@@ -95,7 +95,7 @@ INSTRUCTIONS:
         id: 'double-happiness',
         name: 'Double Happiness',
         name_vn: 'Nơ trắng hoa',
-        thumbnailUrl: 'https://canvasvietnam.com/images/background (1).jpg',
+        thumbnailUrl: 'https://photobookvietnam.net/app/images/background (1).jpg',
         prompt: `ROLE: Professional Photo Editor.
 TASK: Your task is to expertly replace the background of the first image (the original subject). You must meticulously cut out the subject and place it seamlessly into the new background.
 INSTRUCTIONS:
@@ -107,7 +107,7 @@ INSTRUCTIONS:
         id: 'double-happiness',
         name: 'Double Happiness',
         name_vn: 'Ngôi nhà bươm bướm',
-        thumbnailUrl: 'https://canvasvietnam.com/images/background (2).jpg',
+        thumbnailUrl: 'https://photobookvietnam.net/app/images/background (2).jpg',
         prompt: `ROLE: Professional Photo Editor.
 TASK: Your task is to expertly replace the background of the first image (the original subject). You must meticulously cut out the subject and place it seamlessly into the new background.
 INSTRUCTIONS:
@@ -119,7 +119,7 @@ INSTRUCTIONS:
         id: 'double-happiness',
         name: 'Double Happiness',
         name_vn: 'Cổng hoa và bướm',
-        thumbnailUrl: 'https://canvasvietnam.com/images/background (3).jpg',
+        thumbnailUrl: 'https://photobookvietnam.net/app/images/background (3).jpg',
         prompt: `ROLE: Professional Photo Editor.
 TASK: Your task is to expertly replace the background of the first image (the original subject). You must meticulously cut out the subject and place it seamlessly into the new background.
 INSTRUCTIONS:
@@ -131,7 +131,7 @@ INSTRUCTIONS:
         id: 'double-happiness',
         name: 'Double Happiness',
         name_vn: 'Hoàng hôn tím',
-        thumbnailUrl: 'https://canvasvietnam.com/images/background (5).jpg',
+        thumbnailUrl: 'https://photobookvietnam.net/app/images/background (5).jpg',
         prompt: `ROLE: Professional Photo Editor.
 TASK: Your task is to expertly replace the background of the first image (the original subject). You must meticulously cut out the subject and place it seamlessly into the new background.
 INSTRUCTIONS:
@@ -143,7 +143,7 @@ INSTRUCTIONS:
         id: 'double-happiness',
         name: 'Double Happiness',
         name_vn: 'Cổng hoa trắng',
-        thumbnailUrl: 'https://canvasvietnam.com/images/background (9).jpg',
+        thumbnailUrl: 'https://photobookvietnam.net/app/images/background (9).jpg',
         prompt: `ROLE: Professional Photo Editor.
 TASK: Your task is to expertly replace the background of the first image (the original subject). You must meticulously cut out the subject and place it seamlessly into the new background.
 INSTRUCTIONS:
@@ -155,7 +155,7 @@ INSTRUCTIONS:
         id: 'double-happiness',
         name: 'Double Happiness',
         name_vn: 'Cổng hoa hoàng hôn',
-        thumbnailUrl: 'https://canvasvietnam.com/images/background (10).jpg',
+        thumbnailUrl: 'https://photobookvietnam.net/app/images/background (10).jpg',
         prompt: `ROLE: Professional Photo Editor.
 TASK: Your task is to expertly replace the background of the first image (the original subject). You must meticulously cut out the subject and place it seamlessly into the new background.
 INSTRUCTIONS:
@@ -167,7 +167,7 @@ INSTRUCTIONS:
         id: 'double-happiness',
         name: 'Double Happiness',
         name_vn: 'Thiên đường',
-        thumbnailUrl: 'https://canvasvietnam.com/images/background (11).jpg',
+        thumbnailUrl: 'https://photobookvietnam.net/app/images/background (11).jpg',
         prompt: `ROLE: Professional Photo Editor.
 TASK: Your task is to expertly replace the background of the first image (the original subject). You must meticulously cut out the subject and place it seamlessly into the new background.
 INSTRUCTIONS:
@@ -179,7 +179,7 @@ INSTRUCTIONS:
         id: 'double-happiness',
         name: 'Double Happiness',
         name_vn: 'Cổng hoa trắng',
-        thumbnailUrl: 'https://canvasvietnam.com/images/background (12).jpg',
+        thumbnailUrl: 'https://photobookvietnam.net/app/images/background (12).jpg',
         prompt: `ROLE: Professional Photo Editor.
 TASK: Your task is to expertly replace the background of the first image (the original subject). You must meticulously cut out the subject and place it seamlessly into the new background.
 INSTRUCTIONS:
@@ -191,7 +191,7 @@ INSTRUCTIONS:
         id: 'double-happiness',
         name: 'Double Happiness',
         name_vn: 'Cổng hoa thiên đường',
-        thumbnailUrl: 'https://canvasvietnam.com/images/background (20).jpg',
+        thumbnailUrl: 'https://photobookvietnam.net/app/images/background (20).jpg',
         prompt: `ROLE: Professional Photo Editor.
 TASK: Your task is to expertly replace the background of the first image (the original subject). You must meticulously cut out the subject and place it seamlessly into the new background.
 INSTRUCTIONS:
@@ -203,7 +203,7 @@ INSTRUCTIONS:
         id: 'double-happiness',
         name: 'Double Happiness',
         name_vn: 'Cỏ xanh',
-        thumbnailUrl: 'https://canvasvietnam.com/images/background (15).jpg',
+        thumbnailUrl: 'https://photobookvietnam.net/app/images/background (15).jpg',
         prompt: `ROLE: Professional Photo Editor.
 TASK: Your task is to expertly replace the background of the first image (the original subject). You must meticulously cut out the subject and place it seamlessly into the new background.
 INSTRUCTIONS:
@@ -215,7 +215,7 @@ INSTRUCTIONS:
         id: 'double-happiness',
         name: 'Double Happiness',
         name_vn: 'Bãi biển hoàng hôn',
-        thumbnailUrl: 'https://canvasvietnam.com/images/background (19).jpg',
+        thumbnailUrl: 'https://photobookvietnam.net/app/images/background (19).jpg',
         prompt: `ROLE: Professional Photo Editor.
 TASK: Your task is to expertly replace the background of the first image (the original subject). You must meticulously cut out the subject and place it seamlessly into the new background.
 INSTRUCTIONS:
@@ -227,7 +227,7 @@ INSTRUCTIONS:
         id: 'double-happiness',
         name: 'Double Happiness',
         name_vn: 'Cổng hoa gương',
-        thumbnailUrl: 'https://canvasvietnam.com/images/background (25).jpg',
+        thumbnailUrl: 'https://photobookvietnam.net/app/images/background (25).jpg',
         prompt: `ROLE: Professional Photo Editor.
 TASK: Your task is to expertly replace the background of the first image (the original subject). You must meticulously cut out the subject and place it seamlessly into the new background.
 INSTRUCTIONS:
@@ -240,12 +240,64 @@ INSTRUCTIONS:
         id: 'double-happiness',
         name: 'Double Happiness',
         name_vn: 'Vải lụa hoa',
-        thumbnailUrl: 'https://canvasvietnam.com/images/background (25).jpg',
+        thumbnailUrl: 'https://photobookvietnam.net/app/images/background (26).jpg',
         prompt: `ROLE: Professional Photo Editor.
 TASK: Your task is to expertly replace the background of the first image (the original subject). You must meticulously cut out the subject and place it seamlessly into the new background.
 INSTRUCTIONS:
 1. Identify and isolate the primary subject(s) from the first image.
 2. Place the isolated subject(s) into a background that features An elegant and lush wedding or event decor setup, captured from a medium-low perspective, emphasizing abundance and natural sophistication. The background features a soft, flowing backdrop of pristine white or off-white fabric drapes, artfully gathered and draped with a prominent central U-shaped swag, framed by vertical folds on either side. From the top of the drapes, graceful strands of dark green foliage, resembling weeping willow branches, cascade downwards, adding a natural and organic touch. On the far left, natural outdoor light illuminates a glimpse of green trees and foliage, suggesting an open-air or semi-outdoor venue. In the midground, a long banquet table, covered with a crisp white tablecloth, is adorned with an extensive and opulent display of fresh floral arrangements. These arrangements are predominantly white and off-white, showcasing a rich variety of blooms including full white roses, fluffy hydrangeas, dense dahlias, and delicate smaller white blossoms. They are generously interspersed with touches of fresh light green and chartreuse foliage and flowers, such as ornamental cabbage or textured green leaves, providing subtle color variation. The floral displays are dense, lush, and continuous, forming a celebratory garland across the entire length of the table. Towards the right, the table covering transitions to a simpler, plain light grey or white surface. Below the table, at ground level, are large, rectangular arrangements of dense dark green foliage heavily studded with small white flowers, resembling elegant flower boxes or planters that complement the table decor. The foreground consists of a dark grey, subtly textured ground surface, appearing like stone or concrete paving, with faint lighter striations and specks. Small, natural clusters of white and light green flowers nestled within dark green foliage are also scattered directly on the ground in the foreground, mirroring the grander arrangements above. The overall aesthetic is one of sophisticated natural elegance, with a romantic, fresh, and serene ambiance. The dominant color palette is pure whites, creams, light greens, and deep greens, creating a harmonious and monochromatic feel. The lighting is soft, natural, and diffused, indicative of a bright daytime setting, casting gentle shadows that enhance the textures of the fabric and flowers. This image should be rendered in a high-resolution, professional photography style.
+3. Crucially, you must create a Medium-full shot photorealistic final image of the subject(s), prominently featured to occupy 75% of the frame's height. This means harmonizing lighting, shadows, color grading, and perspective between the subject and the new background. The final result should look like a single, professionally taken photograph, not a composite.
+4. Make sure the subject(s) size 75% of the frame's height, the background is only serving as a grand and heavenly backdrop for the subject(s)`,
+    },
+    {
+        id: 'double-happiness',
+        name: 'Double Happiness',
+        name_vn: 'Vải lụa hoa',
+        thumbnailUrl: 'https://photobookvietnam.net/app/images/background (27).jpg',
+        prompt: `ROLE: Professional Photo Editor.
+TASK: Your task is to expertly replace the background of the first image (the original subject). You must meticulously cut out the subject and place it seamlessly into the new background.
+INSTRUCTIONS:
+1. Identify and isolate the primary subject(s) from the first image.
+2. Place the isolated subject(s) into a background that features A vibrant and ethereal landscape photograph capturing a sunrise over a vast, dense sea of mist and clouds. In the foreground, a verdant, dew-kissed grassy hillside slopes diagonally from the lower-left to the mid-right, showcasing rich green and subtle earthy tones. The midground reveals the tops of dark, silhouetted pine trees, partially submerged and softly outlined by a thick, glowing blanket of golden-orange and pale pink fog that fills the valleys. Dominating the background is a brilliant, intensely radiant sun, mostly obscured by the pervasive mist, creating an overwhelming source of warm, golden light that bathes the entire scene in a luminous haze. The sky directly above the sun is brilliant white, fading into soft peach, orange, and delicate pale blue towards the top. The overall style is dreamlike and serene, characterized by soft, diffused light, a palette of warm, glowing colors (gold, orange, peach), contrasting with the cooler tones in the sky and the deep greens of the grass. The composition features strong diagonal lines and layered depth, leading the eye towards the central, awe-inspiring light source and the expansive, mystical fog-laden vista, evoking a sense of wonder and tranquility.
+3. Crucially, you must create a Medium-full shot photorealistic final image of the subject(s), prominently featured to occupy 75% of the frame's height. This means harmonizing lighting, shadows, color grading, and perspective between the subject and the new background. The final result should look like a single, professionally taken photograph, not a composite.
+4. Make sure the subject(s) size 75% of the frame's height, the background is only serving as a grand and heavenly backdrop for the subject(s)`,
+    },
+    {
+        id: 'double-happiness',
+        name: 'Double Happiness',
+        name_vn: 'Vải lụa hoa',
+        thumbnailUrl: 'https://photobookvietnam.net/app/images/background (28).jpg',
+        prompt: `ROLE: Professional Photo Editor.
+TASK: Your task is to expertly replace the background of the first image (the original subject). You must meticulously cut out the subject and place it seamlessly into the new background.
+INSTRUCTIONS:
+1. Identify and isolate the primary subject(s) from the first image.
+2. Place the isolated subject(s) into a background that features A tranquil natural scene comprising a vast, meticulously maintained, vibrant green lawn occupying the foreground and lower two-thirds of the image. The grass surface should show subtle, soft-focus light orbs (bokeh/dust motes) in the immediate foreground. In the midground, a dark, gently winding asphalt path or road horizontally traverses the scene, acting as a soft separator. Beyond the road, a dense, extensive forest of tall, slender pine trees fills the entire background, with their dark, vertical trunks and rich green canopies receding into the distance.
+3. Crucially, you must create a Medium-full shot photorealistic final image of the subject(s), prominently featured to occupy 75% of the frame's height. This means harmonizing lighting, shadows, color grading, and perspective between the subject and the new background. The final result should look like a single, professionally taken photograph, not a composite.
+4. Make sure the subject(s) size 75% of the frame's height, the background is only serving as a grand and heavenly backdrop for the subject(s)`,
+    },
+    {
+        id: 'double-happiness',
+        name: 'Double Happiness',
+        name_vn: 'Vải lụa hoa',
+        thumbnailUrl: 'https://photobookvietnam.net/app/images/background (26).jpg',
+        prompt: `ROLE: Professional Photo Editor.
+TASK: Your task is to expertly replace the background of the first image (the original subject). You must meticulously cut out the subject and place it seamlessly into the new background.
+INSTRUCTIONS:
+1. Identify and isolate the primary subject(s) from the first image.
+2. Place the isolated subject(s) into a background that features a serene, ethereal forest landscape during either sunrise or sunset (golden hour). The composition features a vibrant, lush green grass field in the immediate foreground, meticulously detailed with individual blades and subtle dew drops, reflecting the warm, low-angle light. Several prominent, tall, slender conifer tree trunks (like pines, firs, or spruces) with dark, textured bark stand in the left and central foreground, sharp and in precise focus. Long, dramatic shadows from these foreground trees stretch diagonally across the verdant grass, creating strong lines and depth. The midground and background are dominated by a thick, soft, atmospheric mist or fog, through which more identical tree trunks recede into the distance. These background trees become progressively less defined and more silhouetted, their forms softened and diffused by the pervasive haze. The mist itself glows with a warm, diffused light, appearing soft white, pale yellow, and light beige, creating a luminous, dreamlike quality that obscures the horizon.
+3. Crucially, you must create a Medium-full shot photorealistic final image of the subject(s), prominently featured to occupy 75% of the frame's height. This means harmonizing lighting, shadows, color grading, and perspective between the subject and the new background. The final result should look like a single, professionally taken photograph, not a composite.
+4. Make sure the subject(s) size 75% of the frame's height, the background is only serving as a grand and heavenly backdrop for the subject(s)`,
+    },
+    {
+        id: 'double-happiness',
+        name: 'Double Happiness',
+        name_vn: 'Vải lụa hoa',
+        thumbnailUrl: 'https://photobookvietnam.net/app/images/background (26).jpg',
+        prompt: `ROLE: Professional Photo Editor.
+TASK: Your task is to expertly replace the background of the first image (the original subject). You must meticulously cut out the subject and place it seamlessly into the new background.
+INSTRUCTIONS:
+1. Identify and isolate the primary subject(s) from the first image.
+2. Place the isolated subject(s) into a background that features A serene, winding asphalt road cuts through a dense forest of towering pine trees, bathed in bright, dappled sunlight. The road, featuring faint white dashed lines, curves gently into the distant soft-focus woods, creating strong leading lines that draw the eye into the depth of the image. Lush, vibrant green grass and undergrowth carpet the forest floor on both sides of the road, glistening with areas of direct sunlight and deep shadows. Tall, straight pine trunks with rough, textured bark stand like sentinels, forming a natural, almost symmetrical tunnel or corridor. The lighting is natural daylight, with strong, sharp shadows cast by the trees onto the road and grass, indicating a high sun angle. The overall style is photo-realistic with a high dynamic range, featuring a shallow depth of field; the foreground (road, nearest grass, and tree trunks) is sharply in focus, while the background (distant trees and road) dissolves into a pleasing, soft bokeh, enhancing the sense of depth and tranquility. The dominant colors are rich, verdant greens (pine needles, grass), earthy browns (tree trunks, fallen debris), and dark greys/blacks (asphalt), punctuated by bright patches of sunlight. The atmosphere is peaceful, inviting, and tranquil, capturing the quiet beauty of a forest road. This entire scene and aesthetic should serve as the backdrop and visual style for the primary subject from the input image, integrating [primary subject from input image] seamlessly into this specific environment, composition, and lighting.
 3. Crucially, you must create a Medium-full shot photorealistic final image of the subject(s), prominently featured to occupy 75% of the frame's height. This means harmonizing lighting, shadows, color grading, and perspective between the subject and the new background. The final result should look like a single, professionally taken photograph, not a composite.
 4. Make sure the subject(s) size 75% of the frame's height, the background is only serving as a grand and heavenly backdrop for the subject(s)`,
     }
