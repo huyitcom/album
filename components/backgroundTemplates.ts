@@ -339,6 +339,19 @@ INSTRUCTIONS:
 2. Place the isolated subject(s) into a background that features The foreground features a rustic, weathered wooden barrier or fence made of thick logs or planks, over which the voluminous wedding train drapes and flows. Behind this barrier, vibrant purple flowering bushes (resembling bougainvillea) add a splash of color, especially to the right and left of the bride. On the far left, a leafy green tree branch extends into the frame, partially obscuring the view but adding depth. The midground reveals rolling, densely forested hills and valleys, bathed in a soft, atmospheric mist or fog that blankets the lower elevations, creating a dreamy, cloud-like river between the peaks. Subtle glamping-style tents or structures are visible on the far right, blending into the natural environment. The background is dominated by a majestic and somewhat surreal display of massive, snow-capped mountains under a sky transitioning from soft blues to whites, with wispy clouds. The mountains appear either incredibly distant or artistically superimposed, adding a sense of grandeur and a stark contrast between the temperate foreground and alpine background. The lighting is soft and diffused, suggesting early morning or late afternoon, with a gentle, slightly warm glow on the distant elements. The overall atmosphere is one of serene majesty, romance, and a touch of fantasy.
 3. Crucially, you must create a Medium-full shot photorealistic final image of the subject(s), prominently featured to occupy 75% of the frame's height. This means harmonizing lighting, shadows, color grading, and perspective between the subject and the new background. The final result should look like a single, professionally taken photograph, not a composite.
 4. Make sure the subject(s) size 75% of the frame's height, the background is only serving as a grand and heavenly backdrop for the subject(s)`,
+    },
+    {
+        id: 'double-happiness',
+        name: 'Vườn trên núi',
+        name_vn: 'Vải lụa hoa',
+        thumbnailUrl: 'https://photobookvietnam.net/app/images/background (34).jpg',
+        prompt: `ROLE: Professional Photo Editor.
+TASK: Your task is to expertly replace the background of the first image (the original subject). You must meticulously cut out the subject and place it seamlessly into the new background.
+INSTRUCTIONS:
+1. Identify and isolate the primary subject(s) from the first image.
+2. Place the isolated subject(s) into a background that features A grand, symmetrical, neoclassical architectural scene. The image is composed with a wide, expansive bright green lawn occupying the lower half to two-thirds of the frame, leading up to a majestic, multi-tiered building that dominates the upper portion. The perspective is eye-level and frontal, emphasizing the building's imposing presence and perfect symmetry. The sky above is clear and bright, a soft light blue or near-white.A wide, sweeping grand staircase made of light stone leads up to the main entrance, flanked on either side by elegant, white classical statues in dynamic poses (e.g., one with an arm raised, another standing serenely). The foreground lawn is lush, well-manicured, and a vibrant, healthy green, showing subtle variations in tone and texture from front to back.
+3. Crucially, you must create a Medium-full shot photorealistic final image of the subject(s), prominently featured to occupy 75% of the frame's height. This means harmonizing lighting, shadows, color grading, and perspective between the subject and the new background. The final result should look like a single, professionally taken photograph, not a composite.
+4. Make sure the subject(s) size 75% of the frame's height, the background is only serving as a grand and heavenly backdrop for the subject(s)`,
     }
 
 ];
