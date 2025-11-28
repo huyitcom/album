@@ -313,8 +313,32 @@ INSTRUCTIONS:
 2. Place the isolated subject(s) into a background that features Dominating the left and central background is a grand, multi-tiered waterfall, cascading forcefully down a towering, dark, moss-covered rock cliff. The water appears white and frothy, creating a soft mist at its base. The top of the cliff and the surrounding areas are densely covered with lush, dark green foliage, suggesting a rich, tropical forest environment. The sky above is a soft, overcast light grey, providing a diffused and ethereal illumination. The ground in the foreground is covered with vibrant, well-maintained green grass. Numerous beds of brightly colored flowers, predominantly rich orange and warm yellow roses, are arranged in pleasing clusters along the bottom and right side of the frame, leading the eye towards the subject and the waterfall's base. To the left of the subject and extending towards the waterfall, there's a large, artistic floral arch or structure, heavily adorned with similar orange and yellow flowers interwoven with abundant dark green foliage, creating a celebratory and natural altar-like setting.
 3. Crucially, you must create a Medium-full shot photorealistic final image of the subject(s), prominently featured to occupy 75% of the frame's height. This means harmonizing lighting, shadows, color grading, and perspective between the subject and the new background. The final result should look like a single, professionally taken photograph, not a composite.
 4. Make sure the subject(s) size 75% of the frame's height, the background is only serving as a grand and heavenly backdrop for the subject(s)`,
+    },
+    {
+        id: 'double-happiness',
+        name: 'Săn mây',
+        name_vn: 'Vải lụa hoa',
+        thumbnailUrl: 'https://photobookvietnam.net/app/images/background (32).jpg',
+        prompt: `ROLE: Professional Photo Editor.
+TASK: Your task is to expertly replace the background of the first image (the original subject). You must meticulously cut out the subject and place it seamlessly into the new background.
+INSTRUCTIONS:
+1. Identify and isolate the primary subject(s) from the first image.
+2. Place the isolated subject(s) into a background that features a majestic landscape unfolds, featuring rolling hills and mountains partially obscured by a thick, ethereal sea of white and light gray mist or clouds, creating a dreamlike and serene atmosphere. Scattered dark green pine trees dot the midground hills, adding depth and texture to the scene. The scene is illuminated by a warm, radiant backlight from the setting sun on the horizon, casting a golden hue over the entire image. Highlights gently kiss the couple, especially the bride's dress and veil, and the edges of the trees. The light is soft, ethereal, and magical. The composition is a full body shot of the couple, captured from a slightly low-angle perspective, emphasizing the grandeur of the scenery. The couple is slightly off-center to the right, allowing the expansive misty landscape to dominate the left side of the frame. The bride's long veil extends dynamically into the foreground, adding a sense of movement and romance. There is a deep depth of field, with clear details on the couple and atmospheric perspective on the distant mist. The dominant colors are warm golden and orange tones from the sunset, contrasting beautifully with the rich, deep greens of the foreground grass and trees. Soft whites and grays define the mist and clouds, while the bride's dress is a creamy white. Subtle hints of blue are visible in the upper sky.
+3. Crucially, you must create a Medium-full shot photorealistic final image of the subject(s), prominently featured to occupy 75% of the frame's height. This means harmonizing lighting, shadows, color grading, and perspective between the subject and the new background. The final result should look like a single, professionally taken photograph, not a composite.
+4. Make sure the subject(s) size 75% of the frame's height, the background is only serving as a grand and heavenly backdrop for the subject(s)`,
+    },
+    {
+        id: 'double-happiness',
+        name: 'Vườn trên núi',
+        name_vn: 'Vải lụa hoa',
+        thumbnailUrl: 'https://photobookvietnam.net/app/images/background (33).jpg',
+        prompt: `ROLE: Professional Photo Editor.
+TASK: Your task is to expertly replace the background of the first image (the original subject). You must meticulously cut out the subject and place it seamlessly into the new background.
+INSTRUCTIONS:
+1. Identify and isolate the primary subject(s) from the first image.
+2. Place the isolated subject(s) into a background that features The foreground features a rustic, weathered wooden barrier or fence made of thick logs or planks, over which the voluminous wedding train drapes and flows. Behind this barrier, vibrant purple flowering bushes (resembling bougainvillea) add a splash of color, especially to the right and left of the bride. On the far left, a leafy green tree branch extends into the frame, partially obscuring the view but adding depth. The midground reveals rolling, densely forested hills and valleys, bathed in a soft, atmospheric mist or fog that blankets the lower elevations, creating a dreamy, cloud-like river between the peaks. Subtle glamping-style tents or structures are visible on the far right, blending into the natural environment. The background is dominated by a majestic and somewhat surreal display of massive, snow-capped mountains under a sky transitioning from soft blues to whites, with wispy clouds. The mountains appear either incredibly distant or artistically superimposed, adding a sense of grandeur and a stark contrast between the temperate foreground and alpine background. The lighting is soft and diffused, suggesting early morning or late afternoon, with a gentle, slightly warm glow on the distant elements. The overall atmosphere is one of serene majesty, romance, and a touch of fantasy.
+3. Crucially, you must create a Medium-full shot photorealistic final image of the subject(s), prominently featured to occupy 75% of the frame's height. This means harmonizing lighting, shadows, color grading, and perspective between the subject and the new background. The final result should look like a single, professionally taken photograph, not a composite.
+4. Make sure the subject(s) size 75% of the frame's height, the background is only serving as a grand and heavenly backdrop for the subject(s)`,
     }
 
-
-    
 ];
