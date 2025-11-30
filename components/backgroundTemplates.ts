@@ -56,8 +56,8 @@ INSTRUCTIONS:
 3. Crucially, you must create a photorealistic final image. This means harmonizing lighting, shadows, color grading, and perspective between the subject and the new background. The final result should look like a single, professionally taken photograph, not a composite.`,
     },
     {
-        id: 'double-happiness',
-        name: 'Double Happiness',
+        id: 'pink-heart-garden',
+        name: 'Pink heart garden',
         name_vn: 'Trái tim hồng',
         thumbnailUrl: 'https://photobookvietnam.net/app/images/background5.jpg',
         prompt: `ROLE: Professional Photo Editor.
@@ -68,8 +68,8 @@ INSTRUCTIONS:
 3. Crucially, you must create a photorealistic final image. This means harmonizing lighting, shadows, color grading, and perspective between the subject and the new background. The final result should look like a single, professionally taken photograph, not a composite.`,
     },
     {
-        id: 'double-happiness',
-        name: 'Double Happiness',
+        id: 'metallic-black',
+        name: 'Metallic black',
         name_vn: 'Nền đen kim tuyến',
         thumbnailUrl: 'https://photobookvietnam.net/app/images/background6.jpg',
         prompt: `ROLE: Professional Photo Editor.
@@ -80,8 +80,8 @@ INSTRUCTIONS:
 3. Crucially, you must create a photorealistic final image. This means harmonizing lighting, shadows, color grading, and perspective between the subject and the new background. The final result should look like a single, professionally taken photograph, not a composite.`,
     },
     {
-        id: 'double-happiness',
-        name: 'Double Happiness',
+        id: 'mistery-black',
+        name: 'Mistery black',
         name_vn: 'Nền đen huyền ảo',
         thumbnailUrl: 'https://photobookvietnam.net/app/images/background7.jpg',
         prompt: `ROLE: Professional Photo Editor.
@@ -92,8 +92,8 @@ INSTRUCTIONS:
 3. Crucially, you must create a photorealistic final image. This means harmonizing lighting, shadows, color grading, and perspective between the subject and the new background. The final result should look like a single, professionally taken photograph, not a composite.`,
     },
     {
-        id: 'double-happiness',
-        name: 'Double Happiness',
+        id: 'white-ribbon',
+        name: 'White ribbon',
         name_vn: 'Nơ trắng hoa',
         thumbnailUrl: 'https://photobookvietnam.net/app/images/background (1).jpg',
         prompt: `ROLE: Professional Photo Editor.
@@ -104,8 +104,8 @@ INSTRUCTIONS:
 3. Crucially, you must create a photorealistic final image. This means harmonizing lighting, shadows, color grading, and perspective between the subject and the new background. The final result should look like a single, professionally taken photograph, not a composite.`,
    },
     {
-        id: 'double-happiness',
-        name: 'Double Happiness',
+        id: 'butterfly-house',
+        name: 'Butterfly house',
         name_vn: 'Ngôi nhà bươm bướm',
         thumbnailUrl: 'https://photobookvietnam.net/app/images/background (2).jpg',
         prompt: `ROLE: Professional Photo Editor.
@@ -116,8 +116,8 @@ INSTRUCTIONS:
 3. Crucially, you must create a photorealistic final image. This means harmonizing lighting, shadows, color grading, and perspective between the subject and the new background. The final result should look like a single, professionally taken photograph, not a composite.`,
     },
     {
-        id: 'double-happiness',
-        name: 'Double Happiness',
+        id: 'flower-butterfly',
+        name: 'Flower and butterfly',
         name_vn: 'Cổng hoa và bướm',
         thumbnailUrl: 'https://photobookvietnam.net/app/images/background (3).jpg',
         prompt: `ROLE: Professional Photo Editor.
@@ -128,8 +128,8 @@ INSTRUCTIONS:
 3. Crucially, you must create a photorealistic final image. This means harmonizing lighting, shadows, color grading, and perspective between the subject and the new background. The final result should look like a single, professionally taken photograph, not a composite.`,
     },
     {
-        id: 'double-happiness',
-        name: 'Double Happiness',
+        id: 'blue-sunset',
+        name: 'Blue sunset',
         name_vn: 'Hoàng hôn tím',
         thumbnailUrl: 'https://photobookvietnam.net/app/images/background (5).jpg',
         prompt: `ROLE: Professional Photo Editor.
@@ -140,8 +140,8 @@ INSTRUCTIONS:
 3. Crucially, you must create a photorealistic final image. This means harmonizing lighting, shadows, color grading, and perspective between the subject and the new background. The final result should look like a single, professionally taken photograph, not a composite.`,
     },
     {
-        id: 'double-happiness',
-        name: 'Double Happiness',
+        id: 'white-flower-arch',
+        name: 'White flower arch',
         name_vn: 'Cổng hoa trắng',
         thumbnailUrl: 'https://photobookvietnam.net/app/images/background (9).jpg',
         prompt: `ROLE: Professional Photo Editor.
@@ -152,8 +152,8 @@ INSTRUCTIONS:
 3. Crucially, you must create a photorealistic final image. This means harmonizing lighting, shadows, color grading, and perspective between the subject and the new background. The final result should look like a single, professionally taken photograph, not a composite.`,
     },
     {
-        id: 'double-happiness',
-        name: 'Double Happiness',
+        id: 'sunset-flower-arch',
+        name: 'Sunset flower arch',
         name_vn: 'Cổng hoa hoàng hôn',
         thumbnailUrl: 'https://photobookvietnam.net/app/images/background (10).jpg',
         prompt: `ROLE: Professional Photo Editor.
@@ -164,8 +164,8 @@ INSTRUCTIONS:
 3. Crucially, you must create a photorealistic final image. This means harmonizing lighting, shadows, color grading, and perspective between the subject and the new background. The final result should look like a single, professionally taken photograph, not a composite.`,
     },
     {
-        id: 'double-happiness',
-        name: 'Double Happiness',
+        id: 'heaven',
+        name: 'Heaven',
         name_vn: 'Thiên đường',
         thumbnailUrl: 'https://photobookvietnam.net/app/images/background (11).jpg',
         prompt: `ROLE: Professional Photo Editor.
@@ -176,8 +176,8 @@ INSTRUCTIONS:
 3. Crucially, you must create a photorealistic final image. This means harmonizing lighting, shadows, color grading, and perspective between the subject and the new background. The final result should look like a single, professionally taken photograph, not a composite.`,
     },
     {
-        id: 'double-happiness',
-        name: 'Double Happiness',
+        id: 'white-flower-arch',
+        name: 'White flower arch',
         name_vn: 'Cổng hoa trắng',
         thumbnailUrl: 'https://photobookvietnam.net/app/images/background (12).jpg',
         prompt: `ROLE: Professional Photo Editor.
@@ -188,8 +188,8 @@ INSTRUCTIONS:
 3. Crucially, you must create a photorealistic final image. This means harmonizing lighting, shadows, color grading, and perspective between the subject and the new background. The final result should look like a single, professionally taken photograph, not a composite.`,
     },
     {
-        id: 'double-happiness',
-        name: 'Double Happiness',
+        id: 'heaven-flower-arch',
+        name: 'Heaven flower arch',
         name_vn: 'Cổng hoa thiên đường',
         thumbnailUrl: 'https://photobookvietnam.net/app/images/background (20).jpg',
         prompt: `ROLE: Professional Photo Editor.
@@ -200,8 +200,8 @@ INSTRUCTIONS:
 3. Crucially, you must create a Medium-full shot photorealistic final image of the subject(s), prominently featured to occupy 75% of the frame's height. This means harmonizing lighting, shadows, color grading, and perspective between the subject and the new background. The final result should look like a single, professionally taken photograph, not a composite.`,
     },
     {
-        id: 'double-happiness',
-        name: 'Double Happiness',
+        id: 'green-hills',
+        name: 'Green Hills',
         name_vn: 'Cỏ xanh',
         thumbnailUrl: 'https://photobookvietnam.net/app/images/background (15).jpg',
         prompt: `ROLE: Professional Photo Editor.
@@ -212,8 +212,8 @@ INSTRUCTIONS:
 3. Crucially, you must create a photorealistic final image. This means harmonizing lighting, shadows, color grading, and perspective between the subject and the new background. The final result should look like a single, professionally taken photograph, not a composite.`,
     },
     {
-        id: 'double-happiness',
-        name: 'Double Happiness',
+        id: 'sunset-beach',
+        name: 'Sunset beach',
         name_vn: 'Bãi biển hoàng hôn',
         thumbnailUrl: 'https://photobookvietnam.net/app/images/background (19).jpg',
         prompt: `ROLE: Professional Photo Editor.
@@ -224,8 +224,8 @@ INSTRUCTIONS:
 3. Crucially, you must create a Medium-full shot photorealistic final image of the subject(s), prominently featured to occupy 75% of the frame's height. This means harmonizing lighting, shadows, color grading, and perspective between the subject and the new background. The final result should look like a single, professionally taken photograph, not a composite.`,
     },
     {
-        id: 'double-happiness',
-        name: 'Double Happiness',
+        id: 'mirror-flower',
+        name: 'Mirrow flower',
         name_vn: 'Cổng hoa gương',
         thumbnailUrl: 'https://photobookvietnam.net/app/images/background (25).jpg',
         prompt: `ROLE: Professional Photo Editor.
@@ -237,8 +237,8 @@ INSTRUCTIONS:
 4. Make sure the subject(s) size 75% of the frame's height, the background is only serving as a grand and heavenly backdrop for the subject(s)`,
     },
     {
-        id: 'double-happiness',
-        name: 'Double Happiness',
+        id: 'flower-table',
+        name: 'Flower table',
         name_vn: 'Vải lụa hoa',
         thumbnailUrl: 'https://photobookvietnam.net/app/images/background (26).jpg',
         prompt: `ROLE: Professional Photo Editor.
@@ -250,9 +250,9 @@ INSTRUCTIONS:
 4. Make sure the subject(s) size 75% of the frame's height, the background is only serving as a grand and heavenly backdrop for the subject(s)`,
     },
     {
-        id: 'double-happiness',
-        name: 'Double Happiness',
-        name_vn: 'Vải lụa hoa',
+        id: 'foggy-dalat',
+        name: 'Foggy Dalat',
+        name_vn: 'Đà Lạt mù sương',
         thumbnailUrl: 'https://photobookvietnam.net/app/images/background (27).jpg',
         prompt: `ROLE: Professional Photo Editor.
 TASK: Your task is to expertly replace the background of the first image (the original subject). You must meticulously cut out the subject and place it seamlessly into the new background.
@@ -263,9 +263,9 @@ INSTRUCTIONS:
 4. Make sure the subject(s) size 75% of the frame's height, the background is only serving as a grand and heavenly backdrop for the subject(s)`,
     },
     {
-        id: 'double-happiness',
-        name: 'Double Happiness',
-        name_vn: 'Vải lụa hoa',
+        id: 'green-grass',
+        name: 'Green grass',
+        name_vn: 'Sân cỏ xanh',
         thumbnailUrl: 'https://photobookvietnam.net/app/images/background (28).jpg',
         prompt: `ROLE: Professional Photo Editor.
 TASK: Your task is to expertly replace the background of the first image (the original subject). You must meticulously cut out the subject and place it seamlessly into the new background.
@@ -276,9 +276,9 @@ INSTRUCTIONS:
 4. Make sure the subject(s) size 75% of the frame's height, the background is only serving as a grand and heavenly backdrop for the subject(s)`,
     },
     {
-        id: 'double-happiness',
-        name: 'Double Happiness',
-        name_vn: 'Vải lụa hoa',
+        id: 'pine-hill',
+        name: 'Pine hill',
+        name_vn: 'Đồi thông bình minh',
         thumbnailUrl: 'https://photobookvietnam.net/app/images/background (29).jpg',
         prompt: `ROLE: Professional Photo Editor.
 TASK: Your task is to expertly replace the background of the first image (the original subject). You must meticulously cut out the subject and place it seamlessly into the new background.
@@ -289,9 +289,9 @@ INSTRUCTIONS:
 4. Make sure the subject(s) size 75% of the frame's height, the background is only serving as a grand and heavenly backdrop for the subject(s)`,
     },
     {
-        id: 'double-happiness',
-        name: 'Double Happiness',
-        name_vn: 'Vải lụa hoa',
+        id: 'mountain-pass',
+        name: 'Mountain pass',
+        name_vn: 'Đường đèo',
         thumbnailUrl: 'https://photobookvietnam.net/app/images/background (30).jpg',
         prompt: `ROLE: Professional Photo Editor.
 TASK: Your task is to expertly replace the background of the first image (the original subject). You must meticulously cut out the subject and place it seamlessly into the new background.
@@ -302,9 +302,9 @@ INSTRUCTIONS:
 4. Make sure the subject(s) size 75% of the frame's height, the background is only serving as a grand and heavenly backdrop for the subject(s)`,
     },
     {
-        id: 'double-happiness',
-        name: 'Double Happiness',
-        name_vn: 'Vải lụa hoa',
+        id: 'Lieng-chi-falls',
+        name: 'Liengchi falls',
+        name_vn: 'Thác Liêng Chi',
         thumbnailUrl: 'https://photobookvietnam.net/app/images/background (31).jpg',
         prompt: `ROLE: Professional Photo Editor.
 TASK: Your task is to expertly replace the background of the first image (the original subject). You must meticulously cut out the subject and place it seamlessly into the new background.
@@ -315,9 +315,9 @@ INSTRUCTIONS:
 4. Make sure the subject(s) size 75% of the frame's height, the background is only serving as a grand and heavenly backdrop for the subject(s)`,
     },
     {
-        id: 'double-happiness',
-        name: 'Săn mây',
-        name_vn: 'Vải lụa hoa',
+        id: 'cloud-hunting',
+        name: 'Cloud hunting',
+        name_vn: 'Săn mây',
         thumbnailUrl: 'https://photobookvietnam.net/app/images/background (32).jpg',
         prompt: `ROLE: Professional Photo Editor.
 TASK: Your task is to expertly replace the background of the first image (the original subject). You must meticulously cut out the subject and place it seamlessly into the new background.
@@ -328,9 +328,9 @@ INSTRUCTIONS:
 4. Make sure the subject(s) size 75% of the frame's height, the background is only serving as a grand and heavenly backdrop for the subject(s)`,
     },
     {
-        id: 'double-happiness',
-        name: 'Vườn trên núi',
-        name_vn: 'Vải lụa hoa',
+        id: 'secret-garden',
+        name: 'Secret garden',
+        name_vn: 'Khu vườn bí mật',
         thumbnailUrl: 'https://photobookvietnam.net/app/images/background (33).jpg',
         prompt: `ROLE: Professional Photo Editor.
 TASK: Your task is to expertly replace the background of the first image (the original subject). You must meticulously cut out the subject and place it seamlessly into the new background.
@@ -341,9 +341,9 @@ INSTRUCTIONS:
 4. Make sure the subject(s) size 75% of the frame's height, the background is only serving as a grand and heavenly backdrop for the subject(s)`,
     },
     {
-        id: 'double-happiness',
-        name: 'Vườn trên núi',
-        name_vn: 'Vải lụa hoa',
+        id: 'white-palace',
+        name: 'White palace',
+        name_vn: 'Dinh thự trắng',
         thumbnailUrl: 'https://photobookvietnam.net/app/images/background (34).jpg',
         prompt: `ROLE: Professional Photo Editor.
 TASK: Your task is to expertly replace the background of the first image (the original subject). You must meticulously cut out the subject and place it seamlessly into the new background.

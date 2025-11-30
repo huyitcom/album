@@ -146,7 +146,7 @@ export const translations: { [lang in Language]: { [key: string]: string } } = {
   },
   vn: {
     // Welcome Screen
-    welcomeTitle: 'App Thiết Kế Album (v2.2)',
+    welcomeTitle: 'App Thiết Kế Album (v2.3)',
     welcomeSubtitle: 'Vui lòng chọn kích thước album',
     or: 'hoặc',
     loadExistingProject: 'Mở một dự án có sẵn',
