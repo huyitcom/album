@@ -56,6 +56,15 @@ const AlbumSizePicker: React.FC<AlbumSizePickerProps> = ({ currentSize, onSelect
               </div>
             ))}
           </div>
+          
+          <div className="mt-8 text-center">
+            <button 
+                onClick={() => onSelectSize('35x40')}
+                className={`text-xs underline decoration-dotted underline-offset-2 transition-colors ${currentSize === '35x40' ? 'text-blue-600 font-bold' : 'text-gray-400 hover:text-blue-500'}`}
+            >
+                {t('size35x40')}
+            </button>
+          </div>
         </div>
       </div>
     </div>

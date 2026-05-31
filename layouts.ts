@@ -13,6 +13,7 @@ export interface LayoutTemplate {
   gap: string;
   slots: LayoutSlot[];
   hideOnMobile?: boolean;
+  keepRatio?: boolean;
 }
 
 export const layouts: { [id: string]: LayoutTemplate } = {
@@ -24,6 +25,29 @@ export const layouts: { [id: string]: LayoutTemplate } = {
     gridTemplateRows: '1fr',
     gap: '0',
     slots: [{ id: 'slot-1', gridArea: '1 / 1 / 2 / 2' }],
+  },
+  'keep-ratio-single': {
+    id: 'keep-ratio-single',
+    name: 'One Photo (Keep Aspect Ratio)',
+    name_vn: 'Một ảnh giữ tỷ lệ (Không cắt)',
+    gridTemplateColumns: '1fr',
+    gridTemplateRows: '1fr',
+    gap: '0',
+    slots: [{ id: 'slot-1', gridArea: '1 / 1 / 2 / 2' }],
+    keepRatio: true,
+  },
+  'keep-ratio-double': {
+    id: 'keep-ratio-double',
+    name: 'Two Photos (Keep Aspect Ratio)',
+    name_vn: 'Hai ảnh giữ tỷ lệ (Không cắt)',
+    gridTemplateColumns: '1fr 1fr',
+    gridTemplateRows: '1fr',
+    gap: '12px',
+    slots: [
+      { id: 'slot-1', gridArea: '1 / 1 / 2 / 2' },
+      { id: 'slot-2', gridArea: '1 / 2 / 2 / 3' },
+    ],
+    keepRatio: true,
   },
    'two-equal-vertical-split': {
     id: 'two-equal-vertical-split',

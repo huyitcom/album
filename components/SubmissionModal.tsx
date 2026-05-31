@@ -7,6 +7,7 @@ import { SpreadData, AlbumSize } from '../types';
 declare global {
     interface Window {
         html2canvas: any;
+        JSZip: any;
     }
 }
 
@@ -36,6 +37,8 @@ const getScaleForSize = (size: AlbumSize): number => {
     case '30x30': return 6.4;
     // Target: 7087px wide
     case '30x20': return 6.4;
+    // Target: 8268px wide
+    case '35x40': return 7.46;
     // Fallback for any unknown sizes
     default: return 6.4;
   }
@@ -52,6 +55,102 @@ const SubmissionModal: React.FC<SubmissionModalProps> = ({ projectName, albumSiz
   const [email, setEmail] = useState('');
   const [address, setAddress] = useState('');
   const [validationErrors, setValidationErrors] = useState<{ fullName?: string; phone?: string }>({});
+
+  // Download layout state
+  const [downloadCode, setDownloadCode] = useState('');
+  const [showCodeInput, setShowCodeInput] = useState(false);
+  const [downloadStatus, setDownloadStatus] = useState<'idle' | 'rendering' | 'zipping' | 'success' | 'error'>('idle');
+  const [downloadError, setDownloadError] = useState('');
+
+  const handleDownloadLayouts = async () => {
+    if (downloadCode !== '341341') {
+      setDownloadError('Mã tải xuống không chính xác!');
+      return;
+    }
+
+    const spreadsWithPhotos = spreads.filter(s => Object.keys(s.images).length > 0);
+    if (spreadsWithPhotos.length === 0) {
+      setDownloadError(t('submissionErrorNoPlacedImages') || 'Không có trang nào chứa ảnh.');
+      return;
+    }
+
+    setDownloadStatus('rendering');
+    setDownloadError('');
+
+    // Add a temporary style to hide UI elements during capture
+    const style = document.createElement('style');
+    style.innerHTML = `[data-hide-on-capture="true"] { display: none !important; }`;
+    document.head.appendChild(style);
+
+    try {
+      const zip = new window.JSZip();
+      const spreadsWithPhotosMap: Map<string, SpreadData> = new Map(spreadsWithPhotos.map(s => [s.id, s]));
+      const spreadElements = document.querySelectorAll('[data-spread-capture-target="true"]');
+      const exportScale = getScaleForSize(albumSize);
+
+      let processedCount = 0;
+
+      for (const element of Array.from(spreadElements)) {
+        const htmlElement = element as HTMLElement;
+        const spreadContainer = htmlElement.closest('[data-spread-id]');
+        if (!spreadContainer) continue;
+
+        const spreadId = spreadContainer.getAttribute('data-spread-id');
+        if (spreadId && spreadsWithPhotosMap.has(spreadId)) {
+          const spreadInfo = spreadsWithPhotosMap.get(spreadId)!;
+
+          const canvas = await window.html2canvas(htmlElement, {
+            scale: exportScale, 
+            useCORS: true, // Needed for external images like stickers
+            backgroundColor: '#ffffff', // Ensure a solid background
+          });
+
+          // Export as high-quality JPEG for smaller file size
+          const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/jpeg', 1.0));
+          
+          if (blob) {
+            const filename = `spread_${String(spreadInfo.pages[0]).padStart(2, '0')}-${String(spreadInfo.pages[1]).padStart(2, '0')}.jpg`;
+            zip.file(filename, blob);
+            processedCount++;
+          } else {
+            throw new Error(`Failed to generate image for spread on pages ${spreadInfo.pages.join('-')}.`);
+          }
+        }
+      }
+
+      if (processedCount === 0) {
+        throw new Error("Không thể xuất được trang ảnh nào.");
+      }
+
+      setDownloadStatus('zipping');
+
+      const zipBlob = await zip.generateAsync({ type: 'blob' });
+      const url = URL.createObjectURL(zipBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      const safeProjectName = (projectName || 'album').replace(/[^a-zA-Z0-9_\-]/g, '_');
+      a.download = `${safeProjectName}_layouts.zip`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      setDownloadStatus('success');
+      setTimeout(() => {
+        setDownloadStatus('idle');
+        setDownloadCode('');
+        setShowCodeInput(false);
+      }, 3000);
+
+    } catch (err: any) {
+      console.error("Error zipping layout download:", err);
+      setDownloadError(err.message || 'Có lỗi xảy ra khi đóng gói tệp tin.');
+      setDownloadStatus('error');
+    } finally {
+      // Clean up the temporary style
+      document.head.removeChild(style);
+    }
+  };
 
   const validateForm = () => {
     const errors: { fullName?: string; phone?: string } = {};
@@ -258,6 +357,81 @@ const SubmissionModal: React.FC<SubmissionModalProps> = ({ projectName, albumSiz
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   />
                 </div>
+              </div>
+
+              {/* Download Entire Layout Code Flow */}
+              <div className="border-t border-gray-200 mt-6 pt-4">
+                {!showCodeInput ? (
+                  <div className="flex justify-center">
+                    <button
+                      type="button"
+                      onClick={() => setShowCodeInput(true)}
+                      className="text-xs text-blue-600 hover:text-blue-800 flex items-center space-x-1 hover:underline cursor-pointer"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                      </svg>
+                      <span>Tải xuống toàn bộ layout (Dành cho admin)</span>
+                    </button>
+                  </div>
+                ) : (
+                  <div className="bg-blue-50/50 p-3 rounded-lg border border-blue-100">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-semibold text-blue-800">Tải toàn bộ layout về máy (định dạng ZIP)</span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowCodeInput(false);
+                          setDownloadCode('');
+                          setDownloadError('');
+                        }}
+                        className="text-gray-400 hover:text-gray-600"
+                        title="Đóng bản nhập mã"
+                      >
+                        <XMarkIcon className="w-4 h-4" />
+                      </button>
+                    </div>
+                    {downloadStatus === 'idle' || downloadStatus === 'error' ? (
+                      <div className="flex space-x-2">
+                        <div className="relative flex-grow">
+                          <input
+                            type="password"
+                            placeholder="Nhập mã tải xuống"
+                            value={downloadCode}
+                            onChange={(e) => setDownloadCode(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                handleDownloadLayouts();
+                              }
+                            }}
+                            className="w-full px-3 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 text-gray-800 bg-white"
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleDownloadLayouts}
+                          className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-md transition-colors whitespace-nowrap"
+                        >
+                          Tải xuống
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center space-x-2 py-1 text-xs text-blue-700">
+                        <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600"></div>
+                        <span>
+                          {downloadStatus === 'rendering' ? 'Đang xuất và đóng gói các trang album...' : 'Đang nén file zip...'}
+                        </span>
+                      </div>
+                    )}
+                    {downloadError && (
+                      <p className="mt-1.5 text-xs text-red-600">{downloadError}</p>
+                    )}
+                    {downloadStatus === 'success' && (
+                      <p className="mt-1.5 text-xs text-green-600 font-semibold">✓ Đang bắt đầu tải xuống...</p>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
             <footer className="p-4 bg-gray-50 flex justify-end">

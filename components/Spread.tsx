@@ -15,9 +15,10 @@ interface SlotProps {
   onDrop: (e: React.DragEvent<HTMLDivElement>) => void;
   children?: React.ReactNode;
   isTouchDraggingOver?: boolean;
+  hasImage?: boolean;
 }
 
-const Slot: React.FC<SlotProps> = ({ gridArea, slotId, onDrop, children, isTouchDraggingOver }) => {
+const Slot: React.FC<SlotProps> = ({ gridArea, slotId, onDrop, children, isTouchDraggingOver, hasImage }) => {
     const [isDraggingOver, setIsDraggingOver] = useState(false);
 
     const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
@@ -50,7 +51,7 @@ const Slot: React.FC<SlotProps> = ({ gridArea, slotId, onDrop, children, isTouch
         <div 
             style={{ gridArea }}
             data-slot-id={slotId}
-            className={`relative w-full h-full bg-gray-50 rounded-sm transition-all duration-200 overflow-hidden ${isHighlighted ? 'outline-dashed outline-2 outline-offset-2 outline-blue-500' : ''}`}
+            className={`relative w-full h-full ${hasImage ? 'bg-transparent' : 'bg-gray-50'} rounded-sm transition-all duration-200 overflow-hidden ${isHighlighted ? 'outline-dashed outline-2 outline-offset-2 outline-blue-500' : ''}`}
             onDragOver={handleDragOver}
             onDrop={handleDrop}
             onDragEnter={handleDragEnter}
@@ -103,6 +104,8 @@ const getAspectRatioForSize = (size: AlbumSize): string => {
       return '60 / 20';
     case '25x35':
       return '50 / 35';
+    case '35x40':
+      return '70 / 40';
     default:
       return '2 / 1'; // Fallback for any unknown sizes
   }
@@ -216,6 +219,7 @@ const Spread: React.FC<SpreadProps> = (props) => {
                       key={slot.id} 
                       gridArea={slot.gridArea}
                       slotId={slot.id}
+                      hasImage={!!data.images[slot.id]}
                       isTouchDraggingOver={touchDragOverSlot?.spreadId === data.id && touchDragOverSlot?.slotId === slot.id}
                       onDrop={(e) => {
                           const imageIdFromLibrary = e.dataTransfer.getData('album/image-id');
@@ -249,6 +253,7 @@ const Spread: React.FC<SpreadProps> = (props) => {
                               aiResolution={aiResolution}
                               clientKey={clientKey}
                               onRequireClientKey={onRequireClientKey}
+                              keepRatio={layout.keepRatio}
                           />
                       ) : (
                           <div className="flex items-center justify-center w-full h-full text-xs text-gray-400 p-2 text-center">

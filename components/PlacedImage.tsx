@@ -21,9 +21,10 @@ interface PlacedImageProps {
   aiResolution: '2K' | '4K';
   clientKey: string | null; // Receive client key from App
   onRequireClientKey: () => void; // Callback to ask App to show key modal
+  keepRatio?: boolean; // Add keepRatio prop to control contain vs cover
 }
 
-const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMobile, onTransformChange, onRemove, isOverviewMode, onEnterEditMode, onExitEditMode, onAiRetouchImage, aiResolution, clientKey, onRequireClientKey }) => {
+const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMobile, onTransformChange, onRemove, isOverviewMode, onEnterEditMode, onExitEditMode, onAiRetouchImage, aiResolution, clientKey, onRequireClientKey, keepRatio }) => {
   const { image, transform } = data;
   const { x, y, scale, rotation, flipHorizontal, flipVertical } = transform;
 
@@ -57,10 +58,18 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMob
         const imgRatio = naturalWidth / naturalHeight;
         const containerRatio = offsetWidth / offsetHeight;
 
-        if (imgRatio > containerRatio) {
-            setCoverStyle({ height: '100%', width: 'auto' });
+        if (keepRatio) {
+            if (imgRatio > containerRatio) {
+                setCoverStyle({ width: '100%', height: 'auto' });
+            } else {
+                setCoverStyle({ height: '100%', width: 'auto' });
+            }
         } else {
-            setCoverStyle({ width: '100%', height: 'auto' });
+            if (imgRatio > containerRatio) {
+                setCoverStyle({ height: '100%', width: 'auto' });
+            } else {
+                setCoverStyle({ width: '100%', height: 'auto' });
+            }
         }
     };
 
@@ -77,7 +86,7 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMob
         if(img) img.onload = null;
         if(container) observer.disconnect();
     }
-  }, [image.url]);
+  }, [image.url, keepRatio]);
 
   
   const getConstrainedPosition = useCallback((newX: number, newY: number, currentScale: number) => {
@@ -95,12 +104,22 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMob
     const containerAspectRatio = containerW / containerH;
 
     let scaledW, scaledH;
-    if (imgAspectRatio > containerAspectRatio) {
-        scaledH = containerH * currentScale;
-        scaledW = scaledH * imgAspectRatio;
+    if (keepRatio) {
+        if (imgAspectRatio > containerAspectRatio) {
+            scaledW = containerW * currentScale;
+            scaledH = scaledW / imgAspectRatio;
+        } else {
+            scaledH = containerH * currentScale;
+            scaledW = scaledH * imgAspectRatio;
+        }
     } else {
-        scaledW = containerW * currentScale;
-        scaledH = scaledW / imgAspectRatio;
+        if (imgAspectRatio > containerAspectRatio) {
+            scaledH = containerH * currentScale;
+            scaledW = scaledH * imgAspectRatio;
+        } else {
+            scaledW = containerW * currentScale;
+            scaledH = scaledW / imgAspectRatio;
+        }
     }
 
     const xOverhang = Math.max(0, (scaledW - containerW) / 2);
@@ -113,7 +132,7 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMob
     const constrainedY = Math.max(50 - yMaxPercentage, Math.min(newY, 50 + yMaxPercentage));
     
     return { constrainedX, constrainedY };
-  }, []);
+  }, [keepRatio]);
 
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
     e.stopPropagation(); 

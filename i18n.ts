@@ -7,6 +7,7 @@ export const translations: { [lang in Language]: { [key: string]: string } } = {
     // Welcome Screen
     welcomeTitle: 'Album Builder',
     welcomeSubtitle: 'please choose album size to start',
+    size35x40: 'Size 35x40 (Rarely used)',
     or: 'or',
     loadExistingProject: 'Load an Existing Project',
     
@@ -146,8 +147,9 @@ export const translations: { [lang in Language]: { [key: string]: string } } = {
   },
   vn: {
     // Welcome Screen
-    welcomeTitle: 'App Thiết Kế Album (v2.3)',
+    welcomeTitle: 'App Thiết Kế Album',
     welcomeSubtitle: 'Vui lòng chọn kích thước album',
+    size35x40: 'Kích thước 35x40 (Ít dùng)',
     or: 'hoặc',
     loadExistingProject: 'Mở một dự án có sẵn',
 

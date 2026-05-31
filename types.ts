@@ -62,7 +62,7 @@ export interface SpreadData {
   stickers: StickerElement[];
 }
 
-export type AlbumSize = '15x15' | '20x20' | '21x15' | '30x20' | '25x35' | '30x30';
+export type AlbumSize = '15x15' | '20x20' | '21x15' | '30x20' | '25x35' | '30x30' | '35x40';
 export type Language = 'en' | 'vn';
 
 // --- Types for Saved Project Data (in localStorage) ---

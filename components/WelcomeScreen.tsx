@@ -51,6 +51,15 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ isMobile, onSelectSize, o
             ))}
         </div>
 
+        <div className="mb-6 text-center">
+            <button 
+                onClick={() => onSelectSize('35x40')}
+                className="text-xs text-gray-400 hover:text-blue-500 underline decoration-dotted underline-offset-2 transition-colors"
+            >
+                {t('size35x40')}
+            </button>
+        </div>
+
         {!isMobile && (
           <div className="flex items-center justify-center space-x-4">
               <div className="flex-grow border-t border-gray-300"></div>
