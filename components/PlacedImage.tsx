@@ -22,9 +22,10 @@ interface PlacedImageProps {
   clientKey: string | null; // Receive client key from App
   onRequireClientKey: () => void; // Callback to ask App to show key modal
   keepRatio?: boolean; // Add keepRatio prop to control contain vs cover
+  rounded?: boolean; // Add rounded prop for rounded corners
 }
 
-const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMobile, onTransformChange, onRemove, isOverviewMode, onEnterEditMode, onExitEditMode, onAiRetouchImage, aiResolution, clientKey, onRequireClientKey, keepRatio }) => {
+const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMobile, onTransformChange, onRemove, isOverviewMode, onEnterEditMode, onExitEditMode, onAiRetouchImage, aiResolution, clientKey, onRequireClientKey, keepRatio, rounded }) => {
   const { image, transform } = data;
   const { x, y, scale, rotation, flipHorizontal, flipVertical } = transform;
 
@@ -529,7 +530,7 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMob
                     ref={imageRef}
                     src={image.url}
                     alt={image.id}
-                    className={`absolute pointer-events-none ${transform.filter || ''}`}
+                    className={`absolute pointer-events-none ${transform.filter || ''} ${rounded ? 'rounded-2xl shadow-md' : ''}`}
                     style={{
                       transform: `translate(-50%, -50%) scale(${scale}) rotate(${rotation}deg) scaleX(${flipHorizontal ? -1 : 1}) scaleY(${flipVertical ? -1 : 1})`,
                       top: `${y}%`,

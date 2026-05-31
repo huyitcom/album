@@ -49,7 +49,7 @@ const LayoutPicker: React.FC<LayoutPickerProps> = ({ isMobile, onSelectLayout, o
                   {layout.slots.map(slot => (
                     <div 
                       key={slot.id} 
-                      className="bg-gray-300 rounded-sm"
+                      className={`bg-gray-300 ${layout.rounded ? 'rounded-md' : 'rounded-sm'}`}
                       style={{ gridArea: slot.gridArea }}
                     ></div>
                   ))}

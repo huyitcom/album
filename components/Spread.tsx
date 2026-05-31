@@ -254,6 +254,7 @@ const Spread: React.FC<SpreadProps> = (props) => {
                               clientKey={clientKey}
                               onRequireClientKey={onRequireClientKey}
                               keepRatio={layout.keepRatio}
+                              rounded={layout.rounded}
                           />
                       ) : (
                           <div className="flex items-center justify-center w-full h-full text-xs text-gray-400 p-2 text-center">
