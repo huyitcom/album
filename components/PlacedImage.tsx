@@ -42,6 +42,7 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMob
   const imageRef = useRef<HTMLImageElement>(null);
   const dragStartRef = useRef({ x: 0, y: 0, imageX: 0, imageY: 0 });
   const [coverStyle, setCoverStyle] = useState<{ width?: string; height?: string }>({});
+  const [alignedOffset, setAlignedOffset] = useState<{ x: number; y: number } | null>(null);
   const lastTap = useRef(0);
   const { t } = useI18n();
 
@@ -62,8 +63,18 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMob
         if (keepRatio) {
             if (imgRatio > containerRatio) {
                 setCoverStyle({ width: '100%', height: 'auto' });
+                setAlignedOffset(null);
             } else {
                 setCoverStyle({ height: '100%', width: 'auto' });
+                const imageWidthRatio = imgRatio / containerRatio;
+                const halfWidthPercent = imageWidthRatio * 50;
+                if (slotId === 'slot-1') {
+                    setAlignedOffset({ x: halfWidthPercent, y: 50 });
+                } else if (slotId === 'slot-2') {
+                    setAlignedOffset({ x: 100 - halfWidthPercent, y: 50 });
+                } else {
+                    setAlignedOffset(null);
+                }
             }
         } else {
             if (imgRatio > containerRatio) {
@@ -71,6 +82,7 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMob
             } else {
                 setCoverStyle({ width: '100%', height: 'auto' });
             }
+            setAlignedOffset(null);
         }
     };
 
@@ -87,7 +99,7 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMob
         if(img) img.onload = null;
         if(container) observer.disconnect();
     }
-  }, [image.url, keepRatio]);
+  }, [image.url, keepRatio, slotId]);
 
   
   const getConstrainedPosition = useCallback((newX: number, newY: number, currentScale: number) => {
@@ -489,6 +501,9 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMob
     </div>
   );
 
+  const displayX = (keepRatio && x === 50 && alignedOffset) ? alignedOffset.x : x;
+  const displayY = (keepRatio && y === 50 && alignedOffset) ? alignedOffset.y : y;
+
   return (
     <>
       {isColorPickerOpen && (
@@ -533,8 +548,8 @@ const PlacedImage: React.FC<PlacedImageProps> = ({ data, spreadId, slotId, isMob
                     className={`absolute pointer-events-none ${transform.filter || ''} ${rounded ? 'rounded-2xl shadow-md' : ''}`}
                     style={{
                       transform: `translate(-50%, -50%) scale(${scale}) rotate(${rotation}deg) scaleX(${flipHorizontal ? -1 : 1}) scaleY(${flipVertical ? -1 : 1})`,
-                      top: `${y}%`,
-                      left: `${x}%`,
+                      top: `${displayY}%`,
+                      left: `${displayX}%`,
                       ...coverStyle,
                       maxWidth: 'none',
                       maxHeight: 'none',

@@ -207,7 +207,7 @@ const Spread: React.FC<SpreadProps> = (props) => {
         >
           <div className="relative w-full h-full">
             <div 
-              className="absolute inset-0 grid"
+              className={`absolute inset-0 grid ${layout.rounded ? 'p-3 md:p-4 lg:p-5' : ''}`}
               style={{
                   gridTemplateColumns: layout.gridTemplateColumns,
                   gridTemplateRows: layout.gridTemplateRows,

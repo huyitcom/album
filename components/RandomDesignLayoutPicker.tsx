@@ -59,7 +59,7 @@ const RandomDesignLayoutPicker: React.FC<RandomDesignLayoutPickerProps> = ({ isM
                   onClick={() => handleToggleSelection(layout.id)}
                 >
                   <div 
-                    className={`relative bg-gray-100 border-2 rounded-md aspect-[2/1] p-1 grid transition-all duration-200 ${isSelected ? 'border-blue-500 scale-105' : 'border-gray-300 group-hover:border-blue-400'}`}
+                    className={`relative bg-gray-100 border-2 rounded-md aspect-[2/1] grid transition-all duration-200 ${layout.rounded ? 'p-3' : 'p-1'} ${isSelected ? 'border-blue-500 scale-105' : 'border-gray-300 group-hover:border-blue-400'}`}
                     style={{
                       gridTemplateColumns: layout.gridTemplateColumns,
                       gridTemplateRows: layout.gridTemplateRows,
@@ -69,7 +69,7 @@ const RandomDesignLayoutPicker: React.FC<RandomDesignLayoutPickerProps> = ({ isM
                     {layout.slots.map(slot => (
                       <div 
                         key={slot.id} 
-                        className="bg-gray-300 rounded-sm"
+                        className={`bg-gray-300 ${layout.rounded ? 'rounded-md' : 'rounded-sm'}`}
                         style={{ gridArea: slot.gridArea }}
                       ></div>
                     ))}

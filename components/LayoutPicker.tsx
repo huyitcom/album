@@ -39,7 +39,7 @@ const LayoutPicker: React.FC<LayoutPickerProps> = ({ isMobile, onSelectLayout, o
                 onClick={() => onSelectLayout(layout.id)}
               >
                 <div 
-                  className="bg-gray-100 border-2 border-gray-300 group-hover:border-blue-500 group-hover:scale-105 transition-all duration-200 rounded-md aspect-[2/1] p-1 grid"
+                  className={`bg-gray-100 border-2 border-gray-300 group-hover:border-blue-500 group-hover:scale-105 transition-all duration-200 rounded-md aspect-[2/1] grid ${layout.rounded ? 'p-3' : 'p-1'}`}
                   style={{
                     gridTemplateColumns: layout.gridTemplateColumns,
                     gridTemplateRows: layout.gridTemplateRows,
