@@ -256,6 +256,20 @@ export const layouts: { [id: string]: LayoutTemplate } = {
         { id: 'slot-3', gridArea: '2 / 3 / 3 / 4' }
     ]
   },
+  'two-vertical-each-side': {
+    id: 'two-vertical-each-side',
+    name: 'Two Portrait Each Side',
+    name_vn: 'Mỗi bên hai ảnh dọc',
+    gridTemplateColumns: '1fr 1fr 1fr 1fr',
+    gridTemplateRows: '1fr 8fr 1fr',
+    gap: '8px',
+    slots: [
+        { id: 'slot-1', gridArea: '2 / 1 / 3 / 2' },
+        { id: 'slot-2', gridArea: '2 / 2 / 3 / 3' },
+        { id: 'slot-3', gridArea: '2 / 3 / 3 / 4' },
+        { id: 'slot-4', gridArea: '2 / 4 / 3 / 5' }
+    ]
+  },
   'asymmetric-four': {
     id: 'asymmetric-four',
     name: 'Asymmetric Four',

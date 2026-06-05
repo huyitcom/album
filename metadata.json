@@ -1,5 +1,6 @@
 {
   "name": "PTBVN Album Builder Pro",
   "description": "Tích hợp Nano Banana Pro",
-  "requestFramePermissions": []
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
