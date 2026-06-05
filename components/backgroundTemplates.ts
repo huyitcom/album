@@ -352,6 +352,58 @@ INSTRUCTIONS:
 2. Place the isolated subject(s) into a background that features A grand, symmetrical, neoclassical architectural scene. The image is composed with a wide, expansive bright green lawn occupying the lower half to two-thirds of the frame, leading up to a majestic, multi-tiered building that dominates the upper portion. The perspective is eye-level and frontal, emphasizing the building's imposing presence and perfect symmetry. The sky above is clear and bright, a soft light blue or near-white.A wide, sweeping grand staircase made of light stone leads up to the main entrance, flanked on either side by elegant, white classical statues in dynamic poses (e.g., one with an arm raised, another standing serenely). The foreground lawn is lush, well-manicured, and a vibrant, healthy green, showing subtle variations in tone and texture from front to back.
 3. Crucially, you must create a Medium-full shot photorealistic final image of the subject(s), prominently featured to occupy 75% of the frame's height. This means harmonizing lighting, shadows, color grading, and perspective between the subject and the new background. The final result should look like a single, professionally taken photograph, not a composite.
 4. Make sure the subject(s) size 75% of the frame's height, the background is only serving as a grand and heavenly backdrop for the subject(s)`,
+    },
+    {
+        id: 'indoor-1',
+        name: 'Indoor 1',
+        name_vn: 'Indoor 1',
+        thumbnailUrl: 'https://photobookvietnam.net/app/images/background (35).jpg',
+        prompt: `ROLE: Professional Photo Editor.
+TASK: Your task is to expertly replace the background of the first image (the original subject). You must meticulously cut out the subject and place it seamlessly into the new background.
+INSTRUCTIONS:
+1. Identify and isolate the primary subject(s) from the first image.
+2. Place the isolated subject(s) into a background that features An elegant, empty photo studio set designed like a classic European living room. The background wall is painted dark sage green featuring intricate gold wall molding and ornate decorative classic panels. The floor is made of light whitewashed wood planks. On the left, a classic round wooden accent table holding a gold two-tier dessert stand and a vase with tall pink floral branches. On the right, an elegant cream-colored vintage French provincial loveseat with carved wooden trim. In the far right background, a dark wooden console table displaying a white decorative birdcage and a lavish bouquet of pink and purple flowers. Soft, diffused, warm studio lighting, highly detailed, photorealistic, luxurious and romantic atmosphere, no people, interior design photography
+3. Crucially, you must create a Medium-full shot photorealistic final image of the subject(s), prominently featured to occupy 75% of the frame's height. This means harmonizing lighting, shadows, color grading, and perspective between the subject and the new background. The final result should look like a single, professionally taken photograph, not a composite.
+4. Make sure the subject(s) size 75% of the frame's height, the background is only serving as a grand and heavenly backdrop for the subject(s)`,
+    },
+    {
+        id: 'indoor-2',
+        name: 'Indoor 2',
+        name_vn: 'Indoor 2',
+        thumbnailUrl: 'https://photobookvietnam.net/app/images/background (36).jpg',
+        prompt: `ROLE: Professional Photo Editor.
+TASK: Your task is to expertly replace the background of the first image (the original subject). You must meticulously cut out the subject and place it seamlessly into the new background.
+INSTRUCTIONS:
+1. Identify and isolate the primary subject(s) from the first image.
+2. Place the isolated subject(s) into a background that features An empty bright photo studio set resembling a classic European conservatory. Light grey-green walls, large white paned windows. Central arched trellis covered in climbing pink roses and green vines. Light wood floor with small scattered floor flowers. Two-tiered green topiary spheres in white classic urn planters on both sides. A round table with a white tablecloth holding a vase of white lilies. A pink vintage French loveseat. Bright, soft natural studio lighting, photorealistic, romantic spring atmosphere
+3. Crucially, you must create a Medium-full shot photorealistic final image of the subject(s), prominently featured to occupy 75% of the frame's height. This means harmonizing lighting, shadows, color grading, and perspective between the subject and the new background. The final result should look like a single, professionally taken photograph, not a composite.
+4. Make sure the subject(s) size 75% of the frame's height, the background is only serving as a grand and heavenly backdrop for the subject(s)`,
+    },
+    {
+        id: 'indoor-3',
+        name: 'Indoor 3',
+        name_vn: 'Indoor 3',
+        thumbnailUrl: 'https://photobookvietnam.net/app/images/background (37).jpg',
+        prompt: `ROLE: Professional Photo Editor.
+TASK: Your task is to expertly replace the background of the first image (the original subject). You must meticulously cut out the subject and place it seamlessly into the new background.
+INSTRUCTIONS:
+1. Identify and isolate the primary subject(s) from the first image.
+2. Place the isolated subject(s) into a background that features An empty elegant photo studio set of a vintage European living room. Deep navy blue walls with classic panel molding. Large arched paned window on the right side. Light grey wood floor. A classic French cane-back armchair with a cream cushion. Centerpiece of two stacked vintage suitcases covered with a white lace cloth, topped with vintage teacups and pearls. Background dark mantle displaying a vintage rotary telephone, a 3-tier dessert stand with macarons, and white flowers. Soft diffused lighting, sophisticated, photorealistic
+3. Crucially, you must create a Medium-full shot photorealistic final image of the subject(s), prominently featured to occupy 75% of the frame's height. This means harmonizing lighting, shadows, color grading, and perspective between the subject and the new background. The final result should look like a single, professionally taken photograph, not a composite.
+4. Make sure the subject(s) size 75% of the frame's height, the background is only serving as a grand and heavenly backdrop for the subject(s)`,
+    },
+    {
+        id: 'indoor-4',
+        name: 'Indoor 4',
+        name_vn: 'Indoor 4',
+        thumbnailUrl: 'https://photobookvietnam.net/app/images/background (38).jpg',
+        prompt: `ROLE: Professional Photo Editor.
+TASK: Your task is to expertly replace the background of the first image (the original subject). You must meticulously cut out the subject and place it seamlessly into the new background.
+INSTRUCTIONS:
+1. Identify and isolate the primary subject(s) from the first image.
+2. Place the isolated subject(s) into a background that features An empty opulent photo studio set in autumnal tones. Rich brown walls featuring intricate classical bronze molding and pillar columns. Central arched paned window with bright backlighting. Flanked by massive, lavish dried floral arrangements including pampas grass, dried ferns, and dusty pink roses. A vintage French armchair with gold trim and a small wooden step ladder. Warm soft studio lighting, vintage baroque luxury, photorealistic
+3. Crucially, you must create a Medium-full shot photorealistic final image of the subject(s), prominently featured to occupy 75% of the frame's height. This means harmonizing lighting, shadows, color grading, and perspective between the subject and the new background. The final result should look like a single, professionally taken photograph, not a composite.
+4. Make sure the subject(s) size 75% of the frame's height, the background is only serving as a grand and heavenly backdrop for the subject(s)`,
     }
 
 ];

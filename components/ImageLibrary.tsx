@@ -136,7 +136,7 @@ const ImageLibrary: React.FC<ImageLibraryProps> = ({ images, totalImages, onAddI
               onDragEnd={() => handleDragEnd(image.id)}
               onTouchStart={(e) => onImageTouchStart(image, e)}
             >
-              <img src={image.url} alt={`library image ${image.id}`} className="w-full h-full object-cover pointer-events-none" />
+              <img src={image.url} alt={`library image ${image.id}`} className="w-full h-full object-contain pointer-events-none" />
               <button 
                 onClick={() => onRemoveImage(image.id)}
                 className="absolute top-0.5 right-0.5 p-0.5 bg-black/50 text-white rounded-full opacity-0 group-hover:opacity-100 hover:bg-red-600 transition-all z-10"
