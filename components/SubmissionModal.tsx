@@ -22,25 +22,17 @@ interface SubmissionModalProps {
 
 type SubmissionStatus = 'idle' | 'preparing' | 'uploading' | 'success' | 'error';
 
-// Helper function to determine the canvas scale factor for print resolution
-const getScaleForSize = (size: AlbumSize): number => {
+// Helper function to get the target width in pixels for 300 DPI print resolution
+const getTargetWidthForSize = (size: AlbumSize): number => {
   switch (size) {
-    // Target: 3543px wide
-    case '15x15': return 3.2;
-    // Target: 4724px wide
-    case '20x20': return 4.27;
-    // Target: 4961px wide (for 21x15 which is a 42cm spread)
-    case '21x15': return 4.48;
-    // Target: 5906px wide
-    case '25x35': return 5.34;
-    // Target: 7087px wide
-    case '30x30': return 6.4;
-    // Target: 7087px wide
-    case '30x20': return 6.4;
-    // Target: 8268px wide
-    case '35x40': return 7.46;
-    // Fallback for any unknown sizes
-    default: return 6.4;
+    case '15x15': return 3543; // 15x15cm page -> 30x15cm spread -> 3543px wide at 300 DPI
+    case '20x20': return 4724; // 20x20cm page -> 40x20cm spread -> 4724px wide at 300 DPI
+    case '21x15': return 4961; // 21x15cm page -> 42x15cm spread -> 4961px wide at 300 DPI
+    case '25x35': return 5906; // 25x35cm page -> 50x35cm spread -> 5906px wide at 300 DPI
+    case '30x30': return 7087; // 30x30cm page -> 60x30cm spread -> 7087px wide at 300 DPI
+    case '30x20': return 7087; // 30x20cm page -> 60x20cm spread -> 7087px wide at 300 DPI
+    case '35x40': return 8268; // 35x40cm page -> 70x40cm spread -> 8268px wide at 300 DPI
+    default: return 7087;
   }
 };
 
@@ -86,7 +78,6 @@ const SubmissionModal: React.FC<SubmissionModalProps> = ({ projectName, albumSiz
       const zip = new window.JSZip();
       const spreadsWithPhotosMap: Map<string, SpreadData> = new Map(spreadsWithPhotos.map(s => [s.id, s]));
       const spreadElements = document.querySelectorAll('[data-spread-capture-target="true"]');
-      const exportScale = getScaleForSize(albumSize);
 
       let processedCount = 0;
 
@@ -98,6 +89,10 @@ const SubmissionModal: React.FC<SubmissionModalProps> = ({ projectName, albumSiz
         const spreadId = spreadContainer.getAttribute('data-spread-id');
         if (spreadId && spreadsWithPhotosMap.has(spreadId)) {
           const spreadInfo = spreadsWithPhotosMap.get(spreadId)!;
+
+          const currentWidth = htmlElement.clientWidth || htmlElement.offsetWidth || 1107;
+          const targetWidth = getTargetWidthForSize(albumSize);
+          const exportScale = targetWidth / currentWidth;
 
           const canvas = await window.html2canvas(htmlElement, {
             scale: exportScale, 
@@ -213,7 +208,6 @@ const SubmissionModal: React.FC<SubmissionModalProps> = ({ projectName, albumSiz
       // FIX: Explicitly type the Map to ensure `spreadInfo` is correctly inferred as `SpreadData`.
       const spreadsWithPhotosMap: Map<string, SpreadData> = new Map(spreadsWithPhotos.map(s => [s.id, s]));
       const spreadElements = document.querySelectorAll('[data-spread-capture-target="true"]');
-      const exportScale = getScaleForSize(albumSize);
 
       // Generate a rendered image for each spread that has photos
       for (const element of Array.from(spreadElements)) {
@@ -224,6 +218,10 @@ const SubmissionModal: React.FC<SubmissionModalProps> = ({ projectName, albumSiz
         const spreadId = spreadContainer.getAttribute('data-spread-id');
         if (spreadId && spreadsWithPhotosMap.has(spreadId)) {
             const spreadInfo = spreadsWithPhotosMap.get(spreadId)!;
+
+            const currentWidth = htmlElement.clientWidth || htmlElement.offsetWidth || 1107;
+            const targetWidth = getTargetWidthForSize(albumSize);
+            const exportScale = targetWidth / currentWidth;
 
             const canvas = await window.html2canvas(htmlElement, {
                 scale: exportScale, 
